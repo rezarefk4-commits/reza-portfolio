@@ -1,0 +1,184 @@
+import { createClient } from "./supabase/server";
+import type { Project, Certificate, Blog, SiteSettings, Media } from "./types";
+
+// ─── SETTINGS ────────────────────────────────────────────────────────────────
+export async function getSettings(): Promise<SiteSettings | null> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("settings")
+    .select("*")
+    .order("updated_at", { ascending: false })
+    .limit(1)
+    .single();
+  return data;
+}
+
+// ─── PROJECTS ─────────────────────────────────────────────────────────────────
+export async function getPublishedProjects(): Promise<Project[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("projects")
+    .select("*")
+    .eq("published", true)
+    .order("created_at", { ascending: false });
+  return data || [];
+}
+
+export async function getProjectBySlug(slug: string): Promise<Project | null> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("projects")
+    .select("*")
+    .eq("slug", slug)
+    .eq("published", true)
+    .single();
+  return data;
+}
+
+export async function getFeaturedProjects(): Promise<Project[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("projects")
+    .select("*")
+    .eq("published", true)
+    .eq("featured", true)
+    .order("created_at", { ascending: false });
+  return data || [];
+}
+
+// ─── CERTIFICATES ──────────────────────────────────────────────────────────────
+export async function getCertificates(): Promise<Certificate[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("certificates")
+    .select("*")
+    .order("issue_date", { ascending: false });
+  return data || [];
+}
+
+export async function getCertificateBySlug(id: string): Promise<Certificate | null> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("certificates")
+    .select("*")
+    .eq("id", id)
+    .single();
+  return data;
+}
+
+// ─── BLOGS ────────────────────────────────────────────────────────────────────
+export async function getPublishedBlogs(): Promise<Blog[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("blogs")
+    .select("*")
+    .eq("published", true)
+    .order("created_at", { ascending: false });
+  return data || [];
+}
+
+export async function getBlogBySlug(slug: string): Promise<Blog | null> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("blogs")
+    .select("*")
+    .eq("slug", slug)
+    .eq("published", true)
+    .single();
+  return data;
+}
+
+// ─── MEDIA ────────────────────────────────────────────────────────────────────
+export async function getMediaList(): Promise<Media[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("media")
+    .select("*")
+    .order("created_at", { ascending: false });
+  return data || [];
+}
+
+// ─── ANALYTICS ────────────────────────────────────────────────────────────────
+export async function getTopViewedProjects(limit = 5) {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("project_views")
+    .select("project_id, projects(title_id, title_en, slug)")
+    .limit(100);
+
+  if (!data) return [];
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const counts: Record<string, { count: number; project: { title_id: string; title_en: string; slug: string } }> = {};
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (data as any[]).forEach((row: any) => {
+    if (!counts[row.project_id]) {
+      const proj = Array.isArray(row.projects) ? row.projects[0] : row.projects;
+      counts[row.project_id] = {
+        count: 0,
+        project: proj || { title_id: "", title_en: "", slug: "" },
+      };
+    }
+    counts[row.project_id].count++;
+  });
+
+  return Object.entries(counts)
+    .map(([id, v]) => ({ project_id: id, count: v.count, project: v.project }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, limit);
+}
+
+export async function getTopViewedBlogs(limit = 5) {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("blog_views")
+    .select("blog_id, blogs(title_id, title_en, slug)")
+    .limit(100);
+
+  if (!data) return [];
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const counts: Record<string, { count: number; blog: { title_id: string; title_en: string; slug: string } }> = {};
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (data as any[]).forEach((row: any) => {
+    if (!counts[row.blog_id]) {
+      const b = Array.isArray(row.blogs) ? row.blogs[0] : row.blogs;
+      counts[row.blog_id] = {
+        count: 0,
+        blog: b || { title_id: "", title_en: "", slug: "" },
+      };
+    }
+    counts[row.blog_id].count++;
+  });
+
+  return Object.entries(counts)
+    .map(([id, v]) => ({ blog_id: id, count: v.count, blog: v.blog }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, limit);
+}
+
+export async function getVisitorStats() {
+  const supabase = await createClient();
+
+  const now = new Date();
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+
+  const [{ count: today }, { count: month }, { count: total }] = await Promise.all([
+    supabase.from("visitor_analytics").select("*", { count: "exact", head: true }).gte("created_at", todayStart),
+    supabase.from("visitor_analytics").select("*", { count: "exact", head: true }).gte("created_at", monthStart),
+    supabase.from("visitor_analytics").select("*", { count: "exact", head: true }),
+  ]);
+
+  return {
+    today: today || 0,
+    month: month || 0,
+    total: total || 0,
+  };
+}
+
+// ─── SUPABASE STORAGE URL ─────────────────────────────────────────────────────
+export function getStorageUrl(bucket: string, path: string): string {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  return `${supabaseUrl}/storage/v1/object/public/${bucket}/${path}`;
+}

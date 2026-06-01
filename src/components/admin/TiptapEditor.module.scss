@@ -1,0 +1,109 @@
+.wrapper {
+  border: 1px solid var(--neutral-alpha-medium);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--neutral-background-medium);
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  padding: 8px;
+  border-bottom: 1px solid var(--neutral-alpha-medium);
+  background: var(--neutral-background-strong);
+  align-items: center;
+}
+
+.group {
+  display: flex;
+  gap: 2px;
+  align-items: center;
+}
+
+.sep {
+  width: 1px;
+  height: 20px;
+  background: var(--neutral-alpha-medium);
+  margin: 0 4px;
+}
+
+.menuBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--neutral-on-background-weak);
+  font-size: 13px;
+  font-weight: 600;
+  transition: background 0.15s, color 0.15s;
+
+  &:hover:not(:disabled) {
+    background: var(--neutral-alpha-weak);
+    color: var(--neutral-on-background-strong);
+  }
+
+  &:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+}
+
+.active {
+  background: var(--brand-alpha-weak) !important;
+  color: var(--brand-on-background-strong) !important;
+}
+
+.content {
+  padding: 16px;
+  min-height: 300px;
+  color: var(--neutral-on-background-strong);
+  font-size: 14px;
+  line-height: 1.7;
+
+  :global(.ProseMirror) {
+    outline: none;
+    min-height: 260px;
+
+    p.is-editor-empty:first-child::before {
+      color: var(--neutral-on-background-weak);
+      content: attr(data-placeholder);
+      float: left;
+      height: 0;
+      pointer-events: none;
+    }
+
+    h1 { font-size: 1.6em; font-weight: 700; margin-bottom: 0.5em; }
+    h2 { font-size: 1.3em; font-weight: 700; margin-bottom: 0.5em; }
+    h3 { font-size: 1.1em; font-weight: 700; margin-bottom: 0.5em; }
+    ul, ol { padding-left: 1.5em; }
+    blockquote {
+      border-left: 3px solid var(--brand-background-strong);
+      padding-left: 1em;
+      color: var(--neutral-on-background-weak);
+      font-style: italic;
+    }
+    code {
+      background: var(--neutral-alpha-weak);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 0.9em;
+    }
+    pre {
+      background: var(--neutral-background-strong);
+      padding: 1em;
+      border-radius: 8px;
+      overflow-x: auto;
+      code { background: none; padding: 0; }
+    }
+    hr { border-color: var(--neutral-alpha-medium); }
+    img { max-width: 100%; border-radius: 8px; }
+    a { color: var(--brand-on-background-medium); text-decoration: underline; }
+  }
+}
