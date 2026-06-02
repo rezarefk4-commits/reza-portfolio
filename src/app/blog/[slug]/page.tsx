@@ -9,7 +9,6 @@ import {
   Row,
   Text,
   SmartLink,
-  Avatar,
   Media,
   Line,
 } from "@once-ui-system/core";
@@ -18,6 +17,7 @@ import { formatDate } from "@/utils/formatDate";
 import { getPosts } from "@/utils/utils";
 import { getBlogBySlug, getPublishedBlogs } from "@/lib/db";
 import { Metadata } from "next";
+import { SmallAvatarFromCms } from "@/components/SmallAvatarFromCms";
 import React from "react";
 import { Posts } from "@/components/blog/Posts";
 import { ShareSection } from "@/components/blog/ShareSection";
@@ -107,7 +107,7 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
             </Column>
             <Row marginBottom="32" horizontal="center">
               <Row gap="16" vertical="center">
-                <Avatar size="s" src={person.avatar} />
+                <SmallAvatarFromCms size={28} />
                 <Text variant="label-default-m" onBackground="brand-weak">
                   {person.name}
                 </Text>
@@ -182,7 +182,7 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
           </Column>
           <Row marginBottom="32" horizontal="center">
             <Row gap="16" vertical="center">
-              <Avatar size="s" src={person.avatar} />
+              <SmallAvatarFromCms size={28} />
               <Text variant="label-default-m" onBackground="brand-weak">
                 {person.name}
               </Text>

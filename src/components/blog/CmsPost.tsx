@@ -1,6 +1,7 @@
 "use client";
 
-import { Card, Column, Media, Row, Avatar, Text } from "@once-ui-system/core";
+import { Card, Column, Media, Row, Text } from "@once-ui-system/core";
+import { SmallAvatarFromCms } from "@/components/SmallAvatarFromCms";
 import { person } from "@/resources";
 import { useLang } from "@/lib/lang-context";
 import type { Blog } from "@/lib/types";
@@ -47,7 +48,7 @@ export default function CmsPost({ post, thumbnail, direction }: CmsPostProps) {
         <Column maxWidth={28} paddingY="24" paddingX="l" gap="20" vertical="center">
           <Row gap="24" vertical="center">
             <Row vertical="center" gap="16">
-              <Avatar src={person.avatar} size="s" />
+              <SmallAvatarFromCms size={24} />
               <Text variant="label-default-s">{person.name}</Text>
             </Row>
             <Text variant="body-default-xs" onBackground="neutral-weak">
