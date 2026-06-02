@@ -200,3 +200,152 @@ a[href] > [class*="Card"]:hover,
   transform: translateY(-2px);
   box-shadow: 0 8px 32px rgba(0,0,0,0.15);
 }
+
+/* ─── Shimmer / Kilau Button ─────────────────────────────────────────────── */
+@keyframes shimmer {
+  0%   { transform: translateX(-100%) skewX(-15deg); }
+  100% { transform: translateX(200%) skewX(-15deg); }
+}
+
+.shimmer-btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer-btn::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.18) 50%,
+    transparent 100%
+  );
+  animation: shimmer 2.4s ease-in-out infinite;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ─── University Logo Glow + Float ───────────────────────────────────────── */
+@keyframes floatLogo {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-6px); }
+}
+
+@keyframes glowPulse {
+  0%, 100% {
+    box-shadow:
+      0 0 12px rgba(99, 179, 237, 0.3),
+      0 0 24px rgba(99, 179, 237, 0.15);
+  }
+  50% {
+    box-shadow:
+      0 0 20px rgba(99, 179, 237, 0.55),
+      0 0 40px rgba(99, 179, 237, 0.25),
+      0 0 60px rgba(99, 179, 237, 0.1);
+  }
+}
+
+.university-logo {
+  animation:
+    floatLogo 3.5s ease-in-out infinite,
+    glowPulse 3.5s ease-in-out infinite;
+  border-radius: 12px;
+  transition: transform 0.3s ease;
+}
+
+.university-logo:hover {
+  animation: none;
+  transform: scale(1.08);
+  box-shadow: 0 0 28px rgba(99, 179, 237, 0.6);
+}
+
+/* ─── Glassmorphism Loading Skeleton ────────────────────────────────────── */
+@keyframes skeletonShimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--neutral-alpha-weak) 25%,
+    rgba(255,255,255,0.07) 50%,
+    var(--neutral-alpha-weak) 75%
+  );
+  background-size: 800px 100%;
+  animation: skeletonShimmer 1.4s infinite linear;
+  border-radius: 8px;
+}
+
+/* ─── Page Transition Loader ─────────────────────────────────────────────── */
+@keyframes pageLoadBar {
+  0%   { width: 0%; opacity: 1; }
+  70%  { width: 85%; opacity: 1; }
+  100% { width: 100%; opacity: 0; }
+}
+
+.page-load-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--brand-background-strong), var(--accent-background-strong));
+  animation: pageLoadBar 0.8s ease forwards;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+/* ─── Glassmorphism Card (for CMS admin) ─────────────────────────────────── */
+.glass-card {
+  background: rgba(255, 255, 255, 0.04) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow:
+    0 4px 24px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+}
+
+/* ─── CMS Mobile Responsive ──────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  /* Admin content full width */
+  .admin-content {
+    padding: 16px !important;
+    margin-left: 0 !important;
+  }
+
+  /* Form fields full width on mobile */
+  .form-row-mobile {
+    flex-direction: column !important;
+  }
+
+  /* Tiptap editor smaller on mobile */
+  .tiptap-mobile .ProseMirror {
+    min-height: 180px !important;
+    font-size: 15px !important;
+  }
+
+  /* Tables scroll horizontal */
+  .table-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* ─── Smooth scroll behavior ─────────────────────────────────────────────── */
+html {
+  scroll-behavior: smooth;
+}
+
+/* ─── Focus visible for accessibility ───────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--brand-background-strong);
+  outline-offset: 2px;
+  border-radius: 4px;
+}

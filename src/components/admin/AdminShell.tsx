@@ -19,6 +19,7 @@ const navItems = [
   { href: "/reza-control/blogs", label: "Blogs", icon: "📝" },
   { href: "/reza-control/media", label: "Media", icon: "🖼️" },
   { href: "/reza-control/analytics", label: "Analytics", icon: "📈" },
+  { href: "/reza-control/about", label: "About CMS", icon: "👤" },
   { href: "/reza-control/settings", label: "Settings", icon: "⚙️" },
   { href: "/reza-control/account", label: "Account", icon: "👤" },
 ];

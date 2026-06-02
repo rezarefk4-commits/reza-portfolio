@@ -182,3 +182,40 @@ export function getStorageUrl(bucket: string, path: string): string {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
   return `${supabaseUrl}/storage/v1/object/public/${bucket}/${path}`;
 }
+
+// ─── ABOUT CMS ────────────────────────────────────────────────────────────────
+export async function getAboutEducation() {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("about_education")
+    .select("*")
+    .order("sort_order", { ascending: true });
+  return data || [];
+}
+
+export async function getAboutExperiences() {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("about_experiences")
+    .select("*")
+    .order("sort_order", { ascending: true });
+  return data || [];
+}
+
+export async function getAboutSkills() {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("about_skills")
+    .select("*")
+    .order("sort_order", { ascending: true });
+  return data || [];
+}
+
+export async function getAboutOrganizations() {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("about_organizations")
+    .select("*")
+    .order("sort_order", { ascending: true });
+  return data || [];
+}

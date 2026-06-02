@@ -137,3 +137,59 @@ export interface ActivityLog {
   metadata: Record<string, unknown> | null;
   created_at: string;
 }
+
+// ─── About CMS Types ──────────────────────────────────────────────────────────
+export interface AboutEducation {
+  id: string;
+  university_name: string;
+  faculty: string;
+  major: string;
+  degree: string;
+  year_start: string;
+  year_end: string;
+  logo: string | null;
+  description_id: string;
+  description_en: string;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AboutExperience {
+  id: string;
+  company: string;
+  role_id: string;
+  role_en: string;
+  timeframe: string;
+  description_id: string;
+  description_en: string;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AboutSkill {
+  id: string;
+  title_id: string;
+  title_en: string;
+  description_id: string;
+  description_en: string;
+  icon: string | null;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AboutOrganization {
+  id: string;
+  name: string;
+  role_id: string;
+  role_en: string;
+  year: string;
+  description_id: string;
+  description_en: string;
+  logo: string | null;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
