@@ -5,7 +5,8 @@ const person: Person = {
   lastName: "Refka",
   name: "Reza Refka Kurniawan",
   role: "Full Stack Developer & Data Engineer",
-  avatar: "/images/avatar.jpg",
+  // Langsung pakai URL Supabase agar tidak 404
+  avatar: "https://baxvcjsensttnkupambu.supabase.co/storage/v1/object/public/avatars/1780364547823-7vnrjoqh2vu.png",
   email: "rezarefka@gmail.com",
   location: "Asia/Makassar",
   languages: ["Indonesia", "English"],
