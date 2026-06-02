@@ -21,6 +21,7 @@ import React from "react";
 import { getCertificates } from "@/lib/db";
 import { format } from "date-fns";
 import { ScrollReveal } from "@/components/ScrollReveal";
+import { AvatarFromCms } from "@/components/about/AvatarFromCms";
 
 export async function generateMetadata() {
   return Meta.generate({
@@ -102,7 +103,7 @@ export default async function About() {
             horizontal="center"
           >
             <ScrollReveal type="scale">
-              <Avatar src={person.avatar} size="xl" />
+              <AvatarFromCms />
             </ScrollReveal>
             <Row gap="8" vertical="center">
               <Icon onBackground="accent-weak" name="globe" />

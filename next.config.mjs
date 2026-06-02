@@ -8,8 +8,31 @@ const cspHeader = [
   "worker-src 'self' blob:",
 ].join('; ')
 
-export default {
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   pageExtensions: ['ts', 'tsx', 'mdx'],
+
+  // ── Allow Supabase Storage images ──────────────────────────────────────────
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '*.supabase.co',
+        pathname: '/storage/v1/object/public/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.supabase.in',
+        pathname: '/storage/v1/object/public/**',
+      },
+      // Allow any https image (fallback for external URLs in CMS)
+      {
+        protocol: 'https',
+        hostname: '**',
+      },
+    ],
+  },
+
   async headers() {
     return [
       {
@@ -24,3 +47,5 @@ export default {
     ]
   },
 }
+
+export default nextConfig

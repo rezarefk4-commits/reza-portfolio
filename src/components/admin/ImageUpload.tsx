@@ -10,7 +10,6 @@ interface ImageUploadProps {
   onChange: (url: string) => void;
   accept?: string;
   label?: string;
-  /** Jika diisi, upload akan langsung auto-save ke tabel settings kolom ini */
   autoSaveSettingsKey?: string;
 }
 
@@ -27,13 +26,20 @@ export function ImageUpload({
   const [saved, setSaved] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // Clean URL for display (strip cache buster)
+  const displayUrl = value ? value.split("?")[0] : "";
+  // Preview URL with cache buster to force fresh load
+  const previewUrl = displayUrl
+    ? `${displayUrl}?t=${Math.floor(Date.now() / 30000)}`
+    : "";
+
   const handleFile = async (file: File) => {
     setUploading(true);
     setError("");
     setSaved(false);
 
     const supabase = createClient();
-    const ext = file.name.split(".").pop();
+    const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
     const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
 
     const { error: uploadError } = await supabase.storage
@@ -41,7 +47,7 @@ export function ImageUpload({
       .upload(path, file, { upsert: false, contentType: file.type });
 
     if (uploadError) {
-      setError(uploadError.message);
+      setError(`Upload gagal: ${uploadError.message}`);
       setUploading(false);
       return;
     }
@@ -49,12 +55,11 @@ export function ImageUpload({
     const { data } = supabase.storage.from(bucket).getPublicUrl(path);
     const publicUrl = data.publicUrl;
 
-    // Add cache-buster so browser loads fresh image
-    const cacheBustedUrl = `${publicUrl}?t=${Date.now()}`;
-    onChange(cacheBustedUrl);
+    // Update state with fresh URL
+    onChange(`${publicUrl}?t=${Date.now()}`);
 
-    // Log to media table
-    await supabase.from("media").insert([{
+    // Log to media table (non-blocking)
+    supabase.from("media").insert([{
       name: file.name,
       url: publicUrl,
       type: file.type,
@@ -62,26 +67,29 @@ export function ImageUpload({
       bucket,
       path,
       created_at: new Date().toISOString(),
-    }]);
+    }]).then(() => {});
 
-    // Auto-save to settings if key provided (fixes avatar bug)
+    // Auto-save to settings if key provided
     if (autoSaveSettingsKey) {
-      const { data: settingsRows } = await supabase
+      const { data: rows } = await supabase
         .from("settings")
         .select("id")
         .order("updated_at", { ascending: false })
         .limit(1);
 
-      if (settingsRows && settingsRows.length > 0) {
-        await supabase
+      if (rows && rows.length > 0) {
+        const { error: saveErr } = await supabase
           .from("settings")
           .update({
             [autoSaveSettingsKey]: publicUrl,
             updated_at: new Date().toISOString(),
           })
-          .eq("id", settingsRows[0].id);
-        setSaved(true);
-        setTimeout(() => setSaved(false), 3000);
+          .eq("id", rows[0].id);
+
+        if (!saveErr) {
+          setSaved(true);
+          setTimeout(() => setSaved(false), 4000);
+        }
       }
     }
 
@@ -94,47 +102,78 @@ export function ImageUpload({
     if (file) handleFile(file);
   };
 
+  const isImage = accept.includes("image") || accept === "image/*";
+
   return (
     <Column gap="m">
       {label && <Text variant="label-strong-s">{label}</Text>}
 
+      {/* Drop zone */}
       <div
         onDrop={handleDrop}
         onDragOver={(e) => e.preventDefault()}
-        onClick={() => inputRef.current?.click()}
+        onClick={() => !uploading && inputRef.current?.click()}
         style={{
-          border: `2px dashed ${value ? "var(--brand-alpha-medium)" : "var(--neutral-alpha-medium)"}`,
+          border: `2px dashed ${previewUrl ? "var(--brand-alpha-medium)" : "var(--neutral-alpha-medium)"}`,
           borderRadius: 12,
-          padding: 24,
+          padding: previewUrl ? 12 : 24,
           textAlign: "center",
-          cursor: "pointer",
+          cursor: uploading ? "wait" : "pointer",
           transition: "border-color 0.2s, background 0.2s",
-          background: value ? "var(--brand-alpha-weak)" : "var(--neutral-alpha-weak)",
+          background: previewUrl ? "var(--neutral-alpha-weak)" : "var(--neutral-alpha-weak)",
           minHeight: 120,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
           flexDirection: "column",
           gap: 8,
+          position: "relative",
+          overflow: "hidden",
         }}
       >
-        {value ? (
+        {previewUrl ? (
+          /* eslint-disable-next-line @next/next/no-img-element */
           <img
-            src={value}
+            src={previewUrl}
             alt="Preview"
-            style={{ maxHeight: 200, maxWidth: "100%", borderRadius: 8, objectFit: "contain" }}
+            style={{
+              maxHeight: 220,
+              maxWidth: "100%",
+              borderRadius: 8,
+              objectFit: "contain",
+              display: "block",
+            }}
+            onError={(e) => {
+              // If image fails to load, show placeholder
+              (e.target as HTMLImageElement).style.display = "none";
+            }}
           />
         ) : (
           <>
-            <Text style={{ fontSize: 32 }}>{uploading ? "⏳" : "📁"}</Text>
+            <Text style={{ fontSize: 36 }}>{uploading ? "⏳" : "📁"}</Text>
             <Text variant="body-default-m" onBackground="neutral-weak">
               {uploading ? "Mengunggah..." : "Klik atau seret file ke sini"}
             </Text>
             <Text variant="body-default-xs" onBackground="neutral-weak">
-              JPG, PNG, WebP, MP4, PDF
+              JPG, PNG, WebP{!isImage ? ", PDF, MP4" : ""}
             </Text>
           </>
         )}
+
+        {uploading && (
+          <div style={{
+            position: "absolute",
+            inset: 0,
+            background: "var(--neutral-alpha-medium)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            borderRadius: 12,
+          }}>
+            <Text variant="body-default-m">Mengunggah...</Text>
+          </div>
+        )}
+
         <input
           ref={inputRef}
           type="file"
@@ -143,16 +182,19 @@ export function ImageUpload({
           onChange={(e) => {
             const file = e.target.files?.[0];
             if (file) handleFile(file);
+            // Reset input so same file can be re-selected
+            e.target.value = "";
           }}
         />
       </div>
 
+      {/* URL text input */}
       <Row gap="m" vertical="center">
         <input
           type="text"
-          value={value.split("?t=")[0]} // strip cache buster from display
+          value={displayUrl}
           onChange={(e) => onChange(e.target.value)}
-          placeholder="Atau masukkan URL langsung..."
+          placeholder="Atau paste URL gambar langsung..."
           style={{
             flex: 1,
             background: "var(--neutral-background-medium)",
@@ -161,24 +203,32 @@ export function ImageUpload({
             padding: "8px 12px",
             color: "var(--neutral-on-background-strong)",
             fontSize: 13,
+            fontFamily: "monospace",
           }}
         />
         {value && (
-          <Button size="s" variant="tertiary" onClick={() => onChange("")}>
+          <Button size="s" variant="tertiary" onClick={() => { onChange(""); setSaved(false); }}>
             Hapus
           </Button>
         )}
       </Row>
 
+      {/* Status messages */}
       {saved && (
-        <Text variant="body-default-xs" onBackground="brand-weak">
-          ✓ Avatar berhasil diperbarui dan disimpan!
-        </Text>
+        <Row gap="8" vertical="center">
+          <Text style={{ fontSize: 16 }}>✅</Text>
+          <Text variant="body-default-s" onBackground="brand-weak">
+            Tersimpan otomatis ke database!
+          </Text>
+        </Row>
       )}
       {error && (
-        <Text variant="body-default-xs" onBackground="danger-strong">
-          {error}
-        </Text>
+        <Row gap="8" vertical="center">
+          <Text style={{ fontSize: 16 }}>❌</Text>
+          <Text variant="body-default-s" onBackground="danger-strong">
+            {error}
+          </Text>
+        </Row>
       )}
     </Column>
   );
