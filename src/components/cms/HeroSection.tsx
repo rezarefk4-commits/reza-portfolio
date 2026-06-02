@@ -4,7 +4,6 @@ import {
   Heading,
   Text,
   Button,
-  Avatar,
   RevealFx,
   Column,
   Row,
@@ -21,8 +20,8 @@ interface HeroSectionProps {
 
 export function HeroSection({ settings: initialSettings }: HeroSectionProps) {
   const { lang } = useLang();
-  // Re-fetch settings client-side so avatar always fresh
   const [settings, setSettings] = useState<SiteSettings | null>(initialSettings);
+  const [avatarSrc, setAvatarSrc] = useState<string>(person.avatar);
 
   useEffect(() => {
     const supabase = createClient();
@@ -33,7 +32,13 @@ export function HeroSection({ settings: initialSettings }: HeroSectionProps) {
       .limit(1)
       .single()
       .then(({ data }) => {
-        if (data) setSettings(data);
+        if (data) {
+          setSettings(data);
+          if (data.avatar) {
+            // URL bersih tanpa cache buster — pakai img tag langsung
+            setAvatarSrc(data.avatar.split("?")[0]);
+          }
+        }
       });
   }, []);
 
@@ -50,12 +55,6 @@ export function HeroSection({ settings: initialSettings }: HeroSectionProps) {
     : "About Me";
 
   const ctaLink = settings?.hero_cta_link || about.path;
-
-  // Strip cache buster for clean URL, add fresh one
-  const rawAvatar = settings?.avatar?.split("?t=")[0] || person.avatar;
-  const avatarSrc = rawAvatar.startsWith("http")
-    ? `${rawAvatar}?t=${Math.floor(Date.now() / 60000)}` // refresh every 60s
-    : rawAvatar;
 
   return (
     <Column fillWidth horizontal="center" gap="m">
@@ -81,11 +80,23 @@ export function HeroSection({ settings: initialSettings }: HeroSectionProps) {
             arrowIcon
           >
             <Row gap="8" vertical="center" paddingRight="4">
-              <Avatar
-                marginRight="8"
-                style={{ marginLeft: "-0.75rem" }}
+              {/* Pakai img biasa, bukan next/image, agar URL Supabase langsung render */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
                 src={avatarSrc}
-                size="m"
+                alt={person.name}
+                style={{
+                  width: 32,
+                  height: 32,
+                  borderRadius: "50%",
+                  objectFit: "cover",
+                  marginLeft: "-0.75rem",
+                  marginRight: 8,
+                  border: "1px solid var(--neutral-alpha-medium)",
+                }}
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = person.avatar;
+                }}
               />
               {ctaText}
             </Row>
