@@ -1,112 +1,137 @@
-/* :root {
-  /*
-  /* Override default variables here */
-  /*
-  --font-size-display-multiplier:   1;
-  --font-size-heading-multiplier:   1;
-  --font-size-body-multiplier:      1;
-  --font-size-label-multiplier:     1;
+/* ─── Page Load Fade-in ──────────────────────────────────────────────────── */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
-  --line-height-display-multiplier: 1;
-  --line-height-heading-multiplier: 1;
-  --line-height-body-multiplier:    1;
-  --line-height-label-multiplier:   1;
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
 
-  --default-border:        var(--neutral-border-medium);
+/* Apply fade-in to main page content on load */
+body > * {
+  animation: fadeIn 0.5s ease both;
+}
 
-  /*
-  /* Example setup for custom colors */
-  /* Generate at: https://once-ui.com/customize */
-  /*
-  --scheme-brand-100: #08002f;
-  --scheme-brand-200:  #04025c;
-  --scheme-brand-300:  #1f398e;
-  --scheme-brand-400:  #3856ae;
-  --scheme-brand-500:  #5071cc;
-  --scheme-brand-600:  #6f94f1;
-  --scheme-brand-700:  #8db3ff;
-  --scheme-brand-800:  #b2dbff;
-  --scheme-brand-900:  #bfe8ff;
-  --scheme-brand-1000: #ccf6ff;
-  --scheme-brand-1100: #d2fcff;
-  --scheme-brand-1200: #d2fcff;
-  --scheme-brand-600-10: rgba(111,148,241,0.1);
-  --scheme-brand-600-30: rgba(111,148,241,0.3);
-  --scheme-brand-600-50: rgba(111,148,241,0.5);
+/* Staggered children fade-in for page sections */
+.page-section {
+  opacity: 0;
+  animation: fadeInUp 0.6s ease forwards;
+}
+.page-section:nth-child(1) { animation-delay: 0.05s; }
+.page-section:nth-child(2) { animation-delay: 0.15s; }
+.page-section:nth-child(3) { animation-delay: 0.25s; }
+.page-section:nth-child(4) { animation-delay: 0.35s; }
+.page-section:nth-child(5) { animation-delay: 0.45s; }
 
-  --scheme-accent-100:  #030b10;
-  --scheme-accent-200:  #0d181d;
-  --scheme-accent-300:  #364248;
-  --scheme-accent-400:  #505d64;
-  --scheme-accent-500:  #69777e;
-  --scheme-accent-600:  #8a989f;
-  --scheme-accent-700:  #a8b7bf;
-  --scheme-accent-800:  #c8d7df;
-  --scheme-accent-900:  #d5e4ec;
-  --scheme-accent-1000: #e2f1f9;
-  --scheme-accent-1100: #e9f8ff;
-  --scheme-accent-1200: #efffff;
-  --scheme-accent-600-10: rgba(138,152,159,0.1);
-  --scheme-accent-600-30: rgba(138,152,159,0.3);
-  --scheme-accent-600-50: rgba(138,152,159,0.5);
+/* ─── Scroll Reveal ──────────────────────────────────────────────────────── */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+}
 
-  --scheme-neutral-100:  #020b10;
-  --scheme-neutral-200:  #0b181d;
-  --scheme-neutral-300:  #344248;
-  --scheme-neutral-400:  #4f5d64;
-  --scheme-neutral-500:  #68777e;
-  --scheme-neutral-600:  #89989f;
-  --scheme-neutral-700:  #a7b7be;
-  --scheme-neutral-800:  #c7d7df;
-  --scheme-neutral-900:  #d4e4ec;
-  --scheme-neutral-1000: #e1f2f9;
-  --scheme-neutral-1100: #e7f8ff;
-  --scheme-neutral-1200: #eeffff;
-  --scheme-neutral-600-10: rgba(137,152,159,0.1);
-  --scheme-neutral-600-30: rgba(137,152,159,0.3);
-  --scheme-neutral-600-50: rgba(137,152,159,0.5);
-  /*
-}*/
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.reveal-left {
+  opacity: 0;
+  transform: translateX(-24px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.reveal-left.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.reveal-scale {
+  opacity: 0;
+  transform: scale(0.96);
+  transition: opacity 0.55s ease, transform 0.55s ease;
+}
+.reveal-scale.visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* ─── Responsive Mobile Fixes ────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  /* Reduce hero font on small screens */
+  [data-variant="display-strong-l"] {
+    font-size: clamp(1.8rem, 7vw, 2.8rem) !important;
+  }
+  [data-variant="display-strong-m"] {
+    font-size: clamp(1.5rem, 6vw, 2.2rem) !important;
+  }
+
+  /* Full-width cards on mobile */
+  .project-card,
+  [class*="ProjectCard"] {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  /* Admin sidebar on mobile — collapse fully */
+  .admin-sidebar {
+    transform: translateX(-100%);
+  }
+
+  /* Statistics section — stack on mobile */
+  .stats-row {
+    flex-direction: column !important;
+    gap: 16px !important;
+  }
+
+  /* Prevent horizontal overflow */
+  body, html {
+    overflow-x: hidden;
+  }
+
+  /* Charts on mobile — full width */
+  .recharts-responsive-container {
+    min-width: 0 !important;
+  }
+}
+
 /* ─── CMS Content Styles ─────────────────────────────────────────────────── */
 .cms-content {
   font-size: 1rem;
   line-height: 1.75;
   color: var(--neutral-on-background-strong);
+  word-break: break-word;
 }
 
 .cms-content h1 {
-  font-size: 1.75rem;
+  font-size: clamp(1.4rem, 4vw, 1.75rem);
   font-weight: 700;
   margin: 2rem 0 1rem;
-  color: var(--neutral-on-background-strong);
 }
-
 .cms-content h2 {
-  font-size: 1.4rem;
+  font-size: clamp(1.2rem, 3.5vw, 1.4rem);
   font-weight: 700;
   margin: 1.75rem 0 0.875rem;
 }
-
 .cms-content h3 {
-  font-size: 1.15rem;
+  font-size: clamp(1.05rem, 3vw, 1.15rem);
   font-weight: 700;
   margin: 1.5rem 0 0.75rem;
 }
-
-.cms-content p {
-  margin-bottom: 1.25rem;
-}
-
-.cms-content ul,
-.cms-content ol {
+.cms-content p { margin-bottom: 1.25rem; }
+.cms-content ul, .cms-content ol {
   padding-left: 1.5rem;
   margin-bottom: 1.25rem;
 }
-
-.cms-content li {
-  margin-bottom: 0.5rem;
-}
-
+.cms-content li { margin-bottom: 0.5rem; }
 .cms-content blockquote {
   border-left: 3px solid var(--brand-background-strong);
   padding: 0.5rem 0 0.5rem 1.25rem;
@@ -114,15 +139,14 @@
   color: var(--neutral-on-background-weak);
   font-style: italic;
 }
-
 .cms-content code {
   background: var(--neutral-alpha-weak);
   padding: 2px 6px;
   border-radius: 4px;
   font-family: var(--font-code), monospace;
   font-size: 0.875em;
+  word-break: break-all;
 }
-
 .cms-content pre {
   background: var(--neutral-background-strong);
   padding: 1.25rem;
@@ -130,37 +154,49 @@
   overflow-x: auto;
   margin: 1.5rem 0;
 }
-
-.cms-content pre code {
-  background: none;
-  padding: 0;
-  font-size: 0.875rem;
-}
-
+.cms-content pre code { background: none; padding: 0; word-break: normal; }
 .cms-content img {
   max-width: 100%;
+  height: auto;
   border-radius: 8px;
   margin: 1.5rem 0;
+  display: block;
 }
-
 .cms-content a {
   color: var(--brand-on-background-medium);
   text-decoration: underline;
   text-underline-offset: 3px;
 }
-
-.cms-content a:hover {
-  color: var(--brand-on-background-strong);
-}
-
+.cms-content a:hover { color: var(--brand-on-background-strong); }
 .cms-content hr {
   border: none;
   border-top: 1px solid var(--neutral-alpha-medium);
   margin: 2rem 0;
 }
 
+/* ─── Smooth image loading ───────────────────────────────────────────────── */
+img {
+  transition: opacity 0.3s ease;
+}
+img[loading] {
+  opacity: 0;
+}
+img.loaded {
+  opacity: 1;
+}
+
 /* ─── Admin Layout Override ──────────────────────────────────────────────── */
-/* Admin pages should use full viewport, not the portfolio max-width */
 [data-admin-page] {
   max-width: 100% !important;
+}
+
+/* ─── Card hover lift ────────────────────────────────────────────────────── */
+a[href] > [class*="Card"],
+[class*="Card"][href] {
+  transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+}
+a[href] > [class*="Card"]:hover,
+[class*="Card"][href]:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
 }

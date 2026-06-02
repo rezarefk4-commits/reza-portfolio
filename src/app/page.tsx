@@ -1,20 +1,18 @@
 import {
-  Heading,
-  Text,
-  Button,
-  Avatar,
-  RevealFx,
   Column,
   Row,
-  Schema,
-  Meta,
   Line,
+  Meta,
+  Schema,
+  RevealFx,
+  Heading,
 } from "@once-ui-system/core";
 import { home, about, person, baseURL, routes } from "@/resources";
 import { Projects } from "@/components/work/Projects";
 import { Posts } from "@/components/blog/Posts";
 import { HeroSection } from "@/components/cms/HeroSection";
 import { StatisticsSection } from "@/components/cms/StatisticsSection";
+import { ScrollReveal } from "@/components/ScrollReveal";
 import { getSettings } from "@/lib/db";
 
 export async function generateMetadata() {
@@ -46,41 +44,47 @@ export default async function Home() {
         }}
       />
 
-      {/* Hero Section - CMS-driven if settings exist, fallback to static */}
+      {/* ── Hero ─────────────────────────────────────────────────────── */}
       <HeroSection settings={settings} />
 
-      {/* Work Preview */}
-      <RevealFx translateY="16" delay={0.6}>
+      {/* ── Work Preview ─────────────────────────────────────────────── */}
+      <ScrollReveal delay={0}>
         <Projects range={[1, 1]} />
-      </RevealFx>
+      </ScrollReveal>
 
-      {/* Blog Preview */}
+      {/* ── Blog Preview ─────────────────────────────────────────────── */}
       {routes["/blog"] && (
-        <Column fillWidth gap="24" marginBottom="l">
-          <Row fillWidth paddingRight="64">
-            <Line maxWidth={48} />
-          </Row>
-          <Row fillWidth gap="24" marginTop="40" s={{ direction: "column" }}>
-            <Row flex={1} paddingLeft="l" paddingTop="24">
-              <Heading as="h2" variant="display-strong-xs" wrap="balance">
-                Tulisan Terbaru
-              </Heading>
+        <ScrollReveal delay={60}>
+          <Column fillWidth gap="24" marginBottom="l">
+            <Row fillWidth paddingRight="64">
+              <Line maxWidth={48} />
             </Row>
-            <Row flex={3} paddingX="20">
-              <Posts range={[1, 2]} columns="2" />
+            <Row fillWidth gap="24" marginTop="40" s={{ direction: "column" }}>
+              <Row flex={1} paddingLeft="l" paddingTop="24">
+                <Heading as="h2" variant="display-strong-xs" wrap="balance">
+                  Tulisan Terbaru
+                </Heading>
+              </Row>
+              <Row flex={3} paddingX="20">
+                <Posts range={[1, 2]} columns="2" />
+              </Row>
             </Row>
-          </Row>
-          <Row fillWidth paddingLeft="64" horizontal="end">
-            <Line maxWidth={48} />
-          </Row>
-        </Column>
+            <Row fillWidth paddingLeft="64" horizontal="end">
+              <Line maxWidth={48} />
+            </Row>
+          </Column>
+        </ScrollReveal>
       )}
 
-      {/* More Projects */}
-      <Projects range={[2]} />
+      {/* ── More Projects ─────────────────────────────────────────────── */}
+      <ScrollReveal delay={80}>
+        <Projects range={[2]} />
+      </ScrollReveal>
 
-      {/* Statistics Section */}
-      <StatisticsSection settings={settings} />
+      {/* ── Statistics ───────────────────────────────────────────────── */}
+      <ScrollReveal delay={100}>
+        <StatisticsSection settings={settings} />
+      </ScrollReveal>
     </Column>
   );
 }

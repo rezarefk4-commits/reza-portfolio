@@ -303,7 +303,7 @@ export function StatisticsSection({ settings }: StatisticsProps) {
         gap="xl"
         paddingY="64"
         paddingX="l"
-        style={{ maxWidth: 900, margin: "0 auto" }}
+        style={{ maxWidth: 900, margin: "0 auto", width: "100%" }}
       >
         {/* Section Header */}
         <Column gap="8" align="center">

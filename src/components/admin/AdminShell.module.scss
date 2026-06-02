@@ -4,10 +4,72 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  flex-shrink: 0;
+
+  @media (max-width: 768px) {
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    z-index: 100;
+    transform: translateX(0);
+    transition: transform 0.25s ease, width 0.2s ease;
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.3);
+  }
 }
 
 .collapsed {
   width: 64px;
+
+  @media (max-width: 768px) {
+    transform: translateX(-100%);
+    width: 224px; // keep full width, just hide off-screen
+  }
+}
+
+.mobileOverlay {
+  display: none;
+
+  @media (max-width: 768px) {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 99;
+    animation: fadeIn 0.2s ease;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.mobileMenuBtn {
+  display: none;
+
+  @media (max-width: 768px) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: var(--brand-background-strong);
+    border: none;
+    cursor: pointer;
+    z-index: 98;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    font-size: 22px;
+    transition: transform 0.2s ease;
+
+    &:hover {
+      transform: scale(1.05);
+    }
+  }
 }
 
 .navItem {
@@ -34,11 +96,11 @@
 }
 
 .active {
-  background: var(--brand-alpha-weak);
-  color: var(--brand-on-background-strong);
+  background: var(--brand-alpha-weak) !important;
+  color: var(--brand-on-background-strong) !important;
 
   &:hover {
-    background: var(--brand-alpha-medium);
+    background: var(--brand-alpha-medium) !important;
   }
 }
 

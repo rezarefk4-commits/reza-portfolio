@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { Column, Row, Text, Button, IconButton, Line } from "@once-ui-system/core";
+import { Column, Row, Text, Line } from "@once-ui-system/core";
 import { createClient } from "@/lib/supabase/client";
 import type { User } from "@supabase/supabase-js";
 import styles from "./AdminShell.module.scss";
@@ -27,6 +27,7 @@ export function AdminShell({ children, user }: AdminShellProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [collapsed, setCollapsed] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   const handleLogout = async () => {
     const supabase = createClient();
@@ -35,33 +36,60 @@ export function AdminShell({ children, user }: AdminShellProps) {
     router.refresh();
   };
 
+  const navigate = (href: string) => {
+    router.push(href);
+    setMobileOpen(false);
+  };
+
+  const sidebarOpen = mobileOpen || !collapsed;
+
   return (
     <Row fillWidth style={{ minHeight: "100vh" }}>
+      {/* Mobile overlay */}
+      {mobileOpen && (
+        <div
+          className={styles.mobileOverlay}
+          onClick={() => setMobileOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
       <Column
-        className={`${styles.sidebar} ${collapsed ? styles.collapsed : ""}`}
+        className={`${styles.sidebar} ${(!mobileOpen && collapsed) ? styles.collapsed : ""}`}
         background="surface"
         border="neutral-alpha-weak"
         paddingY="l"
-        style={{ position: "fixed", top: 0, left: 0, height: "100vh", zIndex: 10 }}
       >
         <Row
           paddingX="l"
           paddingBottom="m"
           vertical="center"
-          horizontal={collapsed ? "center" : "between"}
+          horizontal={collapsed && !mobileOpen ? "center" : "between"}
         >
-          {!collapsed && (
+          {(!collapsed || mobileOpen) && (
             <Text variant="heading-strong-m" onBackground="brand-medium">
               Reza Control
             </Text>
           )}
-          <IconButton
-            icon={collapsed ? "chevronRight" : "chevronLeft"}
-            variant="ghost"
-            size="s"
-            onClick={() => setCollapsed(!collapsed)}
-          />
+          <button
+            onClick={() => {
+              if (mobileOpen) setMobileOpen(false);
+              else setCollapsed(!collapsed);
+            }}
+            style={{
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              color: "var(--neutral-on-background-weak)",
+              fontSize: 18,
+              padding: 4,
+              borderRadius: 6,
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
+            {collapsed && !mobileOpen ? "›" : "‹"}
+          </button>
         </Row>
 
         <Line background="neutral-alpha-weak" />
@@ -76,11 +104,13 @@ export function AdminShell({ children, user }: AdminShellProps) {
             return (
               <button
                 key={item.href}
-                onClick={() => router.push(item.href)}
+                onClick={() => navigate(item.href)}
                 className={`${styles.navItem} ${isActive ? styles.active : ""}`}
               >
                 <span className={styles.icon}>{item.icon}</span>
-                {!collapsed && <span className={styles.label}>{item.label}</span>}
+                {(!collapsed || mobileOpen) && (
+                  <span className={styles.label}>{item.label}</span>
+                )}
               </button>
             );
           })}
@@ -89,7 +119,7 @@ export function AdminShell({ children, user }: AdminShellProps) {
         <Line background="neutral-alpha-weak" />
 
         <Column paddingX="8" paddingTop="m" gap="8">
-          {!collapsed && (
+          {(!collapsed || mobileOpen) && (
             <Text
               variant="body-default-xs"
               onBackground="neutral-weak"
@@ -98,7 +128,7 @@ export function AdminShell({ children, user }: AdminShellProps) {
                 overflow: "hidden",
                 textOverflow: "ellipsis",
                 whiteSpace: "nowrap",
-                maxWidth: "160px",
+                maxWidth: "180px",
               }}
             >
               {user.email}
@@ -106,7 +136,9 @@ export function AdminShell({ children, user }: AdminShellProps) {
           )}
           <button onClick={handleLogout} className={`${styles.navItem} ${styles.logout}`}>
             <span className={styles.icon}>🚪</span>
-            {!collapsed && <span className={styles.label}>Keluar</span>}
+            {(!collapsed || mobileOpen) && (
+              <span className={styles.label}>Keluar</span>
+            )}
           </button>
         </Column>
       </Column>
@@ -118,11 +150,21 @@ export function AdminShell({ children, user }: AdminShellProps) {
           marginLeft: collapsed ? "64px" : "224px",
           transition: "margin-left 0.2s ease",
           minHeight: "100vh",
+          maxWidth: "calc(100vw - 64px)",
         }}
         padding="xl"
       >
         {children}
       </Column>
+
+      {/* Mobile FAB toggle */}
+      <button
+        className={styles.mobileMenuBtn}
+        onClick={() => setMobileOpen(!mobileOpen)}
+        aria-label="Toggle menu"
+      >
+        {mobileOpen ? "✕" : "☰"}
+      </button>
     </Row>
   );
 }

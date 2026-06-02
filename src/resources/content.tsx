@@ -7,14 +7,14 @@ const person: Person = {
   role: "Full Stack Developer & Data Engineer",
   avatar: "/images/avatar.jpg",
   email: "rezarefka@gmail.com",
-  location: "Asia/Makassar", // UTC+8
+  location: "Asia/Makassar",
   languages: ["Indonesia", "English"],
 };
 
 const newsletter: Newsletter = {
   display: false,
-  title: <>Subscribe to {person.firstName}'s Newsletter</>,
-  description: <>Weekly insights on tech, data, and development.</>,
+  title: <>Subscribe to {person.firstName}&apos;s Newsletter</>,
+  description: <>Insight mingguan seputar teknologi, data, dan pengembangan perangkat lunak.</>,
 };
 
 const social: Social = [
@@ -49,7 +49,7 @@ const home: Home = {
   image: "/images/og/home.jpg",
   label: "Home",
   title: `${person.name} – Portfolio`,
-  description: `Portfolio Reza Refka Kurniawan – Full Stack Developer & Data Engineer`,
+  description: `Portfolio Reza Refka Kurniawan – Full Stack Developer & Data Engineer dari Makassar, Indonesia.`,
   headline: <>Membangun solusi digital yang bermakna</>,
   featured: {
     display: false,
@@ -86,25 +86,122 @@ const about: About = {
     description: (
       <>
         Reza Refka Kurniawan adalah seorang Full Stack Developer dan Data Engineer yang berbasis di
-        Makassar, Indonesia. Berfokus pada pengembangan solusi digital yang efisien dan bermakna,
-        dari aplikasi web hingga visualisasi data yang informatif.
+        Makassar, Indonesia. Dengan ketertarikan mendalam pada teknologi web modern dan rekayasa
+        data, Reza berfokus pada membangun solusi digital yang tidak hanya fungsional, tetapi juga
+        berdampak nyata — dari antarmuka pengguna yang intuitif hingga pipeline data yang efisien
+        dan skalabel.
       </>
     ),
   },
   work: {
     display: true,
     title: "Pengalaman Kerja",
-    experiences: [],
+    experiences: [
+      {
+        company: "Freelance & Project Independent",
+        timeframe: "2022 – Sekarang",
+        role: "Full Stack Developer",
+        achievements: [
+          <>
+            Merancang dan membangun aplikasi web berbasis Next.js dan Supabase untuk klien dari
+            berbagai sektor, mulai dari e-commerce hingga platform pendidikan.
+          </>,
+          <>
+            Mengembangkan dashboard visualisasi data interaktif menggunakan Recharts dan D3.js yang
+            membantu klien dalam pengambilan keputusan berbasis data.
+          </>,
+          <>
+            Mengelola seluruh siklus proyek secara mandiri — dari analisis kebutuhan, perancangan
+            UI/UX, implementasi, hingga deployment di Vercel dan cloud server.
+          </>,
+        ],
+        images: [],
+      },
+      {
+        company: "Komunitas Developer Makassar",
+        timeframe: "2023 – Sekarang",
+        role: "Kontributor & Mentor Teknis",
+        achievements: [
+          <>
+            Aktif berbagi pengetahuan tentang web development modern, clean code, dan best practice
+            dalam komunitas developer lokal di Makassar.
+          </>,
+          <>
+            Membimbing junior developer dalam menguasai React, TypeScript, dan konsep arsitektur
+            aplikasi yang skalabel.
+          </>,
+        ],
+        images: [],
+      },
+    ],
   },
   studies: {
     display: true,
     title: "Pendidikan",
-    institutions: [],
+    institutions: [
+      {
+        name: "Universitas Hasanuddin",
+        description: <>
+          Jurusan Teknik Informatika · Fakultas Teknik · Makassar, Sulawesi Selatan
+          <br />
+          Fokus studi pada rekayasa perangkat lunak, basis data, dan kecerdasan buatan.
+          Aktif dalam berbagai kegiatan akademik dan pengembangan diri di bidang teknologi.
+        </>,
+      },
+    ],
   },
   technical: {
     display: true,
     title: "Keahlian Teknis",
-    skills: [],
+    skills: [
+      {
+        title: "Frontend Development",
+        description: (
+          <>
+            Berpengalaman dalam membangun antarmuka modern menggunakan{" "}
+            <strong>React</strong>, <strong>Next.js 15</strong>, dan <strong>TypeScript</strong>.
+            Terbiasa dengan sistem desain berbasis komponen, animasi UI, dan optimasi performa
+            rendering.
+          </>
+        ),
+        images: [],
+      },
+      {
+        title: "Backend & Database",
+        description: (
+          <>
+            Mahir menggunakan <strong>Supabase</strong> (PostgreSQL, Auth, Storage, RLS) dan{" "}
+            <strong>Node.js</strong> untuk membangun API dan backend yang aman dan skalabel.
+            Berpengalaman dalam desain skema database dan query optimasi.
+          </>
+        ),
+        images: [],
+      },
+      {
+        title: "Data Engineering & Visualisasi",
+        description: (
+          <>
+            Terbiasa mengolah dan memvisualisasikan data menggunakan <strong>Python</strong>{" "}
+            (Pandas, NumPy), <strong>Recharts</strong>, dan <strong>D3.js</strong>. Mampu
+            membangun pipeline data sederhana hingga menengah dan menyajikannya dalam dashboard
+            interaktif yang informatif.
+          </>
+        ),
+        images: [],
+      },
+      {
+        title: "Tools & Workflow",
+        description: (
+          <>
+            Menggunakan <strong>Git</strong> &amp; GitHub untuk version control, <strong>VS Code</strong>{" "}
+            sebagai editor utama, dan <strong>Vercel</strong> untuk deployment. Familiar dengan{" "}
+            <strong>Figma</strong> untuk kolaborasi desain, serta metodologi Agile dalam manajemen
+            proyek.
+          </>
+        ),
+        images: [],
+      },
+    ],
   },
 };
 
@@ -112,42 +209,26 @@ const blog: Blog = {
   path: "/blog",
   label: "Blog",
   title: "Tulisan tentang teknologi dan pengembangan",
-  description: `Baca artikel terbaru dari ${person.name}`,
+  description: `Perspektif, pengalaman, dan insight dari ${person.name} seputar dunia pengembangan perangkat lunak.`,
 };
 
 const work: Work = {
   path: "/work",
   label: "Work",
   title: `Proyek – ${person.name}`,
-  description: `Kumpulan proyek oleh ${person.name}`,
+  description: `Kumpulan karya dan proyek yang telah dikerjakan oleh ${person.name}.`,
 };
 
 const gallery: Gallery = {
   path: "/gallery",
   label: "Gallery",
   title: `Galeri Foto – ${person.name}`,
-  description: `Koleksi foto oleh ${person.name}`,
+  description: `Koleksi momen dan dokumentasi visual oleh ${person.name}`,
   images: [
-    {
-      src: "/images/gallery/horizontal-1.jpg",
-      alt: "image",
-      orientation: "horizontal",
-    },
-    {
-      src: "/images/gallery/vertical-1.jpg",
-      alt: "image",
-      orientation: "vertical",
-    },
-    {
-      src: "/images/gallery/horizontal-2.jpg",
-      alt: "image",
-      orientation: "horizontal",
-    },
-    {
-      src: "/images/gallery/vertical-2.jpg",
-      alt: "image",
-      orientation: "vertical",
-    },
+    { src: "/images/gallery/horizontal-1.jpg", alt: "image", orientation: "horizontal" },
+    { src: "/images/gallery/vertical-1.jpg", alt: "image", orientation: "vertical" },
+    { src: "/images/gallery/horizontal-2.jpg", alt: "image", orientation: "horizontal" },
+    { src: "/images/gallery/vertical-2.jpg", alt: "image", orientation: "vertical" },
   ],
 };
 

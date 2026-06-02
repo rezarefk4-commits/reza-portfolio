@@ -10,6 +10,8 @@ interface ImageUploadProps {
   onChange: (url: string) => void;
   accept?: string;
   label?: string;
+  /** Jika diisi, upload akan langsung auto-save ke tabel settings kolom ini */
+  autoSaveSettingsKey?: string;
 }
 
 export function ImageUpload({
@@ -18,23 +20,25 @@ export function ImageUpload({
   onChange,
   accept = "image/*",
   label,
+  autoSaveSettingsKey,
 }: ImageUploadProps) {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
+  const [saved, setSaved] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleFile = async (file: File) => {
     setUploading(true);
     setError("");
+    setSaved(false);
 
     const supabase = createClient();
     const ext = file.name.split(".").pop();
     const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
 
-    const { error: uploadError } = await supabase.storage.from(bucket).upload(path, file, {
-      upsert: false,
-      contentType: file.type,
-    });
+    const { error: uploadError } = await supabase.storage
+      .from(bucket)
+      .upload(path, file, { upsert: false, contentType: file.type });
 
     if (uploadError) {
       setError(uploadError.message);
@@ -43,20 +47,43 @@ export function ImageUpload({
     }
 
     const { data } = supabase.storage.from(bucket).getPublicUrl(path);
-    onChange(data.publicUrl);
+    const publicUrl = data.publicUrl;
 
-    // Also add to media table
-    await supabase.from("media").insert([
-      {
-        name: file.name,
-        url: data.publicUrl,
-        type: file.type,
-        size: file.size,
-        bucket,
-        path,
-        created_at: new Date().toISOString(),
-      },
-    ]);
+    // Add cache-buster so browser loads fresh image
+    const cacheBustedUrl = `${publicUrl}?t=${Date.now()}`;
+    onChange(cacheBustedUrl);
+
+    // Log to media table
+    await supabase.from("media").insert([{
+      name: file.name,
+      url: publicUrl,
+      type: file.type,
+      size: file.size,
+      bucket,
+      path,
+      created_at: new Date().toISOString(),
+    }]);
+
+    // Auto-save to settings if key provided (fixes avatar bug)
+    if (autoSaveSettingsKey) {
+      const { data: settingsRows } = await supabase
+        .from("settings")
+        .select("id")
+        .order("updated_at", { ascending: false })
+        .limit(1);
+
+      if (settingsRows && settingsRows.length > 0) {
+        await supabase
+          .from("settings")
+          .update({
+            [autoSaveSettingsKey]: publicUrl,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", settingsRows[0].id);
+        setSaved(true);
+        setTimeout(() => setSaved(false), 3000);
+      }
+    }
 
     setUploading(false);
   };
@@ -71,7 +98,6 @@ export function ImageUpload({
     <Column gap="m">
       {label && <Text variant="label-strong-s">{label}</Text>}
 
-      {/* Drop Zone */}
       <div
         onDrop={handleDrop}
         onDragOver={(e) => e.preventDefault()}
@@ -82,7 +108,7 @@ export function ImageUpload({
           padding: 24,
           textAlign: "center",
           cursor: "pointer",
-          transition: "border-color 0.15s",
+          transition: "border-color 0.2s, background 0.2s",
           background: value ? "var(--brand-alpha-weak)" : "var(--neutral-alpha-weak)",
           minHeight: 120,
           display: "flex",
@@ -100,7 +126,7 @@ export function ImageUpload({
           />
         ) : (
           <>
-            <Text style={{ fontSize: 32 }}>📁</Text>
+            <Text style={{ fontSize: 32 }}>{uploading ? "⏳" : "📁"}</Text>
             <Text variant="body-default-m" onBackground="neutral-weak">
               {uploading ? "Mengunggah..." : "Klik atau seret file ke sini"}
             </Text>
@@ -121,11 +147,10 @@ export function ImageUpload({
         />
       </div>
 
-      {/* URL input as alternative */}
       <Row gap="m" vertical="center">
         <input
           type="text"
-          value={value}
+          value={value.split("?t=")[0]} // strip cache buster from display
           onChange={(e) => onChange(e.target.value)}
           placeholder="Atau masukkan URL langsung..."
           style={{
@@ -145,6 +170,11 @@ export function ImageUpload({
         )}
       </Row>
 
+      {saved && (
+        <Text variant="body-default-xs" onBackground="brand-weak">
+          ✓ Avatar berhasil diperbarui dan disimpan!
+        </Text>
+      )}
       {error && (
         <Text variant="body-default-xs" onBackground="danger-strong">
           {error}

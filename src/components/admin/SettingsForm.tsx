@@ -110,7 +110,12 @@ export function SettingsForm({ settings }: SettingsFormProps) {
 
       {/* Avatar */}
       {section("Avatar / Foto Profil",
-        <ImageUpload bucket="avatars" value={form.avatar ?? ""} onChange={(url) => set("avatar", url)} />
+        <ImageUpload
+          bucket="avatars"
+          value={form.avatar ?? ""}
+          onChange={(url) => set("avatar", url)}
+          autoSaveSettingsKey="avatar"
+        />
       )}
 
       {/* Hero Section */}
