@@ -68,7 +68,7 @@ export function OrganizationsClient({ initialData }: Props) {
       <Column gap="m" border="neutral-alpha-weak" radius="l" padding="l" background="surface">
         <Text variant="label-strong-m">Logo Organisasi</Text>
         <Line background="neutral-alpha-weak" />
-        <ImageUpload bucket="logos" value={editing.logo??""} onChange={(url)=>set("logo",url)} />
+        <ImageUpload bucket="media" value={editing.logo??""} onChange={(url)=>set("logo",url)} />
       </Column>
       {msg && <Text variant="body-default-s" onBackground="danger-strong">{msg}</Text>}
       <Row gap="m" wrap>

@@ -136,7 +136,7 @@ export function EducationClient({ initialData }: Props) {
         <Text variant="body-default-xs" onBackground="neutral-weak">
           Logo akan tampil dengan animasi glow + float di halaman About.
         </Text>
-        <ImageUpload bucket="logos" value={editing.logo ?? ""}
+        <ImageUpload bucket="media" value={editing.logo ?? ""}
           onChange={(url) => set("logo", url)} />
       </Column>
 
