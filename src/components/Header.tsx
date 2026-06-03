@@ -82,7 +82,7 @@ export const Header = () => {
             border="neutral-alpha-weak"
             radius="m-4"
             shadow="l"
-            padding="4"
+            padding="8"
             horizontal="center"
             zIndex={1}
             className={styles.glassNav}

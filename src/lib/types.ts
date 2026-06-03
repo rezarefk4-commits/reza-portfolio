@@ -147,6 +147,10 @@ export interface AboutEducation {
   degree: string;
   year_start: string;
   year_end: string;
+  gpa: string | null;
+  field_of_study: string | null;
+  thesis_title: string | null;
+  thesis_goal: string | null;
   logo: string | null;
   description_id: string;
   description_en: string;

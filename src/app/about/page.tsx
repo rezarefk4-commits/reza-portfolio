@@ -220,53 +220,129 @@ export default async function About() {
               educations.map((edu, i) => (
                 <ScrollReveal key={edu.id} delay={i * 80}>
                   <div style={{
-                    borderRadius: 16, overflow: "hidden",
+                    borderRadius: 20,
+                    overflow: "hidden",
                     border: "1px solid var(--neutral-alpha-weak)",
                     background: "var(--neutral-background-medium)",
                     position: "relative",
                   }}>
-                    {/* Top accent bar */}
+                    {/* Thin gradient accent line */}
                     <div style={{
-                      height: 4,
-                      background: "linear-gradient(90deg, var(--brand-background-strong), var(--accent-background-strong))",
+                      height: 3,
+                      background: "linear-gradient(90deg, var(--brand-background-strong), var(--accent-background-strong), transparent)",
                     }} />
-                    <div style={{ padding: "24px" }}>
-                      <Row gap="l" vertical="center" wrap>
-                        {/* Logo with float+glow animation */}
+
+                    <div style={{ padding: "24px 28px" }}>
+                      {/* Header row: logo + name + badges */}
+                      <div style={{ display: "flex", gap: 20, alignItems: "flex-start" }}>
+                        {/* Logo */}
                         <div style={{ flexShrink: 0 }}>
                           {edu.logo ? (
                             // eslint-disable-next-line @next/next/no-img-element
                             <img src={edu.logo} alt={edu.university_name}
                               className="university-logo"
-                              style={{ width: 80, height: 80, objectFit: "contain", borderRadius: 12 }} />
+                              style={{ width: 64, height: 64, objectFit: "contain", borderRadius: 12,
+                                background: "var(--neutral-alpha-weak)", padding: 8 }} />
                           ) : (
                             <div className="university-logo" style={{
-                              width: 80, height: 80, borderRadius: 12, flexShrink: 0,
+                              width: 64, height: 64, borderRadius: 12,
                               background: "var(--brand-alpha-weak)",
-                              display: "flex", alignItems: "center", justifyContent: "center", fontSize: 40,
-                            }}>🎓</div>
+                              display: "flex", alignItems: "center", justifyContent: "center",
+                              fontSize: 28, color: "var(--brand-on-background-medium)",
+                            }}>
+                              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                                <path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>
+                              </svg>
+                            </div>
                           )}
                         </div>
-                        <Column gap="8" flex={1}>
-                          <Text variant="heading-strong-xl">{edu.university_name}</Text>
-                          <Row gap="8" wrap>
+
+                        {/* Name + meta */}
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ marginBottom: 8 }}>
+                            <Text variant="heading-strong-l" style={{ lineHeight: 1.2 }}>
+                              {edu.university_name}
+                            </Text>
+                          </div>
+                          <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 6 }}>
                             <span style={{
-                              fontSize: 12, fontWeight: 600, padding: "3px 10px", borderRadius: 99,
-                              background: "var(--brand-alpha-weak)", color: "var(--brand-on-background-medium)",
+                              fontSize: 11, fontWeight: 700, padding: "2px 10px", borderRadius: 99, letterSpacing: "0.04em",
+                              background: "var(--brand-alpha-weak)", color: "var(--brand-on-background-strong)",
+                              border: "1px solid var(--brand-alpha-medium)",
                             }}>{edu.degree}</span>
                             <span style={{
-                              fontSize: 12, padding: "3px 10px", borderRadius: 99,
+                              fontSize: 11, padding: "2px 10px", borderRadius: 99,
                               background: "var(--neutral-alpha-weak)", color: "var(--neutral-on-background-weak)",
                             }}>{edu.year_start} – {edu.year_end || "Sekarang"}</span>
-                          </Row>
-                          <Text variant="body-default-m" onBackground="neutral-weak">
-                            {edu.faculty && <><strong>{edu.faculty}</strong> · </>}{edu.major}
+                            {edu.gpa && (
+                              <span style={{
+                                fontSize: 11, fontWeight: 600, padding: "2px 10px", borderRadius: 99,
+                                background: "var(--accent-alpha-weak)", color: "var(--accent-on-background-strong)",
+                                border: "1px solid var(--accent-alpha-medium)",
+                              }}>IPK {edu.gpa}</span>
+                            )}
+                          </div>
+                          <Text variant="body-default-s" onBackground="neutral-weak">
+                            {edu.faculty && <>{edu.faculty} · </>}{edu.major}
                           </Text>
-                        </Column>
-                      </Row>
-                      {edu.description_id && (
-                        <div style={{ marginTop: 16, paddingTop: 16, borderTop: "1px solid var(--neutral-alpha-weak)" }}>
-                          <Text variant="body-default-m" onBackground="neutral-weak">{edu.description_id}</Text>
+                        </div>
+                      </div>
+
+                      {/* Detail rows */}
+                      {(edu.field_of_study || edu.thesis_title) && (
+                        <div style={{
+                          marginTop: 20, paddingTop: 20,
+                          borderTop: "1px solid var(--neutral-alpha-weak)",
+                          display: "flex", flexDirection: "column", gap: 12,
+                        }}>
+                          {edu.field_of_study && (
+                            <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
+                              <div style={{
+                                flexShrink: 0, width: 32, height: 32, borderRadius: 8,
+                                background: "var(--neutral-alpha-weak)",
+                                display: "flex", alignItems: "center", justifyContent: "center",
+                                color: "var(--neutral-on-background-weak)",
+                              }}>
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                  <rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>
+                                </svg>
+                              </div>
+                              <div>
+                                <Text variant="label-default-xs" onBackground="neutral-weak" style={{ textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                                  Rumpun Ilmu
+                                </Text>
+                                <Text variant="body-default-m">{edu.field_of_study}</Text>
+                              </div>
+                            </div>
+                          )}
+
+                          {edu.thesis_title && (
+                            <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
+                              <div style={{
+                                flexShrink: 0, width: 32, height: 32, borderRadius: 8,
+                                background: "var(--neutral-alpha-weak)",
+                                display: "flex", alignItems: "center", justifyContent: "center",
+                                color: "var(--neutral-on-background-weak)",
+                              }}>
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+                                </svg>
+                              </div>
+                              <div style={{ flex: 1 }}>
+                                <Text variant="label-default-xs" onBackground="neutral-weak" style={{ textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                                  Skripsi
+                                </Text>
+                                <Text variant="body-default-m" style={{ fontStyle: "italic", lineHeight: 1.5 }}>
+                                  &ldquo;{edu.thesis_title}&rdquo;
+                                </Text>
+                                {edu.thesis_goal && (
+                                  <Text variant="body-default-s" onBackground="neutral-weak" style={{ marginTop: 4, lineHeight: 1.5 }}>
+                                    {edu.thesis_goal}
+                                  </Text>
+                                )}
+                              </div>
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>
@@ -281,10 +357,15 @@ export default async function About() {
                     border: "1px solid var(--neutral-alpha-weak)",
                     background: "var(--neutral-background-medium)",
                   }}>
-                    <div style={{ height: 4, background: "linear-gradient(90deg, var(--brand-background-strong), var(--accent-background-strong))" }} />
+                    <div style={{ height: 3, background: "linear-gradient(90deg, var(--brand-background-strong), var(--accent-background-strong))" }} />
                     <div style={{ padding: 24 }}>
                       <Row gap="12" vertical="center">
-                        <span style={{ fontSize: 40 }}>🎓</span>
+                        <div style={{ width: 44, height: 44, borderRadius: 10, background: "var(--brand-alpha-weak)",
+                          display: "flex", alignItems: "center", justifyContent: "center", color: "var(--brand-on-background-medium)" }}>
+                          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                            <path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>
+                          </svg>
+                        </div>
                         <Column gap="4">
                           <Text variant="heading-strong-l">{inst.name}</Text>
                           <Text variant="body-default-m" onBackground="neutral-weak">{inst.description}</Text>
