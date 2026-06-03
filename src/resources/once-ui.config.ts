@@ -26,18 +26,22 @@ const routes: RoutesConfig = {
   "/blog": true,
   "/gallery": true,
   "/reza-control/login": true,
-  "/reza-control": true,              // ← tambah ini
-  "/reza-control/account": true,      // ← tambah ini
-  "/reza-control/analytics": true,    // ← tambah ini
+  "/reza-control": true,
+  "/reza-control/account": true,
+  "/reza-control/analytics": true,
   "/reza-control/blogs": true,
   "/reza-control/blogs/new": true,
   "/reza-control/certificates": true,
   "/reza-control/certificates/new": true,
-  "/reza-control/media": true,        // ← tambah ini
+  "/reza-control/media": true,
   "/reza-control/projects": true,
   "/reza-control/projects/new": true,
   "/reza-control/settings": true,
   "/reza-control/about": true,
+  "/reza-control/about/education": true,
+  "/reza-control/about/experience": true,
+  "/reza-control/about/skills": true,
+  "/reza-control/about/organizations": true,
 };
 
 

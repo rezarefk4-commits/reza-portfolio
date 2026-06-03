@@ -40,6 +40,11 @@ const RouteGuard: React.FC<RouteGuardProps> = ({ children }) => {
           }
         }
 
+        // Auto-allow all /reza-control/* sub-paths
+        if (pathname?.startsWith("/reza-control")) {
+          return true;
+        }
+
         return false;
       };
 
