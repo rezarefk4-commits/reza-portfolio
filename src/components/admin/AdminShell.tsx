@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Column, Row, Text, Line } from "@once-ui-system/core";
 import { createClient } from "@/lib/supabase/client";
@@ -107,6 +107,15 @@ export function AdminShell({ children, user }: AdminShellProps) {
   const router = useRouter();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 768px)");
+    const handler = (e: MediaQueryList | MediaQueryListEvent) => setIsMobile(e.matches);
+    handler(mq);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
 
   const handleLogout = async () => {
     const supabase = createClient();
@@ -215,7 +224,7 @@ export function AdminShell({ children, user }: AdminShellProps) {
       <Column
         flex={1}
         className={styles.mainContent}
-        style={{
+        style={isMobile ? undefined : {
           marginLeft: collapsed ? "64px" : "224px",
           transition: "margin-left 0.22s cubic-bezier(0.4,0,0.2,1)",
         }}
