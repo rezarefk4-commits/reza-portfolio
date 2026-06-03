@@ -46,6 +46,9 @@ export default TimeDisplay;
 export const Header = () => {
   const pathname = usePathname() ?? "";
 
+  // Hide header entirely inside CMS
+  if (pathname.startsWith("/reza-control")) return null;
+
   return (
     <>
       <Fade s={{ hide: true }} fillWidth position="fixed" height="80" zIndex={9} />

@@ -12,7 +12,6 @@ interface AdminShellProps {
   user: User;
 }
 
-// Clean SVG icons — single color, adaptive
 const Icons = {
   dashboard: (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -27,7 +26,7 @@ const Icons = {
   ),
   certificates: (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="8" r="5"/><path d="M9 21v-4l3 1 3-1v4"/><path d="M6 13.18A7 7 0 0 0 5 17v4"/><path d="M18 13.18A7 7 0 0 1 19 17v4"/>
+      <circle cx="12" cy="8" r="5"/><path d="M9 21v-4l3 1 3-1v4"/>
     </svg>
   ),
   blogs: (
@@ -68,14 +67,9 @@ const Icons = {
       <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
     </svg>
   ),
-  menu: (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-      <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
-    </svg>
-  ),
-  close: (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-      <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+  more: (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>
     </svg>
   ),
   chevronLeft: (
@@ -88,26 +82,34 @@ const Icons = {
       <polyline points="9 18 15 12 9 6"/>
     </svg>
   ),
+  close: (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+    </svg>
+  ),
 };
 
-const navItems = [
+const allNavItems = [
   { href: "/reza-control",              label: "Dashboard",    icon: Icons.dashboard },
   { href: "/reza-control/projects",     label: "Projects",     icon: Icons.projects },
-  { href: "/reza-control/certificates", label: "Certificates", icon: Icons.certificates },
+  { href: "/reza-control/certificates", label: "Sertifikat",   icon: Icons.certificates },
   { href: "/reza-control/blogs",        label: "Blogs",        icon: Icons.blogs },
   { href: "/reza-control/media",        label: "Media",        icon: Icons.media },
   { href: "/reza-control/analytics",    label: "Analytics",    icon: Icons.analytics },
   { href: "/reza-control/about",        label: "About CMS",    icon: Icons.about },
   { href: "/reza-control/settings",     label: "Settings",     icon: Icons.settings },
-  { href: "/reza-control/account",      label: "Account",      icon: Icons.account },
+  { href: "/reza-control/account",      label: "Akun",         icon: Icons.account },
 ];
+
+// Bottom nav shows only 4 primary items + "More" drawer
+const bottomPrimary = allNavItems.slice(0, 4);
 
 export function AdminShell({ children, user }: AdminShellProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [collapsed, setCollapsed] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
 
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 768px)");
@@ -116,6 +118,9 @@ export function AdminShell({ children, user }: AdminShellProps) {
     mq.addEventListener("change", handler);
     return () => mq.removeEventListener("change", handler);
   }, []);
+
+  // Close "more" drawer on route change
+  useEffect(() => { setMoreOpen(false); }, [pathname]);
 
   const handleLogout = async () => {
     const supabase = createClient();
@@ -126,45 +131,211 @@ export function AdminShell({ children, user }: AdminShellProps) {
 
   const navigate = (href: string) => {
     router.push(href);
-    setMobileOpen(false);
+    setMoreOpen(false);
   };
 
+  const isActive = (href: string) =>
+    href === "/reza-control"
+      ? pathname === "/reza-control"
+      : pathname.startsWith(href);
+
+  // ── Mobile layout ─────────────────────────────────────────────
+  if (isMobile) {
+    return (
+      <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+        {/* More drawer overlay */}
+        {moreOpen && (
+          <div
+            style={{
+              position: "fixed", inset: 0,
+              background: "rgba(0,0,0,0.45)",
+              backdropFilter: "blur(4px)",
+              zIndex: 299,
+              animation: "fadeIn 0.2s ease",
+            }}
+            onClick={() => setMoreOpen(false)}
+          />
+        )}
+
+        {/* More drawer — slides up from bottom */}
+        <div style={{
+          position: "fixed",
+          bottom: moreOpen ? 68 : -400,
+          left: 0, right: 0,
+          background: "var(--neutral-background-strong)",
+          borderRadius: "20px 20px 0 0",
+          padding: "16px 12px 12px",
+          zIndex: 300,
+          transition: "bottom 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)",
+          boxShadow: "0 -8px 40px rgba(0,0,0,0.2)",
+          border: "1px solid var(--neutral-alpha-weak)",
+          borderBottom: "none",
+        }}>
+          {/* Drawer handle */}
+          <div style={{
+            width: 40, height: 4, borderRadius: 2,
+            background: "var(--neutral-alpha-medium)",
+            margin: "0 auto 16px",
+          }} />
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 }}>
+            {allNavItems.slice(4).map((item) => (
+              <button
+                key={item.href}
+                onClick={() => navigate(item.href)}
+                style={{
+                  all: "unset",
+                  display: "flex", flexDirection: "column",
+                  alignItems: "center", justifyContent: "center",
+                  padding: "12px 8px", borderRadius: 14, gap: 6,
+                  cursor: "pointer",
+                  background: isActive(item.href) ? "var(--brand-alpha-weak)" : "var(--neutral-alpha-weak)",
+                  color: isActive(item.href) ? "var(--brand-on-background-strong)" : "var(--neutral-on-background-medium)",
+                  transition: "background 0.15s",
+                }}
+              >
+                {item.icon}
+                <span style={{ fontSize: 10, fontWeight: 600, textAlign: "center", lineHeight: 1.2 }}>
+                  {item.label}
+                </span>
+              </button>
+            ))}
+
+            {/* Logout in drawer */}
+            <button
+              onClick={handleLogout}
+              style={{
+                all: "unset",
+                display: "flex", flexDirection: "column",
+                alignItems: "center", justifyContent: "center",
+                padding: "12px 8px", borderRadius: 14, gap: 6,
+                cursor: "pointer",
+                background: "var(--danger-alpha-weak)",
+                color: "var(--danger-on-background-medium)",
+                transition: "background 0.15s",
+              }}
+            >
+              {Icons.logout}
+              <span style={{ fontSize: 10, fontWeight: 600 }}>Keluar</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Main content */}
+        <div style={{
+          flex: 1,
+          padding: "16px 16px 80px", // 80px = bottom nav height
+          overflowY: "auto",
+        }}>
+          {children}
+        </div>
+
+        {/* Bottom Navigation Bar — always visible */}
+        <nav style={{
+          position: "fixed",
+          bottom: 0, left: 0, right: 0,
+          height: 64,
+          background: "var(--neutral-background-strong)",
+          borderTop: "1px solid var(--neutral-alpha-weak)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-around",
+          zIndex: 200,
+          paddingBottom: "env(safe-area-inset-bottom)",
+          backdropFilter: "blur(12px)",
+        }}>
+          {bottomPrimary.map((item) => {
+            const active = isActive(item.href);
+            return (
+              <button
+                key={item.href}
+                onClick={() => navigate(item.href)}
+                style={{
+                  all: "unset",
+                  display: "flex", flexDirection: "column",
+                  alignItems: "center", gap: 4,
+                  padding: "6px 12px",
+                  borderRadius: 12,
+                  cursor: "pointer",
+                  color: active ? "var(--brand-on-background-strong)" : "var(--neutral-on-background-weak)",
+                  position: "relative",
+                  minWidth: 56,
+                  justifyContent: "center",
+                  transition: "color 0.15s",
+                }}
+              >
+                {active && (
+                  <div style={{
+                    position: "absolute",
+                    top: 0, left: "50%",
+                    transform: "translateX(-50%)",
+                    width: 32, height: 3,
+                    borderRadius: "0 0 4px 4px",
+                    background: "var(--brand-background-strong)",
+                  }} />
+                )}
+                {item.icon}
+                <span style={{ fontSize: 10, fontWeight: active ? 700 : 500, lineHeight: 1 }}>
+                  {item.label}
+                </span>
+              </button>
+            );
+          })}
+
+          {/* More button */}
+          <button
+            onClick={() => setMoreOpen(!moreOpen)}
+            style={{
+              all: "unset",
+              display: "flex", flexDirection: "column",
+              alignItems: "center", gap: 4,
+              padding: "6px 12px",
+              borderRadius: 12,
+              cursor: "pointer",
+              color: moreOpen ? "var(--brand-on-background-strong)" : "var(--neutral-on-background-weak)",
+              minWidth: 56, justifyContent: "center",
+              transition: "color 0.15s",
+            }}
+          >
+            {moreOpen ? Icons.close : Icons.more}
+            <span style={{ fontSize: 10, fontWeight: 500, lineHeight: 1 }}>
+              {moreOpen ? "Tutup" : "Lainnya"}
+            </span>
+          </button>
+        </nav>
+      </div>
+    );
+  }
+
+  // ── Desktop layout ─────────────────────────────────────────────
   return (
     <Row fillWidth style={{ minHeight: "100vh" }}>
-      {/* Mobile overlay */}
-      {mobileOpen && (
-        <div className={styles.mobileOverlay} onClick={() => setMobileOpen(false)} />
-      )}
-
       {/* Sidebar */}
       <Column
-        className={`${styles.sidebar} ${(!mobileOpen && collapsed) ? styles.collapsed : ""} ${mobileOpen ? styles.mobileVisible : ""}`}
+        className={`${styles.sidebar} ${collapsed ? styles.collapsed : ""}`}
         background="surface"
         border="neutral-alpha-weak"
         paddingY="l"
       >
-        {/* Sidebar header */}
+        {/* Header */}
         <Row
           paddingX="m"
           paddingBottom="m"
           vertical="center"
-          horizontal={collapsed && !mobileOpen ? "center" : "between"}
+          horizontal={collapsed ? "center" : "between"}
         >
-          {(!collapsed || mobileOpen) && (
+          {!collapsed && (
             <Column gap="2">
               <Text variant="label-strong-m" onBackground="brand-medium">Reza Control</Text>
               <Text variant="body-default-xs" onBackground="neutral-weak">CMS Dashboard</Text>
             </Column>
           )}
           <button
-            onClick={() => {
-              if (mobileOpen) setMobileOpen(false);
-              else setCollapsed(!collapsed);
-            }}
+            onClick={() => setCollapsed(!collapsed)}
             className={styles.collapseBtn}
             aria-label="Toggle sidebar"
           >
-            {collapsed && !mobileOpen ? Icons.chevronRight : Icons.chevronLeft}
+            {collapsed ? Icons.chevronRight : Icons.chevronLeft}
           </button>
         </Row>
 
@@ -172,26 +343,18 @@ export function AdminShell({ children, user }: AdminShellProps) {
 
         {/* Nav items */}
         <Column flex={1} paddingY="4" gap="2" paddingX="8">
-          {navItems.map((item) => {
-            const isActive =
-              item.href === "/reza-control"
-                ? pathname === "/reza-control"
-                : pathname.startsWith(item.href);
-
+          {allNavItems.map((item) => {
+            const active = isActive(item.href);
             return (
               <button
                 key={item.href}
                 onClick={() => navigate(item.href)}
-                className={`${styles.navItem} ${isActive ? styles.active : ""}`}
-                title={collapsed && !mobileOpen ? item.label : undefined}
+                className={`${styles.navItem} ${active ? styles.active : ""}`}
+                title={collapsed ? item.label : undefined}
               >
                 <span className={styles.icon}>{item.icon}</span>
-                {(!collapsed || mobileOpen) && (
-                  <span className={styles.label}>{item.label}</span>
-                )}
-                {isActive && (!collapsed || mobileOpen) && (
-                  <span className={styles.activeIndicator} />
-                )}
+                {!collapsed && <span className={styles.label}>{item.label}</span>}
+                {active && !collapsed && <span className={styles.activeIndicator} />}
               </button>
             );
           })}
@@ -199,32 +362,38 @@ export function AdminShell({ children, user }: AdminShellProps) {
 
         <Line background="neutral-alpha-weak" marginTop="8" />
 
-        {/* Footer: email + logout */}
+        {/* Footer */}
         <Column paddingX="8" paddingTop="m" gap="4">
-          {(!collapsed || mobileOpen) && (
+          {!collapsed && (
             <div style={{
               padding: "8px 12px", borderRadius: 8,
               background: "var(--neutral-alpha-weak)", marginBottom: 4,
             }}>
-              <Text variant="body-default-xs" onBackground="neutral-weak"
-                style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", display: "block" }}>
+              <Text
+                variant="body-default-xs"
+                onBackground="neutral-weak"
+                style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", display: "block" }}
+              >
                 {user.email}
               </Text>
             </div>
           )}
-          <button onClick={handleLogout} className={`${styles.navItem} ${styles.logout}`}
-            title={collapsed && !mobileOpen ? "Keluar" : undefined}>
+          <button
+            onClick={handleLogout}
+            className={`${styles.navItem} ${styles.logout}`}
+            title={collapsed ? "Keluar" : undefined}
+          >
             <span className={styles.icon}>{Icons.logout}</span>
-            {(!collapsed || mobileOpen) && <span className={styles.label}>Keluar</span>}
+            {!collapsed && <span className={styles.label}>Keluar</span>}
           </button>
         </Column>
       </Column>
 
-      {/* Main Content */}
+      {/* Main content */}
       <Column
         flex={1}
         className={styles.mainContent}
-        style={isMobile ? undefined : {
+        style={{
           marginLeft: collapsed ? "64px" : "224px",
           transition: "margin-left 0.22s cubic-bezier(0.4,0,0.2,1)",
         }}
@@ -232,15 +401,6 @@ export function AdminShell({ children, user }: AdminShellProps) {
       >
         {children}
       </Column>
-
-      {/* Mobile FAB */}
-      <button
-        className={styles.mobileMenuBtn}
-        onClick={() => setMobileOpen(!mobileOpen)}
-        aria-label="Toggle menu"
-      >
-        {mobileOpen ? Icons.close : Icons.menu}
-      </button>
     </Row>
   );
 }

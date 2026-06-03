@@ -5,6 +5,7 @@ import { person, social as staticSocial } from "@/resources";
 import { useLang } from "@/lib/lang-context";
 import { createClient } from "@/lib/supabase/client";
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import styles from "./Footer.module.scss";
 
 interface SocialItem {
@@ -16,6 +17,11 @@ interface SocialItem {
 export const Footer = () => {
   const currentYear = new Date().getFullYear();
   const { lang } = useLang();
+  const pathname = usePathname() ?? "";
+
+  // Hide footer inside CMS
+  if (pathname.startsWith("/reza-control")) return null;
+
 
   const [footerTextId, setFooterTextId] = useState("Dibuat dengan ❤️ di Makassar");
   const [footerTextEn, setFooterTextEn] = useState("Made with ❤️ in Makassar");
