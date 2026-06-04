@@ -27,6 +27,7 @@ import { format } from "date-fns";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { AvatarFromCms } from "@/components/about/AvatarFromCms";
 import { SkillsMarquee } from "@/components/about/SkillsMarquee";
+import { EduLogoImg } from "@/components/about/EduLogoImg";
 
 export async function generateMetadata() {
   return Meta.generate({
@@ -226,10 +227,6 @@ export default async function About() {
                 from { opacity: 0; transform: translateY(16px); }
                 to   { opacity: 1; transform: translateY(0); }
               }
-              @keyframes shimmerSweep {
-                0%   { transform: translateX(-130%) rotate(15deg); }
-                100% { transform: translateX(130%) rotate(15deg); }
-              }
               .edu-card {
                 display: flex;
                 border-radius: 20px;
@@ -249,64 +246,6 @@ export default async function About() {
                 background: linear-gradient(to bottom, var(--brand-background-strong), var(--accent-background-strong));
                 border-radius: 0;
               }
-
-              /* ── Logo wrapper — bentuk mengikuti isi logo ── */
-              .edu-logo-wrap {
-                position: relative;
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                width: 64px; height: 64px;
-                /* Default: rounded square — berubah lewat .edu-logo-wrap.round */
-                border-radius: 14px;
-                background: color-mix(in srgb, var(--neutral-on-background-strong) 5%, transparent);
-                flex-shrink: 0;
-                overflow: hidden;
-                border: 1px solid color-mix(in srgb, var(--neutral-on-background-strong) 8%, transparent);
-                box-shadow:
-                  0 2px 8px color-mix(in srgb, var(--neutral-on-background-strong) 6%, transparent),
-                  inset 0 1px 0 color-mix(in srgb, white 10%, transparent);
-              }
-
-              /* Jika logo buukat (PNG lingkaran, badge dsb) → card juga bulat */
-              .edu-logo-wrap.round {
-                border-radius: 50%;
-              }
-
-              .edu-logo-wrap img {
-                width: 100%; height: 100%;
-                object-fit: contain;
-                padding: 8px;
-                position: relative;
-                z-index: 1;
-              }
-              .edu-logo-wrap.round img {
-                padding: 6px;
-              }
-
-              /* Shimmer bar — looping natural */
-              .edu-logo-wrap::after {
-                content: "";
-                position: absolute;
-                inset: 0;
-                background: linear-gradient(
-                  105deg,
-                  transparent 30%,
-                  color-mix(in srgb, white 28%, transparent) 50%,
-                  transparent 70%
-                );
-                transform: translateX(-130%) rotate(15deg);
-                animation: shimmerSweep 2.8s cubic-bezier(0.45, 0, 0.55, 1) infinite;
-                pointer-events: none;
-                z-index: 2;
-              }
-
-              /* Delay sedikit tiap card supaya tidak sync semua */
-              .edu-logo-wrap.shimmer-delay-1::after { animation-delay: 0.4s; }
-              .edu-logo-wrap.shimmer-delay-2::after { animation-delay: 0.8s; }
-              .edu-logo-wrap.shimmer-delay-3::after { animation-delay: 1.2s; }
-              .edu-logo-wrap.shimmer-delay-4::after { animation-delay: 1.6s; }
-
               .edu-badge {
                 display: inline-flex; align-items: center;
                 padding: 2px 10px; border-radius: 99px;
@@ -343,29 +282,26 @@ export default async function About() {
                       {/* Top: logo + name + badges */}
                       <div style={{ display: "flex", gap: 18, alignItems: "flex-start", flexWrap: "wrap" }}>
                       {/* Logo */}
-                        <div className={`edu-logo-wrap shimmer-delay-${(i % 4) + 1}`}>
-                          {edu.logo ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img src={edu.logo} alt={edu.university_name}
-                              onLoad={(e) => {
-                                const img = e.currentTarget as HTMLImageElement;
-                                const wrap = img.parentElement;
-                                if (!wrap) return;
-                                // Deteksi apakah logo "bulat" dari aspect ratio naturalnya
-                                // Untuk logo PNG transparan: kita cek jika lebih mendekati lingkaran
-                                // Heuristik: jika natural width & height hampir sama (rasio 0.85–1.15), pakai round
-                                const r = img.naturalWidth / (img.naturalHeight || 1);
-                                if (r >= 0.85 && r <= 1.15) {
-                                  wrap.classList.add("round");
-                                }
-                              }}
-                            />
-                          ) : (
+                        {edu.logo ? (
+                          <EduLogoImg
+                            src={edu.logo}
+                            alt={edu.university_name}
+                            shimmerDelay={((i % 4) + 1) as 1 | 2 | 3 | 4}
+                          />
+                        ) : (
+                          <div style={{
+                            position: "relative", display: "inline-flex",
+                            alignItems: "center", justifyContent: "center",
+                            width: 64, height: 64, borderRadius: 14,
+                            background: "color-mix(in srgb, var(--neutral-on-background-strong) 5%, transparent)",
+                            flexShrink: 0, overflow: "hidden",
+                            border: "1px solid color-mix(in srgb, var(--neutral-on-background-strong) 8%, transparent)",
+                          }}>
                             <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--brand-on-background-weak)" strokeWidth="1.5">
                               <path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>
                             </svg>
-                          )}
-                        </div>
+                          </div>
+                        )}
 
                         {/* Title + meta */}
                         <div style={{ flex: 1, minWidth: 200 }}>
