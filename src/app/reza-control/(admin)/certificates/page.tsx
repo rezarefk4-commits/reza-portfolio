@@ -62,7 +62,7 @@ export default async function CertificatesPage() {
                   <Row gap="12">
                     <Text variant="body-default-xs" onBackground="brand-weak">{cert.issuer}</Text>
                     <Text variant="body-default-xs" onBackground="neutral-weak">
-                      {format(new Date(cert.issue_date), "MMMM yyyy")}
+                      {cert.issue_date ? format(new Date(cert.issue_date), "MMMM yyyy") : "—"}
                     </Text>
                   </Row>
                 </Column>
