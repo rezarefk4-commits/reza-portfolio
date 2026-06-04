@@ -152,6 +152,8 @@ export interface AboutEducation {
   field_of_study: string | null;
   thesis_title: string | null;
   thesis_goal: string | null;
+  journal_url: string | null;
+  journal_pdf: string | null;
   logo: string | null;
   description_id: string;
   description_en: string;

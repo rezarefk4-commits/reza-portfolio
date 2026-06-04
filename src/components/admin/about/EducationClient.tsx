@@ -19,6 +19,8 @@ const empty = (): Omit<AboutEducation, "id" | "created_at" | "updated_at"> => ({
   field_of_study: "",
   thesis_title: "",
   thesis_goal: "",
+  journal_url: "",
+  journal_pdf: "",
   logo: "",
   description_id: "",
   description_en: "",
@@ -38,6 +40,17 @@ const labelStyle = {
   fontSize: 12, fontWeight: 600, color: "var(--neutral-on-background-weak)",
   textTransform: "uppercase" as const, letterSpacing: "0.06em", marginBottom: 4,
 };
+
+const SectionBox = ({ title, children }: { title: string; children: React.ReactNode }) => (
+  <div style={{ borderRadius: 14, border: "1px solid var(--neutral-alpha-weak)", background: "var(--neutral-background-medium)", overflow: "hidden" }}>
+    <div style={{ padding: "14px 16px", borderBottom: "1px solid var(--neutral-alpha-weak)", background: "var(--neutral-alpha-weak)" }}>
+      <Text variant="label-strong-s">{title}</Text>
+    </div>
+    <div style={{ padding: 16, display: "flex", flexDirection: "column", gap: 14 }}>
+      {children}
+    </div>
+  </div>
+);
 
 export function EducationClient({ initialData }: Props) {
   const [items, setItems]     = useState<AboutEducation[]>(initialData);
@@ -64,7 +77,10 @@ export function EducationClient({ initialData }: Props) {
       const { error } = await supabase.from("about_education")
         .update(payload).eq("id", editing.id!);
       if (error) { setMsg(error.message); }
-      else { setItems((p) => p.map((x) => x.id === editing.id ? { ...x, ...editing } as AboutEducation : x)); setEditing(null); }
+      else {
+        setItems((p) => p.map((x) => x.id === editing.id ? { ...x, ...editing } as AboutEducation : x));
+        setEditing(null);
+      }
     }
     setLoading(false);
   };
@@ -80,101 +96,126 @@ export function EducationClient({ initialData }: Props) {
   if (editing !== null) return (
     <Column fillWidth gap="m" paddingBottom="80">
 
-      {/* Section: Identitas Kampus */}
-      <div style={{ borderRadius: 14, border: "1px solid var(--neutral-alpha-weak)", background: "var(--neutral-background-medium)", overflow: "hidden" }}>
-        <div style={{ padding: "14px 16px", borderBottom: "1px solid var(--neutral-alpha-weak)", background: "var(--neutral-alpha-weak)" }}>
-          <Text variant="label-strong-s">Identitas Kampus</Text>
+      {/* Identitas Kampus */}
+      <SectionBox title="Identitas Kampus">
+        <div>
+          <div style={labelStyle}>Nama Universitas *</div>
+          <Input id="uni" value={editing.university_name ?? ""}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => set("university_name", e.target.value)}
+            placeholder="Universitas Hasanuddin" />
         </div>
-        <div style={{ padding: 16, display: "flex", flexDirection: "column", gap: 14 }}>
+
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
           <div>
-            <div style={labelStyle}>Nama Universitas *</div>
-            <Input id="uni" value={editing.university_name ?? ""}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => set("university_name", e.target.value)}
-              placeholder="Universitas Hasanuddin" />
-          </div>
-
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-            <div>
-              <div style={labelStyle}>Fakultas</div>
-              <Input id="faculty" value={editing.faculty ?? ""}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => set("faculty", e.target.value)}
-                placeholder="Teknik" />
-            </div>
-            <div>
-              <div style={labelStyle}>Jurusan / Prodi</div>
-              <Input id="major" value={editing.major ?? ""}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => set("major", e.target.value)}
-                placeholder="Teknik Informatika" />
-            </div>
-          </div>
-
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
-            <div>
-              <div style={labelStyle}>Jenjang</div>
-              <select value={editing.degree ?? "S1"} onChange={(e) => set("degree", e.target.value)} style={inputStyle}>
-                {["D3","S1","S2","S3","Profesi","Vokasi"].map((d) => <option key={d}>{d}</option>)}
-              </select>
-            </div>
-            <div>
-              <div style={labelStyle}>Tahun Masuk</div>
-              <Input id="ys" value={editing.year_start ?? ""}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => set("year_start", e.target.value)}
-                placeholder="2020" />
-            </div>
-            <div>
-              <div style={labelStyle}>Tahun Lulus</div>
-              <Input id="ye" value={editing.year_end ?? ""}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => set("year_end", e.target.value)}
-                placeholder="2024" />
-            </div>
-          </div>
-
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-            <div>
-              <div style={labelStyle}>IPK</div>
-              <Input id="gpa" value={editing.gpa ?? ""}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => set("gpa", e.target.value)}
-                placeholder="3.85" />
-            </div>
-            <div>
-              <div style={labelStyle}>Rumpun Ilmu</div>
-              <Input id="fos" value={editing.field_of_study ?? ""}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => set("field_of_study", e.target.value)}
-                placeholder="Ilmu Komputer" />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Section: Skripsi */}
-      <div style={{ borderRadius: 14, border: "1px solid var(--neutral-alpha-weak)", background: "var(--neutral-background-medium)", overflow: "hidden" }}>
-        <div style={{ padding: "14px 16px", borderBottom: "1px solid var(--neutral-alpha-weak)", background: "var(--neutral-alpha-weak)" }}>
-          <Text variant="label-strong-s">Skripsi / Tugas Akhir</Text>
-        </div>
-        <div style={{ padding: 16, display: "flex", flexDirection: "column", gap: 14 }}>
-          <div>
-            <div style={labelStyle}>Judul Skripsi</div>
-            <Input id="thesis" value={editing.thesis_title ?? ""}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => set("thesis_title", e.target.value)}
-              placeholder="Sistem Prediksi ... Menggunakan ..." />
+            <div style={labelStyle}>Fakultas</div>
+            <Input id="faculty" value={editing.faculty ?? ""}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => set("faculty", e.target.value)}
+              placeholder="Teknik" />
           </div>
           <div>
-            <div style={labelStyle}>Tujuan &amp; Manfaat Penelitian</div>
-            <textarea value={editing.thesis_goal ?? ""} onChange={(e) => set("thesis_goal", e.target.value)}
-              rows={3} placeholder="Penelitian ini bertujuan untuk... Manfaatnya adalah..."
-              style={{ ...inputStyle, resize: "vertical" }} />
+            <div style={labelStyle}>Jurusan / Prodi</div>
+            <Input id="major" value={editing.major ?? ""}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => set("major", e.target.value)}
+              placeholder="Teknik Informatika" />
           </div>
         </div>
-      </div>
 
-      {/* Section: Logo */}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
+          <div>
+            <div style={labelStyle}>Jenjang</div>
+            <select value={editing.degree ?? "S1"} onChange={(e) => set("degree", e.target.value)} style={inputStyle}>
+              {["D3","S1","S2","S3","Profesi","Vokasi"].map((d) => <option key={d}>{d}</option>)}
+            </select>
+          </div>
+          <div>
+            <div style={labelStyle}>Tahun Masuk</div>
+            <Input id="ys" value={editing.year_start ?? ""}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => set("year_start", e.target.value)}
+              placeholder="2020" />
+          </div>
+          <div>
+            <div style={labelStyle}>Tahun Lulus</div>
+            <Input id="ye" value={editing.year_end ?? ""}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => set("year_end", e.target.value)}
+              placeholder="2024" />
+          </div>
+        </div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+          <div>
+            <div style={labelStyle}>IPK</div>
+            <Input id="gpa" value={editing.gpa ?? ""}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => set("gpa", e.target.value)}
+              placeholder="3.85" />
+          </div>
+          <div>
+            <div style={labelStyle}>Fokus / Rumpun Ilmu</div>
+            <Input id="fos" value={editing.field_of_study ?? ""}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => set("field_of_study", e.target.value)}
+              placeholder="Ilmu Komputer" />
+          </div>
+        </div>
+      </SectionBox>
+
+      {/* Skripsi / Penelitian */}
+      <SectionBox title="Skripsi / Tugas Akhir">
+        <div>
+          <div style={labelStyle}>Judul Skripsi / Penelitian</div>
+          <Input id="thesis" value={editing.thesis_title ?? ""}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => set("thesis_title", e.target.value)}
+            placeholder="Sistem Prediksi ... Menggunakan ..." />
+        </div>
+        <div>
+          <div style={labelStyle}>Dampak &amp; Manfaat Penelitian</div>
+          <textarea value={editing.thesis_goal ?? ""} onChange={(e) => set("thesis_goal", e.target.value)}
+            rows={4}
+            placeholder="Penelitian ini bertujuan untuk... Manfaatnya adalah... Dampak yang dihasilkan..."
+            style={{ ...inputStyle, resize: "vertical" }} />
+          <div style={{ fontSize: 11, color: "var(--neutral-on-background-weak)", marginTop: 4 }}>
+            Deskripsikan dampak dan manfaat penelitian secara singkat. Akan tampil di kartu pendidikan.
+          </div>
+        </div>
+      </SectionBox>
+
+      {/* Jurnal / Akses Dokumen */}
+      <SectionBox title="Jurnal &amp; Akses Dokumen">
+        <div style={{ padding: "10px 12px", borderRadius: 10, background: "var(--brand-alpha-weak)", border: "1px solid var(--brand-alpha-medium)", fontSize: 12, color: "var(--brand-on-background-weak)", lineHeight: 1.6 }}>
+          💡 Upload PDF jurnal/skripsi agar pengunjung bisa membaca langsung di halaman About (preview dokumen scrollable).
+          URL eksternal bersifat opsional sebagai sumber asli.
+        </div>
+
+        <div>
+          <div style={labelStyle}>Upload PDF Jurnal / Skripsi</div>
+          <ImageUpload
+            bucket="media"
+            value={editing.journal_pdf ?? ""}
+            onChange={(url) => set("journal_pdf", url)}
+            accept=".pdf,application/pdf"
+            label=""
+          />
+        </div>
+
+        <div>
+          <div style={labelStyle}>URL Jurnal Eksternal (opsional)</div>
+          <Input
+            id="journal_url"
+            value={editing.journal_url ?? ""}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => set("journal_url", e.target.value)}
+            placeholder="https://journal.example.com/paper/..." />
+          <div style={{ fontSize: 11, color: "var(--neutral-on-background-weak)", marginTop: 4 }}>
+            Link ke Google Scholar, ResearchGate, repositori kampus, dll.
+          </div>
+        </div>
+      </SectionBox>
+
+      {/* Logo Kampus */}
       <div style={{ borderRadius: 14, border: "1px solid var(--neutral-alpha-weak)", background: "var(--neutral-background-medium)", overflow: "hidden" }}>
         <div style={{ padding: "14px 16px", borderBottom: "1px solid var(--neutral-alpha-weak)", background: "var(--neutral-alpha-weak)" }}>
           <Text variant="label-strong-s">Logo Kampus</Text>
         </div>
         <div style={{ padding: 16 }}>
           <Text variant="body-default-xs" onBackground="neutral-weak" style={{ marginBottom: 12 }}>
-            PNG transparan disarankan. Akan tampil dengan animasi glow di halaman About.
+            PNG transparan disarankan. Bentuk logo akan otomatis mengikuti card (bulat/persegi).
           </Text>
           <ImageUpload bucket="media" value={editing.logo ?? ""} onChange={(url) => set("logo", url)} />
         </div>
@@ -240,11 +281,26 @@ export function EducationClient({ initialData }: Props) {
                 </div>
             }
             <div style={{ flex: 1, minWidth: 0 }}>
-              <Text variant="heading-strong-m">{edu.university_name}</Text>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                <Text variant="heading-strong-m">{edu.university_name}</Text>
+                {(edu.journal_pdf || edu.journal_url) && (
+                  <span style={{
+                    fontSize: 10, fontWeight: 700, padding: "2px 7px", borderRadius: 99,
+                    background: "color-mix(in srgb, #ef4444 12%, transparent)",
+                    color: "#ef4444", border: "1px solid color-mix(in srgb, #ef4444 25%, transparent)",
+                    letterSpacing: "0.05em",
+                  }}>PDF</span>
+                )}
+              </div>
               <Text variant="body-default-s" onBackground="neutral-weak">
                 {edu.major} · {edu.degree} · {edu.year_start}–{edu.year_end || "Sekarang"}
                 {edu.gpa ? ` · IPK ${edu.gpa}` : ""}
               </Text>
+              {edu.thesis_title && (
+                <Text variant="body-default-xs" onBackground="neutral-weak" style={{ marginTop: 2, fontStyle: "italic", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  📄 {edu.thesis_title}
+                </Text>
+              )}
             </div>
             <div style={{ flexShrink: 0, color: "var(--neutral-on-background-weak)", fontSize: 18 }}>›</div>
           </div>

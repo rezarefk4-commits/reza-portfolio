@@ -28,6 +28,7 @@ import { ScrollReveal } from "@/components/ScrollReveal";
 import { AvatarFromCms } from "@/components/about/AvatarFromCms";
 import { SkillsMarquee } from "@/components/about/SkillsMarquee";
 import { EduLogoImg } from "@/components/about/EduLogoImg";
+import { EduJournalModal } from "@/components/about/EduJournalModal";
 
 export async function generateMetadata() {
   return Meta.generate({
@@ -387,6 +388,16 @@ export default async function About() {
                                   <Text variant="body-default-s" onBackground="neutral-weak" style={{ marginTop: 6, lineHeight: 1.55 }}>
                                     {edu.thesis_goal}
                                   </Text>
+                                )}
+                                {/* Tombol Akses Jurnal */}
+                                {(edu.journal_pdf || edu.journal_url) && (
+                                  <div style={{ marginTop: 12 }}>
+                                    <EduJournalModal
+                                      title={edu.thesis_title}
+                                      pdfUrl={edu.journal_pdf}
+                                      externalUrl={edu.journal_url}
+                                    />
+                                  </div>
                                 )}
                               </div>
                             </div>
