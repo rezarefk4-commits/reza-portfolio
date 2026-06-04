@@ -43,6 +43,7 @@ export async function Projects({ range, exclude }: ProjectsProps) {
               key={project.slug}
               href={`/project/${project.slug}`}
               images={images}
+              thumbnail={thumbClean}
               title={project.title_id}
               description={project.description_id}
               content=""

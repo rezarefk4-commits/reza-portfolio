@@ -6,6 +6,7 @@ interface ProjectCardProps {
   href: string;
   priority?: boolean;
   images: string[];
+  thumbnail?: string;
   title: string;
   content: string;
   description: string;
@@ -115,6 +116,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   href,
   priority,
   images = [],
+  thumbnail: thumbnailProp,
   title,
   description,
   link,
@@ -124,7 +126,8 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   slug,
 }) => {
   const router = useRouter();
-  const thumbnail = images[0] ?? "";
+  // Gunakan thumbnailProp langsung jika ada, fallback ke images[0]
+  const thumbnail = thumbnailProp || images[0] || "";
 
   // gallery page URL — derive slug from href if not passed directly
   const derivedSlug = slug ?? href.split("/project/")[1] ?? "";

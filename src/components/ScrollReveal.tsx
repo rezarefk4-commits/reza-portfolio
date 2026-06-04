@@ -40,6 +40,16 @@ export function ScrollReveal({
       type === "fade"  ? "reveal-fade"  :
       "reveal";
 
+    // Fallback: force visible after 1.5s jika observer tidak trigger
+    const fallbackTimer = setTimeout(() => {
+      if (stagger) {
+        const kids = Array.from(el.children) as HTMLElement[];
+        kids.forEach((kid) => kid.classList.add("visible"));
+      } else {
+        el.classList.add("visible");
+      }
+    }, 1500);
+
     if (stagger) {
       // Apply stagger to each direct child
       const kids = Array.from(el.children) as HTMLElement[];
@@ -51,28 +61,30 @@ export function ScrollReveal({
       const observer = new IntersectionObserver(
         ([entry]) => {
           if (entry.isIntersecting) {
+            clearTimeout(fallbackTimer);
             kids.forEach((kid) => kid.classList.add("visible"));
             observer.unobserve(el);
           }
         },
-        { threshold, rootMargin: "0px 0px -30px 0px" }
+        { threshold: Math.min(threshold, 0.05), rootMargin: "0px 0px 0px 0px" }
       );
       observer.observe(el);
-      return () => observer.disconnect();
+      return () => { observer.disconnect(); clearTimeout(fallbackTimer); };
     } else {
       el.classList.add(revealClass);
 
       const observer = new IntersectionObserver(
         ([entry]) => {
           if (entry.isIntersecting) {
+            clearTimeout(fallbackTimer);
             setTimeout(() => el.classList.add("visible"), delay);
             observer.unobserve(el);
           }
         },
-        { threshold, rootMargin: "0px 0px -40px 0px" }
+        { threshold: Math.min(threshold, 0.05), rootMargin: "0px 0px 0px 0px" }
       );
       observer.observe(el);
-      return () => observer.disconnect();
+      return () => { observer.disconnect(); clearTimeout(fallbackTimer); };
     }
   }, [delay, type, stagger, staggerDelay, threshold]);
 
