@@ -113,6 +113,7 @@ function ThumbnailDisplay({ src, title, priority }: { src: string; title: string
 
 export const ProjectCard: React.FC<ProjectCardProps> = ({
   href,
+  priority,
   images = [],
   title,
   description,
