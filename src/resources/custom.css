@@ -178,12 +178,8 @@ body > * {
 img {
   transition: opacity 0.3s ease;
 }
-img[loading] {
-  opacity: 0;
-}
-img.loaded {
-  opacity: 1;
-}
+/* REMOVED: img[loading] { opacity: 0 } — caused all images to be permanently invisible
+   because no JS ever adds the .loaded class. Images are visible by default. */
 
 /* ─── Admin Layout Override ──────────────────────────────────────────────── */
 [data-admin-page] {
