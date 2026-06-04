@@ -101,7 +101,7 @@ export default async function Home() {
 
       {/* ── Contact ──────────────────────────────────────────────────── */}
       <ScrollReveal delay={0} type="up" threshold={0.05}>
-        <ContactSection />
+        <ContactSection settings={settings} />
       </ScrollReveal>
     </Column>
   );

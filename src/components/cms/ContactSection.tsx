@@ -1,15 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { Column, Row, Text } from "@once-ui-system/core";
-import { person, social } from "@/resources";
-
+import { Column, Row, Text, RevealFx } from "@once-ui-system/core";
+import type { SiteSettings } from "@/lib/types";
 import type { ReactNode } from "react";
 
-// ── Minimal SVG icons ──────────────────────────────────────────────────────
+// ── Icons ──────────────────────────────────────────────────────────────────────
 const icons: Record<string, ReactNode> = {
   email: (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       <rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
     </svg>
   ),
@@ -31,150 +30,225 @@ const icons: Record<string, ReactNode> = {
       <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
     </svg>
   ),
-  whatsapp: (
+  send: (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+      <path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/>
+    </svg>
+  ),
+  user: (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+    </svg>
+  ),
+  message: (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
     </svg>
   ),
 };
 
-function CopyBtn({ text }: { text: string }) {
-  const [ok, setOk] = useState(false);
-  return (
-    <button
-      onClick={async (e) => {
-        e.preventDefault(); e.stopPropagation();
-        await navigator.clipboard.writeText(text);
-        setOk(true);
-        setTimeout(() => setOk(false), 1600);
-      }}
-      style={{
-        display: "inline-flex", alignItems: "center", gap: 4,
-        padding: "3px 10px", borderRadius: 99, fontSize: 11, fontWeight: 500,
-        background: ok ? "var(--brand-alpha-weak)" : "var(--neutral-alpha-weak)",
-        color: ok ? "var(--brand-on-background-strong)" : "var(--neutral-on-background-weak)",
-        border: "1px solid transparent",
-        cursor: "pointer", transition: "all 0.18s ease",
-      }}
-    >
-      {ok ? "✓ Tersalin" : "Salin"}
-    </button>
-  );
+interface ContactSectionProps {
+  settings?: SiteSettings | null;
 }
 
-export function ContactSection() {
-  // Build items
-  const items = [
-    { label: "Email", href: `mailto:${person.email}`, value: person.email, icon: icons.email, copy: true },
-    ...social.filter((s) => s.link).map((s) => ({
-      label: s.name,
-      href: s.link,
-      value: s.link.replace("https://", ""),
-      icon: icons[s.icon] ?? icons.github,
-      copy: false,
-    })),
-  ];
+type FormState = "idle" | "sending" | "sent" | "error";
 
-  // Deduplicate
-  const seen = new Set<string>();
-  const deduped = items.filter((it) => {
-    if (seen.has(it.label)) return false;
-    seen.add(it.label); return true;
-  });
+export function ContactSection({ settings }: ContactSectionProps) {
+  const [name, setName] = useState("");
+  const [senderEmail, setSenderEmail] = useState("");
+  const [subject, setSubject] = useState("");
+  const [message, setMessage] = useState("");
+  const [formState, setFormState] = useState<FormState>("idle");
+
+  // Email dari CMS, fallback ke placeholder
+  const recipientEmail = settings?.social_email || "";
+
+  const handleSubmit = async () => {
+    if (!name || !senderEmail || !message) return;
+    setFormState("sending");
+
+    // Buka mailto dengan data form terisi
+    const body = `Nama: ${name}\nEmail: ${senderEmail}\n\n${message}`;
+    const mailtoLink = `mailto:${recipientEmail}?subject=${encodeURIComponent(subject || "Pesan dari Portfolio")}&body=${encodeURIComponent(body)}`;
+    window.location.href = mailtoLink;
+
+    setTimeout(() => setFormState("sent"), 800);
+    setTimeout(() => setFormState("idle"), 3500);
+  };
+
+  // Sosial links dari settings
+  const socialLinks = [
+    settings?.social_github   && { label: "GitHub",    href: settings.social_github,    icon: icons.github },
+    settings?.social_linkedin && { label: "LinkedIn",  href: settings.social_linkedin,  icon: icons.linkedin },
+    settings?.social_instagram&& { label: "Instagram", href: settings.social_instagram, icon: icons.instagram },
+  ].filter(Boolean) as { label: string; href: string; icon: ReactNode }[];
 
   return (
-    <Column fillWidth gap="xl" paddingY="64" horizontal="center" align="center">
+    <RevealFx translateY="12" delay={0.1} fillWidth>
       <style>{`
-        @keyframes contactPulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.4)} }
-        .contact-link {
-          display: flex; align-items: center; gap: 10px;
-          padding: 11px 18px; border-radius: 12px;
-          text-decoration: none;
-          border: 1px solid var(--neutral-alpha-weak);
-          background: var(--neutral-background-medium);
-          color: var(--neutral-on-background-strong);
-          font-size: 14px; font-weight: 500;
-          transition: border-color 0.18s, background 0.18s, transform 0.18s;
-          white-space: nowrap;
+        @keyframes contactPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.5)}}
+        .cf-input{
+          width:100%;padding:11px 14px;border-radius:10px;font-size:14px;
+          background:var(--neutral-background-medium);
+          border:1px solid var(--neutral-alpha-weak);
+          color:var(--neutral-on-background-strong);
+          outline:none;transition:border-color .18s,box-shadow .18s;
+          font-family:inherit;
         }
-        .contact-link:hover {
-          border-color: var(--neutral-alpha-medium);
-          background: var(--neutral-alpha-weak);
-          transform: translateY(-1px);
+        .cf-input:focus{border-color:var(--brand-alpha-medium);box-shadow:0 0 0 3px var(--brand-alpha-weak);}
+        .cf-input::placeholder{color:var(--neutral-on-background-weak);}
+        .cf-textarea{resize:vertical;min-height:120px;}
+        .cf-submit{
+          display:inline-flex;align-items:center;gap:8px;
+          padding:13px 32px;border-radius:12px;
+          font-size:15px;font-weight:600;cursor:pointer;
+          background:var(--brand-background-strong);
+          color:var(--brand-on-background-strong);
+          border:none;transition:opacity .18s,transform .18s,box-shadow .18s;
+          box-shadow:0 2px 16px var(--brand-alpha-medium);
         }
-        .contact-email-btn {
-          display: inline-flex; align-items: center; gap: 8px;
-          padding: 13px 28px; border-radius: 14px;
-          text-decoration: none;
-          background: var(--brand-background-strong);
-          color: var(--brand-on-background-strong);
-          font-size: 15px; font-weight: 600;
-          transition: opacity 0.18s, transform 0.18s, box-shadow 0.18s;
-          box-shadow: 0 2px 16px var(--brand-alpha-medium);
+        .cf-submit:hover:not(:disabled){opacity:.88;transform:translateY(-1px);box-shadow:0 6px 24px var(--brand-alpha-medium);}
+        .cf-submit:disabled{opacity:.55;cursor:not-allowed;}
+        .cf-social-link{
+          display:inline-flex;align-items:center;gap:8px;
+          padding:9px 16px;border-radius:10px;
+          text-decoration:none;font-size:13px;font-weight:500;
+          border:1px solid var(--neutral-alpha-weak);
+          background:var(--neutral-background-medium);
+          color:var(--neutral-on-background-strong);
+          transition:border-color .18s,background .18s,transform .18s;
         }
-        .contact-email-btn:hover {
-          opacity: 0.88;
-          transform: translateY(-1px);
-          box-shadow: 0 6px 24px var(--brand-alpha-medium);
-        }
+        .cf-social-link:hover{border-color:var(--neutral-alpha-medium);background:var(--neutral-alpha-weak);transform:translateY(-1px);}
+        .cf-label{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:500;color:var(--neutral-on-background-weak);margin-bottom:6px;}
       `}</style>
 
-      {/* Availability dot + label */}
-      <Row gap="8" vertical="center">
-        <span style={{
-          width: 7, height: 7, borderRadius: "50%",
-          background: "var(--brand-background-strong)",
-          animation: "contactPulse 2.4s ease-in-out infinite",
-          display: "inline-block",
-        }} />
-        <Text variant="label-default-xs" onBackground="neutral-weak"
-          style={{ letterSpacing: "0.08em", textTransform: "uppercase" }}>
-          Tersedia untuk kolaborasi
-        </Text>
-      </Row>
+      <Column
+        fillWidth
+        gap="xl"
+        paddingY="80"
+        paddingX="l"
+        style={{ maxWidth: 680, margin: "0 auto", width: "100%" }}
+      >
+        {/* Header */}
+        <Column gap="12" align="center" horizontal="center">
+          <Row gap="8" vertical="center">
+            <span style={{
+              width: 7, height: 7, borderRadius: "50%",
+              background: "var(--brand-background-strong)",
+              animation: "contactPulse 2.4s ease-in-out infinite",
+              display: "inline-block",
+            }}/>
+            <Text variant="label-default-xs" onBackground="neutral-weak"
+              style={{ letterSpacing: "0.1em", textTransform: "uppercase" }}>
+              Tersedia untuk kolaborasi
+            </Text>
+          </Row>
 
-      {/* Heading */}
-      <Column gap="8" horizontal="center" align="center">
-        <Text variant="display-strong-m" style={{ textAlign: "center" }}>
-          Mari terhubung
-        </Text>
-        <Text variant="body-default-m" onBackground="neutral-weak"
-          style={{ textAlign: "center", maxWidth: 380, lineHeight: 1.6 }}>
-          Terbuka untuk diskusi, kolaborasi, atau sekadar sapa.
+          <Text variant="display-strong-m" style={{ textAlign: "center" }}>
+            Mari Terhubung
+          </Text>
+          <Text variant="body-default-m" onBackground="neutral-weak"
+            style={{ textAlign: "center", maxWidth: 420, lineHeight: 1.65 }}>
+            Punya proyek menarik atau ingin berdiskusi? Kirim pesan dan saya
+            akan merespons secepatnya.
+          </Text>
+        </Column>
+
+        {/* Contact Form Card */}
+        <Column
+          gap="l"
+          border="neutral-alpha-weak"
+          radius="l"
+          padding="l"
+          background="surface"
+          style={{ backdropFilter: "blur(8px)" }}
+        >
+          {/* Nama + Email baris */}
+          <Row gap="m" s={{ direction: "column" }}>
+            <Column flex={1} gap="0">
+              <label className="cf-label">{icons.user} Nama Lengkap</label>
+              <input
+                className="cf-input"
+                type="text"
+                placeholder="Nama Anda"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
+            </Column>
+            <Column flex={1} gap="0">
+              <label className="cf-label">{icons.email} Email Anda</label>
+              <input
+                className="cf-input"
+                type="email"
+                placeholder="email@anda.com"
+                value={senderEmail}
+                onChange={(e) => setSenderEmail(e.target.value)}
+              />
+            </Column>
+          </Row>
+
+          {/* Subjek */}
+          <Column gap="0">
+            <label className="cf-label">{icons.message} Subjek</label>
+            <input
+              className="cf-input"
+              type="text"
+              placeholder="Topik pesan Anda"
+              value={subject}
+              onChange={(e) => setSubject(e.target.value)}
+            />
+          </Column>
+
+          {/* Pesan */}
+          <Column gap="0">
+            <label className="cf-label">{icons.message} Pesan</label>
+            <textarea
+              className="cf-input cf-textarea"
+              placeholder="Ceritakan proyek atau ide Anda di sini..."
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+            />
+          </Column>
+
+          {/* Submit */}
+          <Row horizontal="end" vertical="center" gap="12">
+            {recipientEmail && (
+              <Text variant="body-default-xs" onBackground="neutral-weak">
+                Kirim ke: <span style={{ color: "var(--brand-on-background-medium)" }}>{recipientEmail}</span>
+              </Text>
+            )}
+            <button
+              className="cf-submit"
+              onClick={handleSubmit}
+              disabled={!name || !senderEmail || !message || formState === "sending"}
+            >
+              {icons.send}
+              {formState === "sending" ? "Membuka..." : formState === "sent" ? "✓ Terkirim!" : "Kirim Pesan"}
+            </button>
+          </Row>
+        </Column>
+
+        {/* Social Links */}
+        {socialLinks.length > 0 && (
+          <Column gap="12" align="center" horizontal="center">
+            <Text variant="label-default-xs" onBackground="neutral-weak"
+              style={{ textTransform: "uppercase", letterSpacing: "0.1em" }}>
+              Atau temukan saya di
+            </Text>
+            <Row gap="8" wrap horizontal="center">
+              {socialLinks.map((s) => (
+                <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer" className="cf-social-link">
+                  {s.icon}{s.label}
+                </a>
+              ))}
+            </Row>
+          </Column>
+        )}
+
+        <Text variant="body-default-xs" onBackground="neutral-weak" style={{ textAlign: "center" }}>
+          Makassar, Indonesia · Remote friendly
         </Text>
       </Column>
-
-      {/* Primary CTA */}
-      <Row gap="12" vertical="center" wrap horizontal="center">
-        <a href={`mailto:${person.email}`} className="contact-email-btn">
-          {icons.email}
-          {person.email}
-        </a>
-        <CopyBtn text={person.email} />
-      </Row>
-
-      {/* Social links — minimal row */}
-      <Row gap="8" wrap horizontal="center">
-        {deduped
-          .filter((it) => it.label !== "Email")
-          .map((item) => (
-            <a
-              key={item.label}
-              href={item.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="contact-link"
-            >
-              {item.icon}
-              {item.label}
-            </a>
-          ))}
-      </Row>
-
-      {/* Tagline */}
-      <Text variant="body-default-xs" onBackground="neutral-weak">
-        Makassar, Indonesia · Remote friendly
-      </Text>
-    </Column>
+    </RevealFx>
   );
 }
