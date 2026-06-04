@@ -28,8 +28,15 @@ export function ImageUpload({
 
   // Clean URL for display (strip cache buster)
   const displayUrl = value ? value.split("?")[0] : "";
-  // Preview URL with cache buster to force fresh load
-  const previewUrl = displayUrl
+
+  // Detect media type of the stored file
+  const fileExt = displayUrl.split("?")[0].toLowerCase();
+  const isPdf = fileExt.endsWith(".pdf");
+  const isVideoFile = /\.(mp4|webm|mov|ogg)$/.test(fileExt);
+  const isImageFile = !isPdf && !isVideoFile;
+
+  // Preview URL with cache buster to force fresh load (only for images)
+  const previewUrl = displayUrl && isImageFile
     ? `${displayUrl}?t=${Math.floor(Date.now() / 30000)}`
     : "";
 
@@ -114,13 +121,13 @@ export function ImageUpload({
         onDragOver={(e) => e.preventDefault()}
         onClick={() => !uploading && inputRef.current?.click()}
         style={{
-          border: `2px dashed ${previewUrl ? "var(--brand-alpha-medium)" : "var(--neutral-alpha-medium)"}`,
+          border: `2px dashed ${displayUrl ? "var(--brand-alpha-medium)" : "var(--neutral-alpha-medium)"}`,
           borderRadius: 12,
-          padding: previewUrl ? 12 : 24,
+          padding: displayUrl ? 12 : 24,
           textAlign: "center",
           cursor: uploading ? "wait" : "pointer",
           transition: "border-color 0.2s, background 0.2s",
-          background: previewUrl ? "var(--neutral-alpha-weak)" : "var(--neutral-alpha-weak)",
+          background: "var(--neutral-alpha-weak)",
           minHeight: 120,
           display: "flex",
           alignItems: "center",
@@ -148,6 +155,27 @@ export function ImageUpload({
               (e.target as HTMLImageElement).style.display = "none";
             }}
           />
+        ) : displayUrl && isPdf ? (
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(239,68,68,0.8)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+            </svg>
+            <Text variant="body-default-s" onBackground="neutral-weak">PDF terupload ✓</Text>
+            <Text variant="body-default-xs" onBackground="neutral-weak" style={{ wordBreak: "break-all", textAlign: "center", maxWidth: 280 }}>
+              {displayUrl.split("/").pop()}
+            </Text>
+          </div>
+        ) : displayUrl && isVideoFile ? (
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(99,102,241,0.8)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <polygon points="5 3 19 12 5 21 5 3"/>
+            </svg>
+            <Text variant="body-default-s" onBackground="neutral-weak">Video terupload ✓</Text>
+            <Text variant="body-default-xs" onBackground="neutral-weak" style={{ wordBreak: "break-all", textAlign: "center", maxWidth: 280 }}>
+              {displayUrl.split("/").pop()}
+            </Text>
+          </div>
         ) : (
           <>
             <Text style={{ fontSize: 36 }}>{uploading ? "⏳" : "📁"}</Text>
