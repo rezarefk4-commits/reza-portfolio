@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { Column, Heading, Meta, Schema } from "@once-ui-system/core";
 import { baseURL, about, person, work } from "@/resources";
 import { WorkPageClient } from "@/components/work/WorkPageClient";
