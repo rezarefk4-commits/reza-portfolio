@@ -21,8 +21,13 @@ import { id as localeId } from "date-fns/locale";
 import { ProjectMediaPreview } from "@/components/cms/ProjectMediaPreview";
 
 export async function generateStaticParams() {
-  const projects = await getPublishedProjects().catch(() => []);
-  return projects.map((p) => ({ slug: p.slug }));
+  try {
+    const projects = await getPublishedProjects();
+    return (projects ?? []).map((p) => ({ slug: p.slug }));
+  } catch {
+    // DB unavailable or column missing — return empty, pages render on demand
+    return [];
+  }
 }
 
 export async function generateMetadata({

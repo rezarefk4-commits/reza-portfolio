@@ -14,17 +14,26 @@ export async function getSettings(): Promise<SiteSettings | null> {
 }
 
 // ─── PROJECTS ─────────────────────────────────────────────────────────────────
-export async function getPublishedProjects(): Promise<Project[]> {
+function normalizeProject(p: unknown): import("./types").Project {
+  const proj = p as Record<string, unknown>;
+  return {
+    ...proj,
+    tools: Array.isArray(proj.tools) ? proj.tools : [],
+    gallery: Array.isArray(proj.gallery) ? proj.gallery : [],
+  } as import("./types").Project;
+}
+
+export async function getPublishedProjects(): Promise<import("./types").Project[]> {
   const supabase = await createClient();
   const { data } = await supabase
     .from("projects")
     .select("*")
     .eq("published", true)
     .order("created_at", { ascending: false });
-  return data || [];
+  return (data || []).map(normalizeProject);
 }
 
-export async function getProjectBySlug(slug: string): Promise<Project | null> {
+export async function getProjectBySlug(slug: string): Promise<import("./types").Project | null> {
   const supabase = await createClient();
   const { data } = await supabase
     .from("projects")
@@ -32,10 +41,10 @@ export async function getProjectBySlug(slug: string): Promise<Project | null> {
     .eq("slug", slug)
     .eq("published", true)
     .single();
-  return data;
+  return data ? normalizeProject(data) : null;
 }
 
-export async function getFeaturedProjects(): Promise<Project[]> {
+export async function getFeaturedProjects(): Promise<import("./types").Project[]> {
   const supabase = await createClient();
   const { data } = await supabase
     .from("projects")
@@ -43,7 +52,7 @@ export async function getFeaturedProjects(): Promise<Project[]> {
     .eq("published", true)
     .eq("featured", true)
     .order("created_at", { ascending: false });
-  return data || [];
+  return (data || []).map(normalizeProject);
 }
 
 // ─── CERTIFICATES ──────────────────────────────────────────────────────────────

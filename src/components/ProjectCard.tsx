@@ -46,8 +46,8 @@ function getToolStyle(tool: string) {
 
 function ThumbnailDisplay({ src, title }: { src: string; title: string }) {
   const type = getMediaType(src);
-  // Clean URL (strip cache buster params for display)
-  const cleanSrc = src.includes("?") ? src.split("?")[0] + "?" + src.split("?")[1]?.split("&")[0] : src;
+  // Clean URL — strip all query params (cache busters, timestamps, etc.)
+  const cleanSrc = src.split("?")[0];
 
   if (type === "video") {
     return (

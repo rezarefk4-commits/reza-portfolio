@@ -91,29 +91,35 @@ export function WorkPageClient({ projects }: WorkPageClientProps) {
         </Column>
       ) : (
         <Column fillWidth gap="xl" marginBottom="40" paddingX="l">
-          {filtered.map((project, index) => (
-            <ProjectCard
-              priority={index < 2}
-              key={project.slug}
-              href={`/project/${project.slug}`}
-              images={
-                project.gallery?.length > 0
-                  ? project.gallery
-                  : project.thumbnail
-                  ? [project.thumbnail]
-                  : []
-              }
-              title={lang === "en" ? project.title_en || project.title_id : project.title_id}
-              description={
-                lang === "en"
-                  ? project.description_en || project.description_id
-                  : project.description_id
-              }
-              content=""
-              avatars={[]}
-              link={project.live_demo_url || ""}
-            />
-          ))}
+          {filtered.map((project, index) => {
+            // Strip all cache-buster query params from URLs
+            const thumbClean = project.thumbnail ? project.thumbnail.split("?")[0] : "";
+            const galleryClean = (project.gallery ?? []).map((g) => g.split("?")[0]).filter(Boolean);
+            const images: string[] = [];
+            if (thumbClean) images.push(thumbClean);
+            galleryClean.forEach((g) => { if (!images.includes(g)) images.push(g); });
+
+            return (
+              <ProjectCard
+                priority={index < 2}
+                key={project.slug}
+                href={`/project/${project.slug}`}
+                images={images}
+                title={lang === "en" ? project.title_en || project.title_id : project.title_id}
+                description={
+                  lang === "en"
+                    ? project.description_en || project.description_id
+                    : project.description_id
+                }
+                content=""
+                avatars={[]}
+                link={project.live_demo_url || ""}
+                tools={project.tools ?? []}
+                category={project.category}
+                attachment={project.attachment}
+              />
+            );
+          })}
         </Column>
       )}
     </Column>
