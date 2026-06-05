@@ -18,32 +18,23 @@ interface WorkPageClientProps {
   projects: Project[];
 }
 
-function animateCards(container: HTMLDivElement, baseDelay = 100) {
-  const cards = Array.from(container.children) as HTMLElement[];
+function triggerCardAnimations(container: HTMLElement, baseDelay = 100) {
+  const wrappers = Array.from(
+    container.querySelectorAll<HTMLElement>(".card-hidden")
+  );
   const STAGGER = 130;
 
-  // 1. Sembunyikan semua dulu
-  cards.forEach((card) => {
-    card.style.transition = "none";
-    card.style.opacity = "0";
-    card.style.transform = "translateY(44px) scale(0.97)";
-    card.style.filter = "blur(4px)";
+  // Reset dulu ke state awal
+  wrappers.forEach((w) => {
+    w.classList.remove("card-animate");
+    w.style.transitionDelay = "0ms";
   });
 
-  // 2. Double rAF — pastikan browser sudah paint state awal
+  // Satu frame jeda agar browser paint state reset
   requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      cards.forEach((card, i) => {
-        const delay = baseDelay + i * STAGGER;
-        card.style.transition = [
-          `opacity 0.7s cubic-bezier(0.22,1,0.36,1) ${delay}ms`,
-          `transform 0.7s cubic-bezier(0.22,1,0.36,1) ${delay}ms`,
-          `filter 0.6s cubic-bezier(0.22,1,0.36,1) ${delay}ms`,
-        ].join(", ");
-        card.style.opacity = "1";
-        card.style.transform = "translateY(0) scale(1)";
-        card.style.filter = "blur(0)";
-      });
+    wrappers.forEach((w, i) => {
+      w.style.transitionDelay = `${baseDelay + i * STAGGER}ms`;
+      w.classList.add("card-animate");
     });
   });
 }
@@ -52,7 +43,7 @@ export function WorkPageClient({ projects }: WorkPageClientProps) {
   const { lang } = useLang();
   const [activeCategory, setActiveCategory] = useState<"All" | ProjectCategory>("All");
   const listRef = useRef<HTMLDivElement>(null);
-  const isFirstRender = useRef(true);
+  const isFirst = useRef(true);
 
   const filtered =
     activeCategory === "All"
@@ -67,15 +58,15 @@ export function WorkPageClient({ projects }: WorkPageClientProps) {
   // Animasi saat pertama load
   useEffect(() => {
     if (!listRef.current) return;
-    animateCards(listRef.current, 300);
-    isFirstRender.current = false;
+    triggerCardAnimations(listRef.current, 200);
+    isFirst.current = false;
   }, []);
 
-  // Animasi saat kategori berubah
+  // Animasi saat filter berubah (cards sudah re-render)
   useEffect(() => {
-    if (isFirstRender.current) return;
+    if (isFirst.current) return;
     if (!listRef.current) return;
-    animateCards(listRef.current, 50);
+    triggerCardAnimations(listRef.current, 50);
   }, [activeCategory]);
 
   return (
@@ -90,18 +81,15 @@ export function WorkPageClient({ projects }: WorkPageClientProps) {
               padding: "6px 16px",
               borderRadius: 99,
               border: "1px solid",
-              borderColor:
-                activeCategory === cat
-                  ? "var(--brand-background-strong)"
-                  : "var(--neutral-alpha-medium)",
-              background:
-                activeCategory === cat
-                  ? "var(--brand-alpha-weak)"
-                  : "transparent",
-              color:
-                activeCategory === cat
-                  ? "var(--brand-on-background-strong)"
-                  : "var(--neutral-on-background-weak)",
+              borderColor: activeCategory === cat
+                ? "var(--brand-background-strong)"
+                : "var(--neutral-alpha-medium)",
+              background: activeCategory === cat
+                ? "var(--brand-alpha-weak)"
+                : "transparent",
+              color: activeCategory === cat
+                ? "var(--brand-on-background-strong)"
+                : "var(--neutral-on-background-weak)",
               cursor: "pointer",
               fontSize: 13,
               fontWeight: activeCategory === cat ? 600 : 400,
@@ -121,27 +109,25 @@ export function WorkPageClient({ projects }: WorkPageClientProps) {
 
       {/* Project Cards */}
       {filtered.length === 0 ? (
-        <Column
-          horizontal="center"
-          align="center"
-          paddingY="80"
-          gap="m"
+        <Column horizontal="center" align="center" paddingY="80" gap="m"
           style={{ animation: "cardFadeInUp 0.5s cubic-bezier(0.22,1,0.36,1) both" }}
         >
           <Text style={{ fontSize: 48 }}>🔍</Text>
           <Text variant="heading-strong-m">
-            {lang === "en"
-              ? "No projects in this category"
-              : "Tidak ada proyek di kategori ini"}
+            {lang === "en" ? "No projects in this category" : "Tidak ada proyek di kategori ini"}
           </Text>
         </Column>
       ) : (
-        <Column
+        <div
           ref={listRef}
-          fillWidth
-          gap="xl"
-          marginBottom="40"
-          paddingX="l"
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "var(--static-space-40)",
+            width: "100%",
+            paddingInline: "var(--static-space-24)",
+            marginBottom: "40px",
+          }}
         >
           {filtered.map((project, index) => {
             const thumbUrl = project.thumbnail ?? "";
@@ -151,29 +137,31 @@ export function WorkPageClient({ projects }: WorkPageClientProps) {
             galleryUrls.forEach((g) => { if (!images.includes(g)) images.push(g); });
 
             return (
-              <ProjectCard
-                priority={index < 2}
-                key={project.slug}
-                href={`/project/${project.slug}`}
-                images={images}
-                thumbnail={thumbUrl}
-                title={lang === "en" ? project.title_en || project.title_id : project.title_id}
-                description={
-                  lang === "en"
-                    ? project.description_en || project.description_id
-                    : project.description_id
-                }
-                content=""
-                avatars={[]}
-                link={project.live_demo_url || ""}
-                tools={project.tools ?? []}
-                category={project.category}
-                attachment={project.attachment}
-                slug={project.slug}
-              />
+              // card-hidden ada dari render — invisible sebelum JS jalan
+              <div key={project.slug} className="card-hidden">
+                <ProjectCard
+                  priority={index < 2}
+                  href={`/project/${project.slug}`}
+                  images={images}
+                  thumbnail={thumbUrl}
+                  title={lang === "en" ? project.title_en || project.title_id : project.title_id}
+                  description={
+                    lang === "en"
+                      ? project.description_en || project.description_id
+                      : project.description_id
+                  }
+                  content=""
+                  avatars={[]}
+                  link={project.live_demo_url || ""}
+                  tools={project.tools ?? []}
+                  category={project.category}
+                  attachment={project.attachment}
+                  slug={project.slug}
+                />
+              </div>
             );
           })}
-        </Column>
+        </div>
       )}
     </Column>
   );

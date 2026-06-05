@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, Children, cloneElement, isValidElement } from "react";
 
 export function ProjectsWithAnimation({ children }: { children: React.ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -9,43 +9,30 @@ export function ProjectsWithAnimation({ children }: { children: React.ReactNode 
     const container = ref.current;
     if (!container) return;
 
-    const cards = Array.from(container.children) as HTMLElement[];
+    // Ambil semua wrapper div.card-hidden
+    const wrappers = Array.from(
+      container.querySelectorAll<HTMLElement>(".card-hidden")
+    );
 
-    const BASE_DELAY = 400; // ms — setelah hero selesai
-    const STAGGER    = 150; // ms jeda antar card
+    const BASE_DELAY = 350;
+    const STAGGER    = 150;
 
-    cards.forEach((card, i) => {
+    wrappers.forEach((wrapper, i) => {
       const delay = BASE_DELAY + i * STAGGER;
-
-      // 1. Langsung sembunyikan (sync, sebelum browser paint berikutnya)
-      card.style.opacity = "0";
-      card.style.transform = "translateY(48px) scale(0.97)";
-      card.style.filter = "blur(4px)";
-
-      // 2. Setelah satu frame, pasang transition dan reveal
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          card.style.transition = [
-            `opacity 0.75s cubic-bezier(0.22,1,0.36,1) ${delay}ms`,
-            `transform 0.75s cubic-bezier(0.22,1,0.36,1) ${delay}ms`,
-            `filter 0.6s cubic-bezier(0.22,1,0.36,1) ${delay}ms`,
-          ].join(", ");
-          card.style.opacity = "1";
-          card.style.transform = "translateY(0) scale(1)";
-          card.style.filter = "blur(0)";
-        });
-      });
+      wrapper.style.transitionDelay = `${delay}ms`;
+      // Tambah class animate — CSS transition langsung jalan
+      wrapper.classList.add("card-animate");
     });
 
-    // Fallback — paksa tampil jika ada yg ketinggalan
+    // Fallback
     const fallback = setTimeout(() => {
-      cards.forEach((card) => {
-        card.style.transition = "none";
-        card.style.opacity = "1";
-        card.style.transform = "translateY(0) scale(1)";
-        card.style.filter = "blur(0)";
+      wrappers.forEach((w) => {
+        w.style.transition = "none";
+        w.style.opacity = "1";
+        w.style.transform = "none";
+        w.style.filter = "none";
       });
-    }, BASE_DELAY + cards.length * STAGGER + 1000);
+    }, BASE_DELAY + wrappers.length * STAGGER + 1500);
 
     return () => clearTimeout(fallback);
   }, []);
@@ -62,7 +49,12 @@ export function ProjectsWithAnimation({ children }: { children: React.ReactNode 
         marginBottom: "var(--static-space-40)",
       }}
     >
-      {children}
+      {/* Bungkus tiap card dengan div.card-hidden — class ada sejak SSR */}
+      {Children.map(children, (child) =>
+        isValidElement(child) ? (
+          <div className="card-hidden">{child}</div>
+        ) : child
+      )}
     </div>
   );
 }

@@ -115,11 +115,23 @@ main, [data-page-content] {
   animation: pageEnterFade 0.65s cubic-bezier(0.22,1,0.36,1) both;
 }
 
-/* ─── Project card — CSS-only stagger animation ──────────────────────────── */
-/* Tiap card di-inject inline animation-delay dari ProjectsWithAnimation.tsx  */
-.card-stagger {
-  animation: cardFadeInUp 0.75s cubic-bezier(0.22,1,0.36,1) both;
-  animation-fill-mode: both;
+/* ─── Project card — hidden dari SSR, animasi via JS ────────────────────── */
+/* class ini ada di HTML sejak server render — card invisible sebelum JS jalan */
+.card-hidden {
+  opacity: 0;
+  transform: translateY(48px) scale(0.97);
+  filter: blur(4px);
+}
+
+/* JS menambah class ini + inline transition-delay untuk stagger */
+.card-hidden.card-animate {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  filter: blur(0);
+  transition:
+    opacity  0.75s cubic-bezier(0.22,1,0.36,1),
+    transform 0.75s cubic-bezier(0.22,1,0.36,1),
+    filter   0.6s  cubic-bezier(0.22,1,0.36,1);
 }
 
 /* ─── Section appear — CSS-only, triggered by .visible class ─────────────── */
