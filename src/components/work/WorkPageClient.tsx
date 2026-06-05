@@ -18,11 +18,41 @@ interface WorkPageClientProps {
   projects: Project[];
 }
 
+function animateCards(container: HTMLDivElement, baseDelay = 100) {
+  const cards = Array.from(container.children) as HTMLElement[];
+  const STAGGER = 130;
+
+  // 1. Sembunyikan semua dulu
+  cards.forEach((card) => {
+    card.style.transition = "none";
+    card.style.opacity = "0";
+    card.style.transform = "translateY(44px) scale(0.97)";
+    card.style.filter = "blur(4px)";
+  });
+
+  // 2. Double rAF — pastikan browser sudah paint state awal
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      cards.forEach((card, i) => {
+        const delay = baseDelay + i * STAGGER;
+        card.style.transition = [
+          `opacity 0.7s cubic-bezier(0.22,1,0.36,1) ${delay}ms`,
+          `transform 0.7s cubic-bezier(0.22,1,0.36,1) ${delay}ms`,
+          `filter 0.6s cubic-bezier(0.22,1,0.36,1) ${delay}ms`,
+        ].join(", ");
+        card.style.opacity = "1";
+        card.style.transform = "translateY(0) scale(1)";
+        card.style.filter = "blur(0)";
+      });
+    });
+  });
+}
+
 export function WorkPageClient({ projects }: WorkPageClientProps) {
   const { lang } = useLang();
   const [activeCategory, setActiveCategory] = useState<"All" | ProjectCategory>("All");
-  const [isChanging, setIsChanging] = useState(false);
   const listRef = useRef<HTMLDivElement>(null);
+  const isFirstRender = useRef(true);
 
   const filtered =
     activeCategory === "All"
@@ -34,47 +64,19 @@ export function WorkPageClient({ projects }: WorkPageClientProps) {
     return c;
   };
 
-  // Animate cards when category changes
+  // Animasi saat pertama load
   useEffect(() => {
-    const container = listRef.current;
-    if (!container) return;
+    if (!listRef.current) return;
+    animateCards(listRef.current, 300);
+    isFirstRender.current = false;
+  }, []);
 
-    const cards = Array.from(container.children) as HTMLElement[];
-
-    // Reset to invisible
-    cards.forEach((card) => {
-      card.style.opacity = "0";
-      card.style.transform = "translateY(44px) scale(0.97)";
-      card.style.filter = "blur(4px)";
-      card.style.transition = "none";
-    });
-
-    // Stagger reveal
-    const timers: ReturnType<typeof setTimeout>[] = [];
-    cards.forEach((card, i) => {
-      const t = setTimeout(() => {
-        card.style.transition = [
-          `opacity 0.7s cubic-bezier(0.22,1,0.36,1)`,
-          `transform 0.7s cubic-bezier(0.22,1,0.36,1)`,
-          `filter 0.6s cubic-bezier(0.22,1,0.36,1)`,
-        ].join(", ");
-        card.style.opacity = "1";
-        card.style.transform = "translateY(0) scale(1)";
-        card.style.filter = "blur(0)";
-      }, 40 + i * 120);
-      timers.push(t);
-    });
-
-    return () => timers.forEach(clearTimeout);
+  // Animasi saat kategori berubah
+  useEffect(() => {
+    if (isFirstRender.current) return;
+    if (!listRef.current) return;
+    animateCards(listRef.current, 50);
   }, [activeCategory]);
-
-  const handleCategoryChange = (cat: "All" | ProjectCategory) => {
-    setIsChanging(true);
-    setTimeout(() => {
-      setActiveCategory(cat);
-      setIsChanging(false);
-    }, 0);
-  };
 
   return (
     <Column fillWidth gap="xl">
@@ -83,7 +85,7 @@ export function WorkPageClient({ projects }: WorkPageClientProps) {
         {CATEGORIES.map((cat) => (
           <button
             key={cat}
-            onClick={() => handleCategoryChange(cat)}
+            onClick={() => setActiveCategory(cat)}
             style={{
               padding: "6px 16px",
               borderRadius: 99,
@@ -109,13 +111,7 @@ export function WorkPageClient({ projects }: WorkPageClientProps) {
           >
             {categoryLabel(cat)}
             {cat !== "All" && (
-              <span
-                style={{
-                  marginLeft: 6,
-                  opacity: 0.6,
-                  fontSize: 11,
-                }}
-              >
+              <span style={{ marginLeft: 6, opacity: 0.6, fontSize: 11 }}>
                 ({projects.filter((p) => p.category === cat).length})
               </span>
             )}
@@ -125,8 +121,12 @@ export function WorkPageClient({ projects }: WorkPageClientProps) {
 
       {/* Project Cards */}
       {filtered.length === 0 ? (
-        <Column horizontal="center" align="center" paddingY="80" gap="m"
-          style={{ animation: "fadeInUp 0.5s cubic-bezier(0.22,1,0.36,1) both" }}
+        <Column
+          horizontal="center"
+          align="center"
+          paddingY="80"
+          gap="m"
+          style={{ animation: "cardFadeInUp 0.5s cubic-bezier(0.22,1,0.36,1) both" }}
         >
           <Text style={{ fontSize: 48 }}>🔍</Text>
           <Text variant="heading-strong-m">
