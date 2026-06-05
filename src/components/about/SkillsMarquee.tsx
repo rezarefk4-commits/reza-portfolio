@@ -9,12 +9,11 @@ interface SkillsMarqueeProps {
 }
 
 function MarqueeRow({ skills, reverse = false }: { skills: AboutSkill[]; reverse?: boolean }) {
-  // Duplicate for seamless loop
   const doubled = [...skills, ...skills];
 
   return (
     <div style={{ overflow: "hidden", width: "100%", position: "relative" }}>
-      {/* Edge fade masks */}
+      {/* Edge fade */}
       <div style={{
         position: "absolute", left: 0, top: 0, bottom: 0, width: 80, zIndex: 2,
         background: "linear-gradient(to right, var(--page-background), transparent)",
@@ -26,62 +25,26 @@ function MarqueeRow({ skills, reverse = false }: { skills: AboutSkill[]; reverse
         pointerEvents: "none",
       }} />
 
-      <div
-        style={{
-          display: "flex",
-          gap: 16,
-          width: "max-content",
-          animation: `marquee${reverse ? "Reverse" : ""} ${skills.length * 3.5}s linear infinite`,
-          willChange: "transform",
-        }}
-      >
+      <div style={{
+        display: "flex",
+        gap: 10,
+        width: "max-content",
+        animation: `marquee${reverse ? "Reverse" : ""} ${skills.length * 3.5}s linear infinite`,
+        willChange: "transform",
+      }}>
         {doubled.map((skill, i) => (
-          <div
-            key={`${skill.id}-${i}`}
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: 8,
-              padding: "12px 18px",
-              borderRadius: 14,
-              border: "1px solid var(--neutral-alpha-weak)",
-              background: "var(--neutral-alpha-weak)",
-              backdropFilter: "blur(8px)",
-              minWidth: 80,
-              flexShrink: 0,
-              transition: "box-shadow 0.3s ease, transform 0.3s ease",
-              cursor: "default",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.boxShadow = "0 0 18px rgba(99,179,237,0.35), 0 0 40px rgba(99,179,237,0.12)";
-              e.currentTarget.style.transform = "translateY(-3px)";
-              e.currentTarget.style.borderColor = "rgba(99,179,237,0.4)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.boxShadow = "none";
-              e.currentTarget.style.transform = "translateY(0)";
-              e.currentTarget.style.borderColor = "var(--neutral-alpha-weak)";
-            }}
-          >
+          <div key={`${skill.id}-${i}`} className="skill-chip">
             {skill.icon ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={skill.icon}
                 alt={skill.title_id}
-                style={{ width: 36, height: 36, objectFit: "contain", filter: "drop-shadow(0 0 6px rgba(99,179,237,0.3))" }}
+                className="skill-icon"
               />
             ) : (
-              <span style={{ fontSize: 32 }}>⚡</span>
+              <span className="skill-icon skill-icon-fallback">⚡</span>
             )}
-            <span style={{
-              fontSize: 11,
-              fontWeight: 500,
-              color: "var(--neutral-on-background-weak)",
-              whiteSpace: "nowrap",
-            }}>
-              {skill.title_id}
-            </span>
+            <span className="skill-label">{skill.title_id}</span>
           </div>
         ))}
       </div>
@@ -101,17 +64,14 @@ export function SkillsMarquee({ initialSkills }: SkillsMarqueeProps) {
 
   if (skills.length === 0) return null;
 
-  // Split into two rows
   const half = Math.ceil(skills.length / 2);
   const row1 = skills.slice(0, half);
   const row2 = skills.slice(half);
-
-  // If only one row worth, use all for both
   const finalRow1 = row1.length >= 3 ? row1 : skills;
   const finalRow2 = row2.length >= 3 ? row2 : [...skills].reverse();
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 12, width: "100%" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 10, width: "100%" }}>
       <style>{`
         @keyframes marquee {
           0%   { transform: translateX(0); }
@@ -120,6 +80,67 @@ export function SkillsMarquee({ initialSkills }: SkillsMarqueeProps) {
         @keyframes marqueeReverse {
           0%   { transform: translateX(-50%); }
           100% { transform: translateX(0); }
+        }
+
+        .skill-chip {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 5px;
+          padding: 8px 12px;
+          border-radius: 10px;
+          border: 1px solid var(--neutral-alpha-weak);
+          background: var(--neutral-alpha-weak);
+          min-width: 60px;
+          flex-shrink: 0;
+          cursor: default;
+          transition: transform 0.28s cubic-bezier(0.34,1.56,0.64,1),
+                      border-color 0.28s ease,
+                      background 0.28s ease,
+                      box-shadow 0.28s ease;
+        }
+        .skill-chip:hover {
+          transform: scale(1.18) translateY(-2px);
+          border-color: color-mix(in srgb, var(--brand-background-strong) 40%, transparent);
+          background: color-mix(in srgb, var(--brand-background-strong) 8%, transparent);
+          box-shadow: 0 4px 20px color-mix(in srgb, var(--brand-background-strong) 20%, transparent);
+        }
+
+        .skill-icon {
+          width: 22px;
+          height: 22px;
+          object-fit: contain;
+          filter: grayscale(1) brightness(0.85);
+          transition: filter 0.28s ease, transform 0.28s cubic-bezier(0.34,1.56,0.64,1);
+          display: block;
+        }
+        .skill-chip:hover .skill-icon {
+          filter: grayscale(0) brightness(1);
+          transform: scale(1.1);
+        }
+
+        .skill-icon-fallback {
+          font-size: 20px;
+          filter: grayscale(1);
+          width: 22px;
+          height: 22px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .skill-chip:hover .skill-icon-fallback {
+          filter: none;
+        }
+
+        .skill-label {
+          font-size: 10px;
+          font-weight: 500;
+          color: var(--neutral-on-background-weak);
+          white-space: nowrap;
+          transition: color 0.2s;
+        }
+        .skill-chip:hover .skill-label {
+          color: var(--neutral-on-background-strong);
         }
       `}</style>
       <MarqueeRow skills={finalRow1} reverse={false} />
