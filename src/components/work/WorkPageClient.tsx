@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Column, Row, Text } from "@once-ui-system/core";
 import { useLang } from "@/lib/lang-context";
 import type { Project, ProjectCategory } from "@/lib/types";
@@ -21,6 +21,8 @@ interface WorkPageClientProps {
 export function WorkPageClient({ projects }: WorkPageClientProps) {
   const { lang } = useLang();
   const [activeCategory, setActiveCategory] = useState<"All" | ProjectCategory>("All");
+  const [isChanging, setIsChanging] = useState(false);
+  const listRef = useRef<HTMLDivElement>(null);
 
   const filtered =
     activeCategory === "All"
@@ -32,6 +34,48 @@ export function WorkPageClient({ projects }: WorkPageClientProps) {
     return c;
   };
 
+  // Animate cards when category changes
+  useEffect(() => {
+    const container = listRef.current;
+    if (!container) return;
+
+    const cards = Array.from(container.children) as HTMLElement[];
+
+    // Reset to invisible
+    cards.forEach((card) => {
+      card.style.opacity = "0";
+      card.style.transform = "translateY(44px) scale(0.97)";
+      card.style.filter = "blur(4px)";
+      card.style.transition = "none";
+    });
+
+    // Stagger reveal
+    const timers: ReturnType<typeof setTimeout>[] = [];
+    cards.forEach((card, i) => {
+      const t = setTimeout(() => {
+        card.style.transition = [
+          `opacity 0.7s cubic-bezier(0.22,1,0.36,1)`,
+          `transform 0.7s cubic-bezier(0.22,1,0.36,1)`,
+          `filter 0.6s cubic-bezier(0.22,1,0.36,1)`,
+        ].join(", ");
+        card.style.opacity = "1";
+        card.style.transform = "translateY(0) scale(1)";
+        card.style.filter = "blur(0)";
+      }, 40 + i * 120);
+      timers.push(t);
+    });
+
+    return () => timers.forEach(clearTimeout);
+  }, [activeCategory]);
+
+  const handleCategoryChange = (cat: "All" | ProjectCategory) => {
+    setIsChanging(true);
+    setTimeout(() => {
+      setActiveCategory(cat);
+      setIsChanging(false);
+    }, 0);
+  };
+
   return (
     <Column fillWidth gap="xl">
       {/* Category Filter */}
@@ -39,7 +83,7 @@ export function WorkPageClient({ projects }: WorkPageClientProps) {
         {CATEGORIES.map((cat) => (
           <button
             key={cat}
-            onClick={() => setActiveCategory(cat)}
+            onClick={() => handleCategoryChange(cat)}
             style={{
               padding: "6px 16px",
               borderRadius: 99,
@@ -59,7 +103,7 @@ export function WorkPageClient({ projects }: WorkPageClientProps) {
               cursor: "pointer",
               fontSize: 13,
               fontWeight: activeCategory === cat ? 600 : 400,
-              transition: "all 0.15s",
+              transition: "all 0.2s cubic-bezier(0.22,1,0.36,1)",
               whiteSpace: "nowrap",
             }}
           >
@@ -81,7 +125,9 @@ export function WorkPageClient({ projects }: WorkPageClientProps) {
 
       {/* Project Cards */}
       {filtered.length === 0 ? (
-        <Column horizontal="center" align="center" paddingY="80" gap="m">
+        <Column horizontal="center" align="center" paddingY="80" gap="m"
+          style={{ animation: "fadeInUp 0.5s cubic-bezier(0.22,1,0.36,1) both" }}
+        >
           <Text style={{ fontSize: 48 }}>🔍</Text>
           <Text variant="heading-strong-m">
             {lang === "en"
@@ -90,9 +136,14 @@ export function WorkPageClient({ projects }: WorkPageClientProps) {
           </Text>
         </Column>
       ) : (
-        <Column fillWidth gap="xl" marginBottom="40" paddingX="l">
+        <Column
+          ref={listRef}
+          fillWidth
+          gap="xl"
+          marginBottom="40"
+          paddingX="l"
+        >
           {filtered.map((project, index) => {
-            // Keep full URL including cache-buster query param for proper loading
             const thumbUrl = project.thumbnail ?? "";
             const galleryUrls = (project.gallery ?? []).filter(Boolean);
             const images: string[] = [];

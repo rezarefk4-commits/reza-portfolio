@@ -212,6 +212,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
     <>
       <style>{`
         .project-card {
+          position: relative;
           border-radius: 16px; overflow: hidden;
           border: 1px solid var(--neutral-alpha-weak);
           background: var(--neutral-background-medium);
@@ -224,6 +225,29 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
         }
         .project-card:hover { border-color: var(--neutral-alpha-medium); }
         .project-card:hover .proj-thumb img { transform: scale(1.06); }
+
+        /* Shimmer sweep on hover */
+        .project-card::after {
+          content: "";
+          position: absolute;
+          top: 0; left: -60%;
+          width: 40%; height: 100%;
+          background: linear-gradient(105deg, transparent 20%, rgba(255,255,255,0.04) 50%, transparent 80%);
+          transform: skewX(-12deg);
+          transition: none;
+          pointer-events: none;
+          z-index: 3;
+          opacity: 0;
+        }
+        .project-card:hover::after {
+          opacity: 1;
+          animation: cardSweepOnce 0.6s cubic-bezier(0.22,1,0.36,1) forwards;
+        }
+        @keyframes cardSweepOnce {
+          from { left: -60%; }
+          to   { left: 120%; }
+        }
+
         .proj-thumb { position: relative; }
         .proj-overlay {
           position: absolute; inset: 0;

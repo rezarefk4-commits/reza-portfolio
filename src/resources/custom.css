@@ -8,6 +8,38 @@
   to   { opacity: 1; }
 }
 
+/* ─── Card Stagger Fade-in (page load) ───────────────────────────────────── */
+@keyframes cardFadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(48px) scale(0.97);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+/* ─── Section Fade-in (scroll triggered via JS) ──────────────────────────── */
+@keyframes sectionFadeIn {
+  from { opacity: 0; transform: translateY(36px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── Overlay sweep on card appear ──────────────────────────────────────── */
+@keyframes cardSweep {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(110%); }
+}
+
+/* ─── Subtle glow pulse ──────────────────────────────────────────────────── */
+@keyframes glowPulse {
+  0%, 100% { box-shadow: 0 0 0 0 transparent; }
+  50%       { box-shadow: 0 8px 40px rgba(var(--brand-rgb, 99,102,241), 0.12); }
+}
+
 /* ─── Scroll Reveal — semua class HARUS opacity:0 agar animasi saat scroll ─ */
 .reveal {
   opacity: 0;
@@ -76,15 +108,68 @@
 
 /* ─── Page enter — hanya untuk wrapper utama ─────────────────────────────── */
 @keyframes pageEnterFade {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateY(16px); filter: blur(2px); }
+  to   { opacity: 1; transform: translateY(0);    filter: blur(0); }
 }
 main, [data-page-content] {
-  animation: pageEnterFade 0.55s cubic-bezier(0.22,1,0.36,1) both;
+  animation: pageEnterFade 0.65s cubic-bezier(0.22,1,0.36,1) both;
+}
+
+/* ─── Project card appear animation ─────────────────────────────────────── */
+.card-appear {
+  opacity: 0;
+  transform: translateY(52px) scale(0.97);
+  filter: blur(5px);
+}
+.card-appear.card-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  filter: blur(0);
+  transition:
+    opacity  0.75s cubic-bezier(0.22,1,0.36,1),
+    transform 0.75s cubic-bezier(0.22,1,0.36,1),
+    filter   0.6s  cubic-bezier(0.22,1,0.36,1);
+}
+
+/* ─── Section appear animation ───────────────────────────────────────────── */
+.section-appear {
+  opacity: 0;
+  transform: translateY(40px);
+}
+.section-appear.section-visible {
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity  0.8s cubic-bezier(0.22,1,0.36,1),
+    transform 0.8s cubic-bezier(0.22,1,0.36,1);
 }
 
 /* ─── Project Card ───────────────────────────────────────────────────────── */
 .project-card { perspective: 900px; }
+
+/* Shimmer sweep on card load */
+.project-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 30%,
+    rgba(255,255,255,0.045) 50%,
+    transparent 70%
+  );
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.project-card:hover::after { opacity: 1; }
+
+/* Card border glow on hover */
+.project-card:hover {
+  border-color: var(--neutral-alpha-medium);
+  box-shadow: 0 12px 48px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.12);
+}
 
 /* ─── Responsive Mobile ──────────────────────────────────────────────────── */
 @media (max-width: 768px) {

@@ -50,7 +50,7 @@ export function ScrollReveal({
       } else {
         el.classList.add("visible");
       }
-    }, 2000);
+    }, 2500);
 
     if (stagger) {
       const kids = Array.from(el.children) as HTMLElement[];

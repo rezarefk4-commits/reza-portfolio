@@ -52,7 +52,9 @@ export default async function Home() {
       </ScrollReveal>
 
       {/* ── 2. Semua Karya — animasi per card ada di Projects.tsx ─── */}
-      <Projects />
+      <ScrollReveal type="fade" delay={0} threshold={0.03} duration={600}>
+        <Projects />
+      </ScrollReveal>
 
       {/* ── 3. Tulisan Terbaru ──────────────────────────────────────── */}
       {routes["/blog"] && (
