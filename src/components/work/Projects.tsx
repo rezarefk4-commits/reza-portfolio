@@ -1,8 +1,7 @@
-import { Column } from "@once-ui-system/core";
 import { ProjectCard } from "@/components";
 import { getPublishedProjects } from "@/lib/db";
 import { getPosts } from "@/utils/utils";
-import { ScrollReveal } from "@/components/ScrollReveal";
+import { ProjectsWithAnimation } from "./ProjectsWithAnimation";
 
 interface ProjectsProps {
   range?: [number, number?];
@@ -25,7 +24,7 @@ export async function Projects({ range, exclude }: ProjectsProps) {
       : projects;
 
     return (
-      <Column fillWidth gap="xl" marginBottom="40" paddingX="l">
+      <ProjectsWithAnimation>
         {displayed.map((project, index) => {
           const thumbClean = project.thumbnail ?? "";
           const images: string[] = [];
@@ -38,31 +37,25 @@ export async function Projects({ range, exclude }: ProjectsProps) {
           }
 
           return (
-            <ScrollReveal
+            <ProjectCard
+              priority={index < 2}
               key={project.slug}
-              type="blur-up"
-              delay={index * 120}
-              threshold={0.06}
-            >
-              <ProjectCard
-                priority={index < 2}
-                href={`/project/${project.slug}`}
-                images={images}
-                thumbnail={thumbClean}
-                title={project.title_id}
-                description={project.description_id}
-                content=""
-                avatars={[]}
-                link={project.live_demo_url || ""}
-                tools={project.tools ?? []}
-                category={project.category}
-                attachment={project.attachment}
-                slug={project.slug}
-              />
-            </ScrollReveal>
+              href={`/project/${project.slug}`}
+              images={images}
+              thumbnail={thumbClean}
+              title={project.title_id}
+              description={project.description_id}
+              content=""
+              avatars={[]}
+              link={project.live_demo_url || ""}
+              tools={project.tools ?? []}
+              category={project.category}
+              attachment={project.attachment}
+              slug={project.slug}
+            />
           );
         })}
-      </Column>
+      </ProjectsWithAnimation>
     );
   }
 
@@ -82,27 +75,21 @@ export async function Projects({ range, exclude }: ProjectsProps) {
     : sortedProjects;
 
   return (
-    <Column fillWidth gap="xl" marginBottom="40" paddingX="l">
+    <ProjectsWithAnimation>
       {displayedProjects.map((post, index) => (
-        <ScrollReveal
+        <ProjectCard
+          priority={index < 2}
           key={post.slug}
-          type="blur-up"
-          delay={index * 120}
-          threshold={0.06}
-        >
-          <ProjectCard
-            priority={index < 2}
-            href={`/work/${post.slug}`}
-            images={post.metadata.images}
-            title={post.metadata.title}
-            description={post.metadata.summary}
-            content={post.content}
-            avatars={post.metadata.team?.map((member) => ({ src: member.avatar })) || []}
-            link={post.metadata.link || ""}
-            tools={[]}
-          />
-        </ScrollReveal>
+          href={`/work/${post.slug}`}
+          images={post.metadata.images}
+          title={post.metadata.title}
+          description={post.metadata.summary}
+          content={post.content}
+          avatars={post.metadata.team?.map((member) => ({ src: member.avatar })) || []}
+          link={post.metadata.link || ""}
+          tools={[]}
+        />
       ))}
-    </Column>
+    </ProjectsWithAnimation>
   );
 }
