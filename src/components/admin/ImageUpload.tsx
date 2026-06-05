@@ -343,7 +343,7 @@ export function ImageUpload({
             Hapus
           </Button>
         )}
-      </div>
+      </Row>
 
       {saved && (
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
