@@ -90,7 +90,7 @@ export interface SiteSettings {
   social_github: string;
   social_linkedin: string;
   social_instagram: string;
-  social_twitter: string;
+  social_threads: string;
   social_email: string;
   calendar_link: string;
   stats_projects: number;

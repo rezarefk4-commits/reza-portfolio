@@ -33,7 +33,7 @@ export const Footer = () => {
     const supabase = createClient();
     supabase
       .from("settings")
-      .select("footer_text_id, footer_text_en, social_github, social_linkedin, social_instagram, social_twitter, social_email")
+      .select("footer_text_id, footer_text_en, social_github, social_linkedin, social_instagram, social_threads, social_email")
       .order("updated_at", { ascending: false })
       .limit(1)
       .single()
@@ -48,7 +48,7 @@ export const Footer = () => {
         if (data.social_github)    links.push({ name: "GitHub",    icon: "github",    link: data.social_github });
         if (data.social_linkedin)  links.push({ name: "LinkedIn",  icon: "linkedin",  link: data.social_linkedin });
         if (data.social_instagram) links.push({ name: "Instagram", icon: "instagram", link: data.social_instagram });
-        if (data.social_twitter)   links.push({ name: "Twitter",   icon: "x",         link: data.social_twitter });
+        if (data.social_threads)   links.push({ name: "Threads",   icon: "threads",   link: data.social_threads });
         if (data.social_email)     links.push({ name: "Email",     icon: "email",     link: `mailto:${data.social_email}` });
 
         if (links.length > 0) setSocialLinks(links);

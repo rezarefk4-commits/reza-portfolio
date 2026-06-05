@@ -16,12 +16,12 @@ interface SocialPlatform {
 }
 
 const socialPlatforms: Record<string, SocialPlatform> = {
-  x: {
-    name: "x",
-    icon: "twitter",
-    label: "X",
-    generateUrl: (title, url) => 
-      `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`,
+  threads: {
+    name: "threads",
+    icon: "threads",
+    label: "Threads",
+    generateUrl: (title, url) =>
+      `https://www.threads.net/intent/post?text=${encodeURIComponent(`${title} ${url}`)}`,
   },
   linkedin: {
     name: "linkedin",

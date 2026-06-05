@@ -32,7 +32,7 @@ const defaultSettings: Omit<SiteSettings, "id" | "updated_at"> = {
   social_github: "https://github.com/rezarefka",
   social_linkedin: "https://www.linkedin.com/in/rezarefka",
   social_instagram: "https://www.instagram.com/rezarefka",
-  social_twitter: "",
+  social_threads: "",
   social_email: "rezarefka@gmail.com",
   calendar_link: "",
   stats_projects: 0,
@@ -173,7 +173,7 @@ export function SettingsForm({ settings }: SettingsFormProps) {
           </Row>
           <Row gap="m" s={{ direction: "column" }}>
             {field("Instagram", "social_instagram", "https://instagram.com/...")}
-            {field("Twitter/X", "social_twitter", "https://x.com/...")}
+            {field("Threads", "social_threads", "https://www.threads.net/@...")}
           </Row>
           {field("Email", "social_email", "email@example.com", "email")}
           {field("Link Kalender (Booking)", "calendar_link", "https://cal.com/...")}
