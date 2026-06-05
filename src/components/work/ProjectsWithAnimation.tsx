@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, Children, cloneElement, isValidElement } from "react";
+import { useEffect, Children, isValidElement, useRef } from "react";
 
 export function ProjectsWithAnimation({ children }: { children: React.ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -9,32 +9,27 @@ export function ProjectsWithAnimation({ children }: { children: React.ReactNode 
     const container = ref.current;
     if (!container) return;
 
-    // Ambil semua wrapper div.card-hidden
     const wrappers = Array.from(
-      container.querySelectorAll<HTMLElement>(".card-hidden")
+      container.querySelectorAll<HTMLElement>(".card-scroll-hidden")
     );
 
-    const BASE_DELAY = 350;
-    const STAGGER    = 150;
+    const observers: IntersectionObserver[] = [];
 
-    wrappers.forEach((wrapper, i) => {
-      const delay = BASE_DELAY + i * STAGGER;
-      wrapper.style.transitionDelay = `${delay}ms`;
-      // Tambah class animate — CSS transition langsung jalan
-      wrapper.classList.add("card-animate");
+    wrappers.forEach((wrapper) => {
+      const obs = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) {
+            wrapper.classList.add("card-scroll-visible");
+            obs.unobserve(wrapper);
+          }
+        },
+        { threshold: 0.12, rootMargin: "0px 0px -60px 0px" }
+      );
+      obs.observe(wrapper);
+      observers.push(obs);
     });
 
-    // Fallback
-    const fallback = setTimeout(() => {
-      wrappers.forEach((w) => {
-        w.style.transition = "none";
-        w.style.opacity = "1";
-        w.style.transform = "none";
-        w.style.filter = "none";
-      });
-    }, BASE_DELAY + wrappers.length * STAGGER + 1500);
-
-    return () => clearTimeout(fallback);
+    return () => observers.forEach((o) => o.disconnect());
   }, []);
 
   return (
@@ -49,10 +44,9 @@ export function ProjectsWithAnimation({ children }: { children: React.ReactNode 
         marginBottom: "var(--static-space-40)",
       }}
     >
-      {/* Bungkus tiap card dengan div.card-hidden — class ada sejak SSR */}
       {Children.map(children, (child) =>
         isValidElement(child) ? (
-          <div className="card-hidden">{child}</div>
+          <div className="card-scroll-hidden">{child}</div>
         ) : child
       )}
     </div>
