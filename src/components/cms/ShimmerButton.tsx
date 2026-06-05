@@ -15,85 +15,123 @@ export function ShimmerButton({ href, avatarSrc, label, personName }: ShimmerBut
   return (
     <>
       <style>{`
-        @keyframes shimmerFlow {
-          0%   { transform: translateX(-160%) skewX(-12deg); opacity: 0; }
-          8%   { opacity: 1; }
-          92%  { opacity: 1; }
-          100% { transform: translateX(260%) skewX(-12deg); opacity: 0; }
+        /* ── Kilau utama — sapuan lembut dari kiri ke kanan ── */
+        @keyframes lustreFlow {
+          0%   { transform: translateX(-120%) rotate(-18deg); opacity: 0;   }
+          15%  { opacity: 1; }
+          85%  { opacity: 1; }
+          100% { transform: translateX(220%)  rotate(-18deg); opacity: 0;   }
         }
-        @keyframes shimmerPulse {
-          0%, 100% { box-shadow: 0 2px 20px rgba(255,255,255,0.06), inset 0 1px 0 rgba(255,255,255,0.1); }
-          50%       { box-shadow: 0 4px 32px rgba(255,255,255,0.14), inset 0 1px 0 rgba(255,255,255,0.16); }
+
+        /* ── Cahaya tepi atas — subtle border glow ── */
+        @keyframes rimGlow {
+          0%, 100% { opacity: 0.35; }
+          50%       { opacity: 0.80; }
         }
-        .shimmer-btn {
+
+        /* ── Napas / breathing ── */
+        @keyframes breathe {
+          0%, 100% { box-shadow: 0 2px 18px rgba(255,255,255,0.05), 0 0 0 1px rgba(255,255,255,0.10); }
+          50%       { box-shadow: 0 4px 28px rgba(255,255,255,0.10), 0 0 0 1px rgba(255,255,255,0.18); }
+        }
+
+        .lustre-btn {
           position: relative;
           overflow: hidden;
-          animation: shimmerPulse 3.5s ease-in-out infinite;
           isolation: isolate;
+          animation: breathe 4s ease-in-out infinite;
+          transition:
+            background  0.3s ease,
+            transform   0.3s cubic-bezier(0.34,1.56,0.64,1),
+            box-shadow  0.3s ease;
         }
-        .shimmer-btn::before {
+
+        /* Kilau utama */
+        .lustre-btn::before {
           content: "";
           position: absolute;
-          top: -20%;
+          top: -40%;
           left: 0;
-          width: 36%;
-          height: 140%;
+          width: 28%;
+          height: 180%;
           background: linear-gradient(
             105deg,
-            transparent 0%,
-            rgba(255,255,255,0.06) 25%,
-            rgba(255,255,255,0.22) 50%,
-            rgba(255,255,255,0.06) 75%,
-            transparent 100%
+            transparent      0%,
+            rgba(255,255,255,0.03) 20%,
+            rgba(255,255,255,0.18) 50%,
+            rgba(255,255,255,0.03) 80%,
+            transparent      100%
           );
-          animation: shimmerFlow 3.2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-          border-radius: inherit;
+          animation: lustreFlow 4.8s cubic-bezier(0.45, 0, 0.55, 1) infinite;
           pointer-events: none;
           z-index: 1;
+          filter: blur(1px);
         }
-        .shimmer-btn::after {
+
+        /* Rim light — garis tipis di atas */
+        .lustre-btn::after {
           content: "";
           position: absolute;
-          inset: 0;
-          border-radius: inherit;
+          top: 0; left: 10%; right: 10%;
+          height: 1px;
           background: linear-gradient(
-            135deg,
-            rgba(255,255,255,0.06) 0%,
-            transparent 50%,
-            rgba(255,255,255,0.03) 100%
+            90deg,
+            transparent,
+            rgba(255,255,255,0.55) 50%,
+            transparent
           );
+          animation: rimGlow 4.8s ease-in-out infinite;
           pointer-events: none;
-          z-index: 0;
+          z-index: 2;
         }
-        .shimmer-btn:hover {
+
+        /* Hover — kilau lebih cepat */
+        .lustre-btn:hover {
+          background: rgba(255,255,255,0.11) !important;
+          transform: translateY(-2px) scale(1.03);
+          box-shadow: 0 6px 28px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.22);
           animation: none;
-          background: rgba(255,255,255,0.12) !important;
-          transform: translateY(-2px) scale(1.02) !important;
-          box-shadow: 0 6px 32px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.18) !important;
         }
-        .shimmer-btn:hover::before {
-          animation: shimmerFlow 1.4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        .lustre-btn:hover::before {
+          animation: lustreFlow 1.6s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+        }
+        .lustre-btn:hover::after {
+          opacity: 1;
+          animation: none;
+        }
+
+        /* Aktif / klik */
+        .lustre-btn:active {
+          transform: translateY(0) scale(0.98);
+        }
+
+        /* Arrow icon ikut gerak saat hover */
+        .lustre-btn:hover .lustre-arrow {
+          transform: translateX(3px);
+        }
+        .lustre-arrow {
+          transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
         }
       `}</style>
+
       <button
         onClick={() => router.push(href)}
-        className="shimmer-btn"
+        className="lustre-btn"
         style={{
           display: "inline-flex",
           alignItems: "center",
           gap: 10,
           padding: "10px 22px 10px 8px",
           borderRadius: 999,
-          border: "1px solid rgba(255,255,255,0.14)",
+          border: "1px solid rgba(255,255,255,0.13)",
           background: "rgba(255,255,255,0.07)",
-          backdropFilter: "blur(16px) saturate(180%)",
-          WebkitBackdropFilter: "blur(16px) saturate(180%)",
+          backdropFilter: "blur(20px) saturate(160%)",
+          WebkitBackdropFilter: "blur(20px) saturate(160%)",
           cursor: "pointer",
           color: "var(--neutral-on-background-strong)",
           fontSize: 14,
           fontWeight: 500,
           fontFamily: "inherit",
-          transition: "background 0.28s cubic-bezier(0.34,1.56,0.64,1), transform 0.28s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.28s ease",
         }}
       >
         {/* Avatar */}
@@ -109,13 +147,17 @@ export function ShimmerButton({ href, avatarSrc, label, personName }: ShimmerBut
             border: "1.5px solid rgba(255,255,255,0.2)",
             flexShrink: 0,
             position: "relative",
-            zIndex: 2,
+            zIndex: 3,
           }}
           onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
         />
-        <span style={{ position: "relative", zIndex: 2 }}>{label}</span>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
-          style={{ opacity: 0.55, position: "relative", zIndex: 2, transition: "transform 0.2s ease" }}>
+        <span style={{ position: "relative", zIndex: 3 }}>{label}</span>
+        <svg
+          width="14" height="14" viewBox="0 0 24 24"
+          fill="none" stroke="currentColor" strokeWidth="2"
+          className="lustre-arrow"
+          style={{ opacity: 0.6, position: "relative", zIndex: 3 }}
+        >
           <path d="M5 12h14M12 5l7 7-7 7"/>
         </svg>
       </button>
