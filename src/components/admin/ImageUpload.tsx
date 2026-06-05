@@ -267,13 +267,13 @@ export function ImageUpload({
 
       {/* Progress bars */}
       {progressEntries.length > 0 && (
-        <Column gap="6">
+        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
           {progressEntries.map(([name, pct]) => (
             <div key={name}>
-              <Row horizontal="between" style={{ marginBottom: 3 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 3 }}>
                 <Text variant="body-default-xs" onBackground="neutral-weak" style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "80%" }}>{name}</Text>
                 <Text variant="body-default-xs" onBackground="neutral-weak">{pct}%</Text>
-              </Row>
+              </div>
               <div style={{ height: 4, borderRadius: 99, background: "var(--neutral-alpha-weak)", overflow: "hidden" }}>
                 <div style={{
                   height: "100%",
@@ -285,12 +285,12 @@ export function ImageUpload({
               </div>
             </div>
           ))}
-        </Column>
+        </div>
       )}
 
       {/* Uploaded file list */}
       {uploadedFiles.length > 0 && (
-        <Column gap="6">
+        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
           <Text variant="label-default-xs" onBackground="neutral-weak">File terupload ({uploadedFiles.length})</Text>
           {uploadedFiles.map((f, i) => (
             <div key={i} style={{
@@ -317,7 +317,7 @@ export function ImageUpload({
               </a>
             </div>
           ))}
-        </Column>
+        </div>
       )}
 
       {/* URL input */}
@@ -343,16 +343,16 @@ export function ImageUpload({
             Hapus
           </Button>
         )}
-      </Row>
+      </div>
 
       {saved && (
-        <Row gap="8" vertical="center">
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <Text style={{ fontSize: 14 }}>✅</Text>
           <Text variant="body-default-s" onBackground="brand-weak">Tersimpan otomatis!</Text>
         </Row>
       )}
       {error && (
-        <Row gap="8" vertical="center">
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <Text style={{ fontSize: 14 }}>❌</Text>
           <Text variant="body-default-s" onBackground="danger-strong">{error}</Text>
         </Row>
