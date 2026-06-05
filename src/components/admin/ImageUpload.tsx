@@ -349,13 +349,13 @@ export function ImageUpload({
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <Text style={{ fontSize: 14 }}>✅</Text>
           <Text variant="body-default-s" onBackground="brand-weak">Tersimpan otomatis!</Text>
-        </Row>
+        </div>
       )}
       {error && (
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <Text style={{ fontSize: 14 }}>❌</Text>
           <Text variant="body-default-s" onBackground="danger-strong">{error}</Text>
-        </Row>
+        </div>
       )}
     </Column>
   );
