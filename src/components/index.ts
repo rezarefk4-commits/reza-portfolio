@@ -10,3 +10,4 @@ export { ThemeToggle } from "@/components/ThemeToggle";
 export { CustomMDX } from "@/components/mdx";
 
 export { ScrollReveal } from "./ScrollReveal";
+export { ScrollAnimate } from "./ScrollAnimate";
