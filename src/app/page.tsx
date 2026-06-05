@@ -51,10 +51,8 @@ export default async function Home() {
         <HeroSection settings={settings} />
       </ScrollReveal>
 
-      {/* ── 2. Semua Karya — animasi per card ada di Projects.tsx ─── */}
-      <ScrollReveal type="fade" delay={0} threshold={0.03} duration={600}>
-        <Projects />
-      </ScrollReveal>
+      {/* ── 2. Semua Karya — animasi per card ada di ProjectsWithAnimation ─── */}
+      <Projects />
 
       {/* ── 3. Tulisan Terbaru ──────────────────────────────────────── */}
       {routes["/blog"] && (

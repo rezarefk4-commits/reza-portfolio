@@ -115,23 +115,14 @@ main, [data-page-content] {
   animation: pageEnterFade 0.65s cubic-bezier(0.22,1,0.36,1) both;
 }
 
-/* ─── Project card appear animation ─────────────────────────────────────── */
-.card-appear {
-  opacity: 0;
-  transform: translateY(52px) scale(0.97);
-  filter: blur(5px);
-}
-.card-appear.card-visible {
-  opacity: 1;
-  transform: translateY(0) scale(1);
-  filter: blur(0);
-  transition:
-    opacity  0.75s cubic-bezier(0.22,1,0.36,1),
-    transform 0.75s cubic-bezier(0.22,1,0.36,1),
-    filter   0.6s  cubic-bezier(0.22,1,0.36,1);
+/* ─── Project card — CSS-only stagger animation ──────────────────────────── */
+/* Tiap card di-inject inline animation-delay dari ProjectsWithAnimation.tsx  */
+.card-stagger {
+  animation: cardFadeInUp 0.75s cubic-bezier(0.22,1,0.36,1) both;
+  animation-fill-mode: both;
 }
 
-/* ─── Section appear animation ───────────────────────────────────────────── */
+/* ─── Section appear — CSS-only, triggered by .visible class ─────────────── */
 .section-appear {
   opacity: 0;
   transform: translateY(40px);
@@ -146,24 +137,6 @@ main, [data-page-content] {
 
 /* ─── Project Card ───────────────────────────────────────────────────────── */
 .project-card { perspective: 900px; }
-
-/* Shimmer sweep on card load */
-.project-card::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    105deg,
-    transparent 30%,
-    rgba(255,255,255,0.045) 50%,
-    transparent 70%
-  );
-  border-radius: inherit;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.3s;
-}
-.project-card:hover::after { opacity: 1; }
 
 /* Card border glow on hover */
 .project-card:hover {
