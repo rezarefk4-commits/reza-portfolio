@@ -133,7 +133,7 @@ export function TiptapEditor({ value, onChange, placeholder }: TiptapEditorProps
     const current = editor.getHTML();
     // Hanya update jika memang beda konten (hindari loop)
     if (clean !== current) {
-      editor.commands.setContent(clean, false);
+      editor.commands.setContent(clean, { emitUpdate: false });
       setRawHtml(clean);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -256,7 +256,7 @@ export function TiptapEditor({ value, onChange, placeholder }: TiptapEditorProps
     } else {
       // Keluar mode HTML: parse dan render ke visual editor
       const clean = sanitizeContent(rawHtml);
-      editor.commands.setContent(clean, false);
+      editor.commands.setContent(clean, { emitUpdate: false });
       setRawHtml(clean);
       onChange(clean);
       setHtmlMode(false);
@@ -273,7 +273,7 @@ export function TiptapEditor({ value, onChange, placeholder }: TiptapEditorProps
     const pasted = prompt("Paste HTML kode di sini — akan langsung di-render:");
     if (!pasted) return;
     const clean = sanitizeContent(pasted);
-    editor.commands.setContent(clean, false);
+    editor.commands.setContent(clean, { emitUpdate: false });
     setRawHtml(clean);
     onChange(clean);
   };
