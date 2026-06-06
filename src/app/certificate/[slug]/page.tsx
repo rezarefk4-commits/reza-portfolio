@@ -2,7 +2,7 @@ export const dynamic = "force-dynamic";
 
 import { notFound } from "next/navigation";
 import {
-  Column, Heading, Text, SmartLink, Row, Button, Meta, Line,
+  Column, Heading, Text, SmartLink, Row, Meta, Line,
 } from "@once-ui-system/core";
 import { baseURL } from "@/resources";
 import { getCertificateBySlug, getCertificates } from "@/lib/db";
@@ -18,6 +18,133 @@ function safeDate(d: string | null | undefined, fmt: string, opts?: Parameters<t
     if (isNaN(date.getTime())) return "—";
     return format(date, fmt, opts);
   } catch { return "—"; }
+}
+
+function isPdf(url: string | null | undefined): boolean {
+  if (!url) return false;
+  return url.split("?")[0].toLowerCase().endsWith(".pdf");
+}
+
+/* ── Elegant inline PDF card ─────────────────────────────────── */
+function ElegantPdfCard({ src, title }: { src: string; title: string }) {
+  return (
+    <div
+      style={{
+        width: "100%",
+        borderRadius: 20,
+        overflow: "hidden",
+        background: "var(--neutral-background-medium)",
+        border: "1px solid var(--neutral-alpha-weak)",
+        boxShadow:
+          "0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -1px rgba(0,0,0,0.04), 0 20px 60px rgba(0,0,0,0.08)",
+        position: "relative",
+      }}
+    >
+      {/* Decorative top accent line */}
+      <div
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          height: 2,
+          background: "linear-gradient(90deg, var(--brand-background-strong) 0%, transparent 70%)",
+          borderRadius: "20px 20px 0 0",
+          zIndex: 1,
+        }}
+      />
+
+      {/* Card header */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 14,
+          padding: "18px 22px",
+          background: "var(--neutral-background-strong)",
+          borderBottom: "1px solid var(--neutral-alpha-weak)",
+        }}
+      >
+        <div
+          style={{
+            width: 38,
+            height: 38,
+            borderRadius: 10,
+            background: "rgba(239,68,68,0.1)",
+            border: "1px solid rgba(239,68,68,0.2)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color: "#ef4444",
+            flexShrink: 0,
+          }}
+        >
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+            <polyline points="14 2 14 8 20 8" />
+            <line x1="9" y1="13" x2="15" y2="13" />
+            <line x1="9" y1="17" x2="15" y2="17" />
+            <polyline points="9 9 10 9" />
+          </svg>
+        </div>
+
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div
+            style={{
+              fontSize: 14,
+              fontWeight: 700,
+              color: "var(--neutral-on-background-strong)",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+              letterSpacing: "-0.01em",
+            }}
+          >
+            {title}
+          </div>
+          <div
+            style={{
+              fontSize: 11,
+              color: "var(--neutral-on-background-weak)",
+              marginTop: 2,
+              letterSpacing: "0.03em",
+              textTransform: "uppercase",
+              fontWeight: 500,
+            }}
+          >
+            Dokumen PDF
+          </div>
+        </div>
+      </div>
+
+      {/* PDF iframe */}
+      <div style={{ position: "relative" }}>
+        <iframe
+          src={`${src}#toolbar=0&navpanes=0&scrollbar=1&view=FitH`}
+          title={title}
+          style={{
+            width: "100%",
+            height: "680px",
+            border: "none",
+            display: "block",
+            background: "var(--neutral-background-weak)",
+          }}
+        />
+        <div
+          style={{
+            position: "absolute",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height: 32,
+            background:
+              "linear-gradient(to top, var(--neutral-background-medium) 0%, transparent 100%)",
+            pointerEvents: "none",
+          }}
+        />
+      </div>
+    </div>
+  );
 }
 
 export async function generateMetadata({
@@ -46,9 +173,11 @@ export default async function CertificatePage({
   const cert = await getCertificateBySlug(slug).catch(() => null);
   if (!cert) notFound();
 
-  // Ambil sertifikat lain untuk seksi "Sertifikat Lainnya"
   const allCerts = await getCertificates().catch(() => []);
   const otherCerts = allCerts.filter((c) => c.id !== cert.id).slice(0, 3);
+
+  const certIsPdf = isPdf(cert.pdf);
+  const thumbIsPdf = isPdf(cert.thumbnail);
 
   return (
     <Column as="section" maxWidth="m" horizontal="center" gap="l" paddingTop="24">
@@ -77,23 +206,13 @@ export default async function CertificatePage({
         </span>
       </Column>
 
-      {/* ── Tombol Aksi ─────────────────────────────────────────────── */}
-      {cert.pdf && (
-        <Row gap="12" horizontal="center" wrap>
-          <Button
-            href={cert.pdf}
-            target="_blank"
-            variant="primary"
-            size="m"
-            prefixIcon="download"
-          >
-            Unduh Sertifikat (PDF)
-          </Button>
-        </Row>
+      {/* ── PDF card (if pdf field is a pdf file) ──────────────────── */}
+      {cert.pdf && certIsPdf && (
+        <ElegantPdfCard src={cert.pdf} title={cert.title_id} />
       )}
 
-      {/* ── Thumbnail ───────────────────────────────────────────────── */}
-      {cert.thumbnail && (
+      {/* ── Thumbnail (image only, skip if thumbnail is pdf) ────────── */}
+      {cert.thumbnail && !thumbIsPdf && (
         <div style={{
           width: "100%", borderRadius: 16, overflow: "hidden",
           border: "1px solid var(--neutral-alpha-weak)",
@@ -106,6 +225,11 @@ export default async function CertificatePage({
             style={{ width: "100%", height: "auto", display: "block" }}
           />
         </div>
+      )}
+
+      {/* ── Thumbnail is PDF ─────────────────────────────────────────── */}
+      {cert.thumbnail && thumbIsPdf && !certIsPdf && (
+        <ElegantPdfCard src={cert.thumbnail} title={cert.title_id} />
       )}
 
       {/* ── Info Card ───────────────────────────────────────────────── */}
@@ -180,7 +304,7 @@ export default async function CertificatePage({
                   background: "var(--neutral-background-medium)",
                   transition: "transform 0.2s, box-shadow 0.2s",
                 }}>
-                  {c.thumbnail && (
+                  {c.thumbnail && !isPdf(c.thumbnail) && (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={c.thumbnail} alt={c.title_id}
                       style={{ width: "100%", height: 110, objectFit: "cover" }} />

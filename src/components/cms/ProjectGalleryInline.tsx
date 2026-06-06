@@ -40,136 +40,129 @@ function VideoPlayer({ src, title }: { src: string; title: string }) {
   );
 }
 
-/* ── PDF viewer ────────────────────────────────────────────── */
+/* ── Elegant PDF Card Viewer ───────────────────────────────── */
 function PdfViewer({ src, title }: { src: string; title: string }) {
-  const [expanded, setExpanded] = useState(false);
-  // Gunakan proxy agar iframe tidak diblokir oleh header X-Frame-Options / CSP
-  // yang dikirim langsung dari Supabase Storage
   const proxySrc = `/api/pdf-proxy?url=${encodeURIComponent(src)}`;
 
   return (
     <div
       style={{
         width: "100%",
-        borderRadius: 16,
+        borderRadius: 20,
         overflow: "hidden",
+        background: "var(--neutral-background-medium)",
         border: "1px solid var(--neutral-alpha-weak)",
+        boxShadow:
+          "0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -1px rgba(0,0,0,0.04), 0 20px 60px rgba(0,0,0,0.08)",
+        position: "relative",
       }}
     >
+      {/* Decorative top accent line */}
+      <div
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          height: 2,
+          background: "linear-gradient(90deg, var(--brand-background-strong) 0%, transparent 70%)",
+          borderRadius: "20px 20px 0 0",
+          zIndex: 1,
+        }}
+      />
+
+      {/* Card header — title only */}
       <div
         style={{
           display: "flex",
           alignItems: "center",
-          justifyContent: "space-between",
-          padding: "12px 16px",
+          gap: 14,
+          padding: "18px 22px",
           background: "var(--neutral-background-strong)",
           borderBottom: "1px solid var(--neutral-alpha-weak)",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        {/* PDF icon badge */}
+        <div
+          style={{
+            width: 38,
+            height: 38,
+            borderRadius: 10,
+            background: "rgba(239,68,68,0.1)",
+            border: "1px solid rgba(239,68,68,0.2)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color: "#ef4444",
+            flexShrink: 0,
+          }}
+        >
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+            <polyline points="14 2 14 8 20 8" />
+            <line x1="9" y1="13" x2="15" y2="13" />
+            <line x1="9" y1="17" x2="15" y2="17" />
+            <polyline points="9 9 10 9" />
+          </svg>
+        </div>
+
+        {/* Title */}
+        <div style={{ flex: 1, minWidth: 0 }}>
           <div
             style={{
-              width: 32,
-              height: 32,
-              borderRadius: 8,
-              background: "rgba(239,68,68,0.12)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "#ef4444",
+              fontSize: 14,
+              fontWeight: 700,
+              color: "var(--neutral-on-background-strong)",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+              letterSpacing: "-0.01em",
             }}
           >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-              <polyline points="14 2 14 8 20 8" />
-            </svg>
+            {title}
           </div>
-          <div>
-            <div
-              style={{
-                fontSize: 13,
-                fontWeight: 600,
-                color: "var(--neutral-on-background-strong)",
-              }}
-            >
-              {title}
-            </div>
-            <div style={{ fontSize: 11, color: "var(--neutral-on-background-weak)" }}>
-              Dokumen PDF
-            </div>
-          </div>
-        </div>
-        <div style={{ display: "flex", gap: 8 }}>
-          <button
-            onClick={() => setExpanded(!expanded)}
+          <div
             style={{
-              padding: "5px 12px",
-              borderRadius: 8,
-              border: "1px solid var(--neutral-alpha-medium)",
-              background: "var(--neutral-alpha-weak)",
-              cursor: "pointer",
+              fontSize: 11,
               color: "var(--neutral-on-background-weak)",
-              fontSize: 12,
+              marginTop: 2,
+              letterSpacing: "0.03em",
+              textTransform: "uppercase",
               fontWeight: 500,
             }}
           >
-            {expanded ? "Kecilkan" : "Perluas"}
-          </button>
-          <a
-            href={src}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              padding: "5px 12px",
-              borderRadius: 8,
-              border: "none",
-              background: "var(--brand-background-strong)",
-              color: "var(--brand-on-background-strong)",
-              fontSize: 12,
-              fontWeight: 600,
-              textDecoration: "none",
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 5,
-            }}
-          >
-            <svg
-              width="12"
-              height="12"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.2"
-              strokeLinecap="round"
-            >
-              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-              <polyline points="15 3 21 3 21 9" />
-              <line x1="10" y1="14" x2="21" y2="3" />
-            </svg>
-            Buka
-          </a>
+            Dokumen PDF
+          </div>
         </div>
       </div>
-      <iframe
-        src={`${proxySrc}#toolbar=1&navpanes=0`}
-        title={title}
-        style={{
-          width: "100%",
-          height: expanded ? "85vh" : "520px",
-          border: "none",
-          display: "block",
-          transition: "height 0.4s cubic-bezier(0.4,0,0.2,1)",
-        }}
-      />
+
+      {/* PDF iframe — clean, scroll only */}
+      <div style={{ position: "relative" }}>
+        <iframe
+          src={`${proxySrc}#toolbar=0&navpanes=0&scrollbar=1&view=FitH`}
+          title={title}
+          style={{
+            width: "100%",
+            height: "680px",
+            border: "none",
+            display: "block",
+            background: "var(--neutral-background-weak)",
+          }}
+        />
+        {/* Bottom fade overlay */}
+        <div
+          style={{
+            position: "absolute",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height: 32,
+            background:
+              "linear-gradient(to top, var(--neutral-background-medium) 0%, transparent 100%)",
+            pointerEvents: "none",
+          }}
+        />
+      </div>
     </div>
   );
 }
@@ -211,15 +204,7 @@ function ImageViewer({ src, title }: { src: string; title: string }) {
               justifyContent: "center",
             }}
           >
-            <svg
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.2"
-              strokeLinecap="round"
-            >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
               <line x1="18" y1="6" x2="6" y2="18" />
               <line x1="6" y1="6" x2="18" y2="18" />
             </svg>
@@ -278,15 +263,7 @@ function ImageViewer({ src, title }: { src: string; title: string }) {
             opacity: 0.8,
           }}
         >
-          <svg
-            width="11"
-            height="11"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-          >
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
             <circle cx="11" cy="11" r="8" />
             <line x1="21" y1="21" x2="16.65" y2="16.65" />
             <line x1="11" y1="8" x2="11" y2="14" />
@@ -306,11 +283,9 @@ export function ProjectGalleryInline({
   gallery,
   title,
 }: ProjectGalleryInlineProps) {
-  // Collect semua media KECUALI thumbnail (thumbnail tidak ditampilkan di halaman detail)
   const seen = new Set<string>();
   const mediaItems: { url: string; type: "image" | "video" | "pdf" }[] = [];
 
-  // Attachment dulu (video/pdf/image selain thumbnail)
   if (attachment && attachment !== thumbnail) {
     if (!seen.has(attachment)) {
       seen.add(attachment);
@@ -318,14 +293,12 @@ export function ProjectGalleryInline({
     }
   }
 
-  // Gallery images (kecuali thumbnail)
   for (const g of gallery) {
     if (!g || g === thumbnail || seen.has(g)) continue;
     seen.add(g);
     mediaItems.push({ url: g, type: detectType(g) });
   }
 
-  // Jika attachment == thumbnail (tapi bukan image biasa), tetap tampilkan
   if (
     attachment &&
     attachment === thumbnail &&
