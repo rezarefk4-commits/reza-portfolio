@@ -16,7 +16,23 @@ import css from "highlight.js/lib/languages/css";
 import html from "highlight.js/lib/languages/xml";
 import bash from "highlight.js/lib/languages/bash";
 import sql from "highlight.js/lib/languages/sql";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
+
+/* ── Sanitize / unescape HTML yang mungkin ter-escape dari DB ── */
+function sanitizeContent(raw: string): string {
+  if (!raw) return "";
+  const trimmed = raw.trim();
+  // Jika sudah berupa HTML valid (dimulai dengan tag), langsung pakai
+  if (trimmed.startsWith("<")) return trimmed;
+  // Jika escaped HTML (&lt;p&gt; dll), unescape dulu
+  if (trimmed.includes("&lt;") || trimmed.includes("&#")) {
+    const txt = document.createElement("textarea");
+    txt.innerHTML = trimmed;
+    return txt.value;
+  }
+  // Plain text — bungkus dalam <p>
+  return `<p>${trimmed}</p>`;
+}
 import styles from "./TiptapEditor.module.scss";
 
 const lowlight = createLowlight();
@@ -85,9 +101,12 @@ const FONT_SIZES = ["12px","13px","14px","15px","16px","18px","20px","22px","24p
 
 export function TiptapEditor({ value, onChange, placeholder }: TiptapEditorProps) {
   const [htmlMode, setHtmlMode] = useState(false);
-  const [rawHtml, setRawHtml]   = useState(value);
   const [showColorPicker,     setShowColorPicker]     = useState(false);
   const [showHighlightPicker, setShowHighlightPicker] = useState(false);
+
+  // Sanitize saat pertama kali — handle escaped HTML dari DB
+  const initialContent = typeof window !== "undefined" ? sanitizeContent(value) : value;
+  const [rawHtml, setRawHtml] = useState(initialContent);
 
   const editor = useEditor({
     extensions: [
@@ -99,13 +118,26 @@ export function TiptapEditor({ value, onChange, placeholder }: TiptapEditorProps
       Placeholder.configure({ placeholder: placeholder || "Tulis konten di sini..." }),
       CodeBlockLowlight.configure({ lowlight }),
     ],
-    content: value,
+    content: initialContent,
     onUpdate: ({ editor }) => {
       const html = editor.getHTML();
       setRawHtml(html);
       onChange(html);
     },
   });
+
+  // Sync editor jika value berubah dari luar (misal: ganti tab ID ↔ EN)
+  useEffect(() => {
+    if (!editor) return;
+    const clean = sanitizeContent(value);
+    const current = editor.getHTML();
+    // Hanya update jika memang beda konten (hindari loop)
+    if (clean !== current) {
+      editor.commands.setContent(clean, false);
+      setRawHtml(clean);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value]);
 
   if (!editor) return null;
 
@@ -218,11 +250,15 @@ export function TiptapEditor({ value, onChange, placeholder }: TiptapEditorProps
 
   const toggleHtmlMode = () => {
     if (!htmlMode) {
+      // Masuk mode HTML: tampilkan source dari editor
       setRawHtml(editor.getHTML());
       setHtmlMode(true);
     } else {
-      editor.commands.setContent(rawHtml, { emitUpdate: false });
-      onChange(rawHtml);
+      // Keluar mode HTML: parse dan render ke visual editor
+      const clean = sanitizeContent(rawHtml);
+      editor.commands.setContent(clean, false);
+      setRawHtml(clean);
+      onChange(clean);
       setHtmlMode(false);
     }
   };
@@ -230,6 +266,16 @@ export function TiptapEditor({ value, onChange, placeholder }: TiptapEditorProps
   const handleRawChange = (v: string) => {
     setRawHtml(v);
     onChange(v);
+  };
+
+  // Paste HTML mentah di mode visual: parse dan render langsung
+  const handlePasteHtml = () => {
+    const pasted = prompt("Paste HTML kode di sini — akan langsung di-render:");
+    if (!pasted) return;
+    const clean = sanitizeContent(pasted);
+    editor.commands.setContent(clean, false);
+    setRawHtml(clean);
+    onChange(clean);
   };
 
   return (
@@ -433,23 +479,62 @@ export function TiptapEditor({ value, onChange, placeholder }: TiptapEditorProps
           </Btn>
         </div>
 
-        {/* HTML source toggle */}
-        <div style={{ marginLeft: "auto" }}>
-          <Btn onClick={toggleHtmlMode} active={htmlMode} title={htmlMode ? "Visual Editor" : "Edit HTML Source"}>
+        {/* HTML source toggle + Paste HTML */}
+        <div style={{ marginLeft: "auto", display: "flex", gap: 4 }}>
+          {/* Tombol Paste HTML — langsung render tanpa perlu mode HTML */}
+          {!htmlMode && (
+            <Btn onClick={handlePasteHtml} title="Paste HTML mentah → langsung render ke visual editor">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+                <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
+              </svg>
+              <span style={{ fontSize: 10, fontWeight: 700, marginLeft: 2 }}>PASTE</span>
+            </Btn>
+          )}
+          <Btn onClick={toggleHtmlMode} active={htmlMode} title={htmlMode ? "Kembali ke Visual Editor (render HTML)" : "Edit HTML Source"}>
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
-            <span style={{ fontSize: 10, fontWeight: 700, marginLeft: 3 }}>{htmlMode ? "VISUAL" : "HTML"}</span>
+            <span style={{ fontSize: 10, fontWeight: 700, marginLeft: 3 }}>{htmlMode ? "RENDER" : "HTML"}</span>
           </Btn>
         </div>
       </div>
 
       {/* ── Editor Area ──────────────────────────────────────────── */}
       {htmlMode ? (
-        <textarea
-          value={rawHtml}
-          onChange={(e) => handleRawChange(e.target.value)}
-          className={styles.htmlSource}
-          spellCheck={false}
-        />
+        <div style={{ position: "relative" }}>
+          <textarea
+            value={rawHtml}
+            onChange={(e) => handleRawChange(e.target.value)}
+            className={styles.htmlSource}
+            spellCheck={false}
+            placeholder="Edit HTML di sini, lalu klik RENDER untuk melihat hasilnya..."
+          />
+          <button
+            type="button"
+            onClick={toggleHtmlMode}
+            style={{
+              position: "absolute",
+              bottom: 12,
+              right: 12,
+              padding: "7px 16px",
+              borderRadius: 8,
+              border: "none",
+              background: "var(--brand-background-strong)",
+              color: "var(--brand-on-background-strong)",
+              fontSize: 12,
+              fontWeight: 700,
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+              boxShadow: "0 2px 12px rgba(0,0,0,0.3)",
+            }}
+          >
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            Render & Tampilkan
+          </button>
+        </div>
       ) : (
         <EditorContent editor={editor} className={styles.content} />
       )}
@@ -460,7 +545,12 @@ export function TiptapEditor({ value, onChange, placeholder }: TiptapEditorProps
           {editor.storage.characterCount?.words?.() ?? 0} kata ·{" "}
           {editor.storage.characterCount?.characters?.() ?? editor.getText().length} karakter
         </span>
-        {htmlMode && <span style={{ color: "var(--brand-on-background-medium)" }}>● Mode HTML</span>}
+        {htmlMode && (
+          <span style={{ color: "var(--brand-on-background-medium)", display: "flex", alignItems: "center", gap: 4 }}>
+            <span style={{ width: 6, height: 6, borderRadius: "50%", background: "currentColor", display: "inline-block" }} />
+            Mode HTML — klik RENDER untuk apply
+          </span>
+        )}
       </div>
 
       {/* Close dropdowns on outside click */}
