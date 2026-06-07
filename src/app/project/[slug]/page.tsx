@@ -19,6 +19,7 @@ import { ProjectContent } from "@/components/cms/ProjectContent";
 import { format } from "date-fns";
 import { id as localeId } from "date-fns/locale";
 import { ProjectGalleryInline } from "@/components/cms/ProjectGalleryInline";
+import { ProjectViewTracker } from "@/components/ProjectViewTracker";
 
 export const dynamic = "force-dynamic";
 export const dynamicParams = true;
@@ -106,6 +107,9 @@ export default async function ProjectPage({
           image: `${baseURL}${person.avatar}`,
         }}
       />
+
+      {/* ── Track project view ───────────────────────────────────── */}
+      <ProjectViewTracker projectId={project.id} />
 
       {/* ── Breadcrumb + Header ──────────────────────────────────── */}
       <Column maxWidth="s" gap="12" horizontal="center" align="center">

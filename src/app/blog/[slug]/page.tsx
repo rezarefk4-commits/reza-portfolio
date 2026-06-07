@@ -22,6 +22,7 @@ import React from "react";
 import { Posts } from "@/components/blog/Posts";
 import { ShareSection } from "@/components/blog/ShareSection";
 import { BlogContent } from "@/components/cms/BlogContent";
+import { BlogViewTracker } from "@/components/BlogViewTracker";
 import { format } from "date-fns";
 
 export async function generateStaticParams() {
@@ -96,6 +97,9 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
                 image: `${baseURL}${person.avatar}`,
               }}
             />
+
+            {/* ── Track blog view ────────────────────────────────────── */}
+            <BlogViewTracker blogId={cmsPost.id} />
             <Column maxWidth="s" gap="16" horizontal="center" align="center">
               <SmartLink href="/blog">
                 <Text variant="label-strong-m">Blog</Text>
