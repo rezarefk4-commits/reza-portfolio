@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import NextImage from "next/image";
 
 interface ProjectCardProps {
   href: string;
@@ -143,7 +144,6 @@ function ThumbnailDisplay({
 
   return (
     <div style={wrapStyle}>
-      {/* Badge rasio — hint visual */}
       {ratio !== "unknown" && ratio !== "landscape" && (
         <div style={{
           position: "absolute", top: 10, left: 10, zIndex: 2,
@@ -155,19 +155,18 @@ function ThumbnailDisplay({
           {ratio === "portrait" ? "📱 Portrait" : "⬜ Square"}
         </div>
       )}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
+      <NextImage
         src={imgSrc}
         alt={title}
+        fill
+        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 640px"
         style={{
-          width: "100%", height: "100%",
           objectFit: ratio === "portrait" ? "contain" : "cover",
           objectPosition: "center",
-          display: "block",
           transition: "transform 0.55s cubic-bezier(0.34,1.2,0.64,1)",
           background: ratio === "portrait" ? "var(--neutral-background-strong)" : "transparent",
         }}
-        loading={priority ? "eager" : "lazy"}
+        priority={priority}
         onError={() => {
           if (imgSrc !== proxyUrl) setImgSrc(proxyUrl);
           else setErrored(true);

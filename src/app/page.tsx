@@ -34,8 +34,33 @@ export default async function Home() {
     getPublishedBlogsCount().catch(() => 0),
   ]);
 
+  const personJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "@id": `${baseURL}/#person`,
+    name: person.name,
+    jobTitle: person.role,
+    url: baseURL,
+    image: person.avatar,
+    email: `mailto:${person.email}`,
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: "Makassar",
+      addressCountry: "ID",
+    },
+    sameAs: [
+      "https://github.com/rezarefka",
+      "https://www.linkedin.com/in/rezarefka",
+      "https://www.instagram.com/rezarefka",
+    ],
+  };
+
   return (
     <Column maxWidth="m" gap="xl" paddingY="12" horizontal="center">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }}
+      />
       <Schema
         as="webPage"
         baseURL={baseURL}
