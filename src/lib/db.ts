@@ -189,6 +189,24 @@ export async function getVisitorStats() {
   };
 }
 
+export async function getPublishedProjectsCount(): Promise<number> {
+  const supabase = await createClient();
+  const { count } = await supabase
+    .from("projects")
+    .select("*", { count: "exact", head: true })
+    .eq("published", true);
+  return count ?? 0;
+}
+
+export async function getPublishedBlogsCount(): Promise<number> {
+  const supabase = await createClient();
+  const { count } = await supabase
+    .from("blogs")
+    .select("*", { count: "exact", head: true })
+    .eq("published", true);
+  return count ?? 0;
+}
+
 // ─── SUPABASE STORAGE URL ─────────────────────────────────────────────────────
 export function getStorageUrl(bucket: string, path: string): string {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;

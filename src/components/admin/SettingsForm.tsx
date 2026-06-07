@@ -39,6 +39,8 @@ const defaultSettings: Omit<SiteSettings, "id" | "updated_at"> = {
   stats_certificates: 0,
   stats_monthly_visitors: 0,
   stats_total_visitors: 0,
+  stats_years_experience: 0,
+  cv_file: null,
 };
 
 export function SettingsForm({ settings }: SettingsFormProps) {
@@ -154,14 +156,58 @@ export function SettingsForm({ settings }: SettingsFormProps) {
         </Column>
       )}
 
+      {/* CV File */}
+      {section("File CV / Resume",
+        <Column gap="m">
+          <Text variant="body-default-s" onBackground="neutral-weak">
+            Upload file CV (PDF) yang akan bisa diunduh pengunjung dari halaman utama. Tombol Download CV akan muncul otomatis jika file ini diisi.
+          </Text>
+          <ImageUpload
+            bucket="documents"
+            value={form.cv_file ?? ""}
+            onChange={(url) => set("cv_file", url)}
+            accept=".pdf,.doc,.docx"
+            multiple={false}
+            autoSaveSettingsKey="cv_file"
+          />
+        </Column>
+      )}
+
       {/* Statistics */}
       {section("Statistik Homepage",
-        <Row gap="m" s={{ direction: "column" }} wrap>
-          {numField("Jumlah Project", "stats_projects")}
-          {numField("Jumlah Sertifikat", "stats_certificates")}
-          {numField("Pengunjung/Bulan", "stats_monthly_visitors")}
-          {numField("Total Pengunjung", "stats_total_visitors")}
-        </Row>
+        <Column gap="m">
+          <Text variant="body-default-s" onBackground="neutral-weak">
+            Jumlah Proyek dan Tulisan dihitung otomatis dari data yang dipublikasikan. Hanya isi Tahun Pengalaman secara manual.
+          </Text>
+          <Row gap="m" s={{ direction: "column" }} wrap>
+            <Column gap="s" flex={1}>
+              <Text variant="label-strong-s">Tahun Pengalaman</Text>
+              <Input
+                id="stats_years_experience"
+                type="number"
+                value={(form.stats_years_experience ?? 0) as unknown as string}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  set("stats_years_experience", parseInt(e.target.value) || 0)
+                }
+                placeholder="cth: 3"
+              />
+              <Text variant="body-default-xs" onBackground="neutral-weak">
+                Masukkan 0 untuk menyembunyikan stat ini
+              </Text>
+            </Column>
+            <Column gap="s" flex={1}>
+              <Text variant="label-strong-s">Jumlah Sertifikat (manual)</Text>
+              <Input
+                id="stats_certificates"
+                type="number"
+                value={(form.stats_certificates ?? 0) as unknown as string}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  set("stats_certificates", parseInt(e.target.value) || 0)
+                }
+              />
+            </Column>
+          </Row>
+        </Column>
       )}
 
       {/* Social Links */}

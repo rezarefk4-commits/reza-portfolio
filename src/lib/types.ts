@@ -97,6 +97,8 @@ export interface SiteSettings {
   stats_certificates: number;
   stats_monthly_visitors: number;
   stats_total_visitors: number;
+  stats_years_experience: number;
+  cv_file: string | null;
   updated_at: string;
 }
 

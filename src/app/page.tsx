@@ -15,7 +15,7 @@ import { HeroSection } from "@/components/cms/HeroSection";
 import { StatisticsSection } from "@/components/cms/StatisticsSection";
 import { ContactSection } from "@/components/cms/ContactSection";
 import { ScrollAnimate } from "@/components/ScrollAnimate";
-import { getSettings } from "@/lib/db";
+import { getSettings, getPublishedProjectsCount, getPublishedBlogsCount } from "@/lib/db";
 
 export async function generateMetadata() {
   return Meta.generate({
@@ -28,7 +28,11 @@ export async function generateMetadata() {
 }
 
 export default async function Home() {
-  const settings = await getSettings().catch(() => null);
+  const [settings, projectsCount, blogsCount] = await Promise.all([
+    getSettings().catch(() => null),
+    getPublishedProjectsCount().catch(() => 0),
+    getPublishedBlogsCount().catch(() => 0),
+  ]);
 
   return (
     <Column maxWidth="m" gap="xl" paddingY="12" horizontal="center">
@@ -95,7 +99,7 @@ export default async function Home() {
 
       {/* ── 4. Statistik — masuk dari bawah ────────────────────────── */}
       <ScrollAnimate direction="up" delay={0} duration={750} threshold={0.08}>
-        <StatisticsSection settings={settings} />
+        <StatisticsSection settings={settings} projectsCount={projectsCount} blogsCount={blogsCount} />
       </ScrollAnimate>
 
       {/* ── 5. Kontak — masuk dari bawah dengan sedikit delay ──────── */}
