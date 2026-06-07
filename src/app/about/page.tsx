@@ -37,7 +37,7 @@ function safeDate(d: string | null | undefined, fmt: string, opts?: Parameters<t
 
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { AvatarFromCms } from "@/components/about/AvatarFromCms";
-import { SkillsMarquee } from "@/components/about/SkillsMarquee";
+import { SkillsGrid } from "@/components/about/SkillsGrid";
 import { EduLogoImg } from "@/components/about/EduLogoImg";
 import { EduJournalModal } from "@/components/about/EduJournalModal";
 
@@ -479,7 +479,7 @@ export default async function About() {
           <ScrollReveal delay={160}>
             <Column fillWidth marginBottom="48" gap="m">
               {skills.length > 0 ? (
-                <SkillsMarquee initialSkills={skills} />
+                <SkillsGrid initialSkills={skills} />
               ) : (
                 <Text variant="body-default-m" onBackground="neutral-weak">
                   Belum ada keahlian yang ditambahkan.

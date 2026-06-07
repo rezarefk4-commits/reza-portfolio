@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { gallery } from "@/resources";
 import { createClient } from "@/lib/supabase/client";
+import { GallerySkeletonGrid } from "@/components/Skeletons";
 
 interface GalleryPhoto {
   id: string;
@@ -175,6 +176,7 @@ export default function GalleryView() {
   const [dbPhotos, setDbPhotos] = useState<GalleryPhoto[]>([]);
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
   const [loaded, setLoaded] = useState<Set<number>>(new Set());
+  const [isLoading, setIsLoading] = useState(true);
 
   // Load photos from Supabase (gallery_photos table)
   useEffect(() => {
@@ -185,7 +187,9 @@ export default function GalleryView() {
       .order("created_at", { ascending: false })
       .then(({ data }) => {
         if (data && data.length > 0) setDbPhotos(data);
-      });
+        setIsLoading(false);
+      })
+      .catch(() => setIsLoading(false));
   }, []);
 
   // Merge: DB photos first, then static fallback
@@ -244,11 +248,15 @@ export default function GalleryView() {
         }
       `}</style>
 
-      <div style={{
-        columns: "2 280px",
-        gap: 12,
-        width: "100%",
-      }}>
+      {/* Skeleton while loading */}
+      {isLoading ? (
+        <GallerySkeletonGrid count={8} />
+      ) : (
+        <div style={{
+          columns: "2 280px",
+          gap: 12,
+          width: "100%",
+        }}>
         {allPhotos.map((photo, idx) => (
           <div
             key={idx}
@@ -295,6 +303,7 @@ export default function GalleryView() {
           </div>
         )}
       </div>
+      )}
 
       {lightboxIdx !== null && allPhotos[lightboxIdx] && (
         <Lightbox

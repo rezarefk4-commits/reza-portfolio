@@ -1,6 +1,9 @@
 import { Column, Heading, Meta, Schema, Text } from "@once-ui-system/core";
-import { Posts } from "@/components/blog/Posts";
 import { baseURL, blog, person } from "@/resources";
+import { getPublishedBlogs } from "@/lib/db";
+import { BlogListClient } from "@/components/blog/BlogListClient";
+
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata() {
   return Meta.generate({
@@ -12,7 +15,9 @@ export async function generateMetadata() {
   });
 }
 
-export default function Blog() {
+export default async function Blog() {
+  const blogs = await getPublishedBlogs().catch(() => []);
+
   return (
     <Column maxWidth="m" paddingTop="24">
       <Schema
@@ -40,15 +45,8 @@ export default function Blog() {
         {blog.description}
       </Text>
 
-      <Column fillWidth flex={1} gap="40">
-        {/* Featured first post - large with thumbnail */}
-        <Posts range={[1, 1]} thumbnail />
-
-        {/* Next 4 posts - 2 col grid */}
-        <Posts range={[2, 5]} columns="2" thumbnail direction="column" />
-
-        {/* Remaining posts */}
-        <Posts range={[6]} columns="2" />
+      <Column fillWidth flex={1} gap="0">
+        <BlogListClient initialBlogs={blogs} />
       </Column>
     </Column>
   );

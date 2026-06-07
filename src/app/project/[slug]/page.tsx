@@ -15,6 +15,7 @@ import { getProjectBySlug, getPublishedProjects } from "@/lib/db";
 import { Metadata } from "next";
 import { RelatedProjectsCarousel } from "@/components/work/RelatedProjectsCarousel";
 import { ScrollToHash } from "@/components";
+import { ShareButton } from "@/components/ShareButton";
 import { ProjectContent } from "@/components/cms/ProjectContent";
 import { format } from "date-fns";
 import { id as localeId } from "date-fns/locale";
@@ -156,20 +157,23 @@ export default async function ProjectPage({
       </Column>
 
       {/* ── CTA Buttons ─────────────────────────────────────────── */}
-      {(project.live_demo_url || attachClean) && (
-        <Row gap="12" horizontal="center" wrap>
-          {project.live_demo_url && (
-            <Button href={project.live_demo_url} target="_blank" variant="primary" size="m" prefixIcon="link">
-              Live Demo
-            </Button>
-          )}
-          {attachClean && attachType !== "image" && (
-            <Button href={attachClean} target="_blank" variant="secondary" size="m" prefixIcon="download">
-              {attachType === "pdf" ? "Lihat PDF" : attachType === "video" ? "Lihat Video" : "Unduh File"}
-            </Button>
-          )}
-        </Row>
-      )}
+      <Row gap="12" horizontal="center" wrap>
+        {project.live_demo_url && (
+          <Button href={project.live_demo_url} target="_blank" variant="primary" size="m" prefixIcon="link">
+            Live Demo
+          </Button>
+        )}
+        {attachClean && attachType !== "image" && (
+          <Button href={attachClean} target="_blank" variant="secondary" size="m" prefixIcon="download">
+            {attachType === "pdf" ? "Lihat PDF" : attachType === "video" ? "Lihat Video" : "Unduh File"}
+          </Button>
+        )}
+        <ShareButton
+          title={project.title_id}
+          description={project.description_id}
+          ogImageUrl={thumbClean || undefined}
+        />
+      </Row>
 
       {/* ── Media Gallery (semua format: gambar/video/pdf) ─────────── */}
       <ProjectGalleryInline
