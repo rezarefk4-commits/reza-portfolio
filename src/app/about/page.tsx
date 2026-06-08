@@ -86,10 +86,12 @@ export default async function About() {
 
         {/* ── Avatar Sidebar ──────────────────────────────────────────── */}
         {about.avatar.display && (
-          <Column className={styles.avatar} top="64" fitHeight position="sticky"
+          <Column
+            className={styles.avatar}
             s={{ position: "relative", style: { top: "auto" } }}
             xs={{ style: { top: "auto" } }}
-            minWidth={160} paddingX="l" paddingBottom="xl" flex={3} horizontal="center">
+            minWidth={160} paddingX="l" paddingBottom="xl" flex={3} horizontal="center"
+            style={{ position: "sticky", top: 80, alignSelf: "flex-start", height: "fit-content" }}>
             <ScrollReveal type="scale">
               <AvatarFromCms />
             </ScrollReveal>

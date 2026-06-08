@@ -8,17 +8,11 @@
     }
 }
 
-/* ── Avatar sticky sidebar (desktop) ─────────────────────────── */
+/* Desktop: sticky ditangani via inline style di page.tsx */
 .avatar {
     align-self: flex-start;
-    /* Sticky agar ikut scroll di desktop */
-    position: sticky !important;
-    top: 80px !important;
-    height: fit-content !important;
-    align-self: flex-start !important;
 }
 
-/* ── Mobile overrides ─────────────────────────────────────────── */
 @media (max-width: breakpoints.$s) {
     .textAlign {
         text-align: center;
@@ -28,6 +22,7 @@
         align-self: center;
     }
 
+    /* Mobile: non-sticky, centered */
     .avatar {
         position: relative !important;
         top: auto !important;
@@ -36,5 +31,6 @@
         flex: none !important;
         padding-bottom: 8px !important;
         height: auto !important;
+        align-self: center !important;
     }
 }
