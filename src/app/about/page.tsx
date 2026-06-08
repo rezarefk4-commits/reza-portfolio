@@ -88,17 +88,28 @@ export default async function About() {
         {about.avatar.display && (
           <Column
             className={styles.avatar}
-            s={{ position: "relative", style: { top: "auto" } }}
-            xs={{ style: { top: "auto" } }}
-            minWidth={160} paddingX="l" paddingBottom="l" flex={3} horizontal="center"
-            style={{ position: "sticky", top: 80, alignSelf: "flex-start", height: "fit-content" }}>
+            s={{ position: "relative", style: { top: "auto", minWidth: "unset", maxWidth: "unset", width: "100%", padding: "0 0 16px 0" } }}
+            horizontal="center"
+            style={{
+              position: "sticky",
+              top: 80,
+              alignSelf: "flex-start",
+              height: "fit-content",
+              minWidth: 200,
+              maxWidth: 240,
+              width: "100%",
+              paddingLeft: 16,
+              paddingRight: 16,
+              paddingBottom: 24,
+              flexShrink: 0,
+            }}>
             <ScrollReveal type="scale">
               <AvatarFromCms />
             </ScrollReveal>
           </Column>
         )}
 
-        <Column className={styles.blockAlign} flex={9} maxWidth={40}>
+        <Column className={styles.blockAlign} flex={1} maxWidth={40}>
 
           {/* ── Nama + Social ───────────────────────────────────────── */}
           <ScrollReveal>

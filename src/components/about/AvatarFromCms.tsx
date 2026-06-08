@@ -129,7 +129,7 @@ export function AvatarFromCms() {
           letter-spacing: 0.01em;
         }
 
-        /* Contact button */
+        /* Contact button - minimalis dengan shimmer */
         .av-cta {
           display: flex;
           align-items: center;
@@ -138,21 +138,43 @@ export function AvatarFromCms() {
           margin-top: 14px;
           width: 100%;
           padding: 10px 16px;
-          border-radius: 12px;
+          border-radius: 10px;
           background: var(--brand-background-strong);
           color: var(--brand-on-solid-strong);
           font-size: 13px;
-          font-weight: 700;
+          font-weight: 600;
           font-family: inherit;
           border: none;
           cursor: pointer;
           text-decoration: none;
-          letter-spacing: 0.01em;
+          letter-spacing: 0.02em;
+          position: relative;
+          overflow: hidden;
           transition: opacity 0.15s, transform 0.13s;
           box-sizing: border-box;
         }
+        .av-cta::after {
+          content: "";
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 60%;
+          height: 100%;
+          background: linear-gradient(
+            105deg,
+            transparent 30%,
+            rgba(255,255,255,0.18) 50%,
+            transparent 70%
+          );
+          animation: ctaShimmer 3.2s ease-in-out infinite;
+        }
+        @keyframes ctaShimmer {
+          0%   { left: -100%; }
+          50%  { left: 150%; }
+          100% { left: 150%; }
+        }
         .av-cta:hover {
-          opacity: 0.86;
+          opacity: 0.88;
           transform: translateY(-1px);
         }
         .av-cta:active {

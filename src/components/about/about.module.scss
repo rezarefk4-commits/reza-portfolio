@@ -8,7 +8,7 @@
     }
 }
 
-/* Desktop: sticky ditangani via inline style di page.tsx */
+/* Desktop: sticky sidebar */
 .avatar {
     align-self: flex-start;
 }
@@ -27,11 +27,10 @@
         position: relative !important;
         top: auto !important;
         width: 100% !important;
+        min-width: unset !important;
         max-width: 100% !important;
         flex: none !important;
-        padding-bottom: 4px !important;
-        padding-left: 0 !important;
-        padding-right: 0 !important;
+        padding: 0 0 16px 0 !important;
         height: auto !important;
         align-self: center !important;
     }
