@@ -11,91 +11,104 @@ interface AdminShellProps {
   user: User;
 }
 
+/* ══════════════════════════════════════════════════════════════════════════════
+   ELEGANT ICONS  –  thin 1.5px stroke, refined phosphor-inspired geometry
+══════════════════════════════════════════════════════════════════════════════ */
 const Icons = {
   dashboard: (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
-      <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/>
+      <rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/>
     </svg>
   ),
   projects: (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M2 7a2 2 0 0 1 2-2h4l2 3h10a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2z"/>
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 7a2 2 0 0 1 2-2h3.5l1.5 2H19a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
     </svg>
   ),
   certificates: (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="8" r="5"/><path d="M9 21v-4l3 1 3-1v4"/>
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="9" r="4.5"/><path d="M8.5 21v-3.5l3.5 1 3.5-1V21"/>
+      <path d="M4.5 14.5A9 9 0 1 1 19.5 14.5"/>
     </svg>
   ),
   blogs: (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-      <polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/>
     </svg>
   ),
   gallery: (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
-      <polyline points="21 15 16 10 5 21"/>
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="3" width="18" height="18" rx="3"/>
+      <path d="m3 16 5-5 4 4 3-3 5 5"/>
+      <circle cx="8.5" cy="8.5" r="1.5"/>
     </svg>
   ),
   media: (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
-      <polyline points="21 15 16 10 5 21"/>
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="2" y="5" width="20" height="14" rx="2"/>
+      <path d="M10 9l5 3-5 3V9z"/>
     </svg>
   ),
   analytics: (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 20h18"/><path d="M5 20V14"/><path d="M9 20V8"/><path d="M13 20V11"/><path d="M17 20V4"/>
     </svg>
   ),
   about: (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="7" r="4"/>
+      <path d="M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/>
     </svg>
   ),
   settings: (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="3"/>
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
       <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
     </svg>
   ),
   account: (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M18 20a6 6 0 0 0-12 0"/><circle cx="12" cy="10" r="4"/>
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="8" r="4.5"/>
+      <path d="M3.5 21a8.5 8.5 0 0 1 17 0"/>
     </svg>
   ),
   logout: (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+      <polyline points="16 17 21 12 16 7"/>
+      <line x1="21" y1="12" x2="9" y2="12"/>
     </svg>
   ),
   chevronLeft: (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
       <polyline points="15 18 9 12 15 6"/>
     </svg>
   ),
   chevronRight: (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
       <polyline points="9 18 15 12 9 6"/>
     </svg>
   ),
   menu: (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-      <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+    <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
+      <line x1="4" y1="7" x2="20" y2="7"/>
+      <line x1="4" y1="12" x2="16" y2="12"/>
+      <line x1="4" y1="17" x2="20" y2="17"/>
     </svg>
   ),
   close: (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-      <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+    <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
+      <line x1="18" y1="6" x2="6" y2="18"/>
+      <line x1="6" y1="6" x2="18" y2="18"/>
     </svg>
   ),
   logo: (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-      <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
-      <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <rect x="3" y="3" width="7" height="7" rx="1.5"/>
+      <rect x="14" y="3" width="7" height="7" rx="1.5"/>
+      <rect x="3" y="14" width="7" height="7" rx="1.5"/>
+      <rect x="14" y="14" width="7" height="7" rx="1.5"/>
     </svg>
   ),
 };
@@ -115,43 +128,91 @@ const allNavItems = [
 
 const bottomPrimary = allNavItems.slice(0, 4);
 
-/* ── Shared Liquid Glass CSS ─────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════════════════════
+   LIQUID GLASS CSS  –  theme-aware, no blue override, elegant
+   Uses Once UI CSS variables + data-theme detection
+══════════════════════════════════════════════════════════════════════════════ */
 const LIQUID_GLASS_CSS = `
-  :root {
-    --glass-bg: rgba(10, 15, 30, 0.55);
-    --glass-border: rgba(120, 160, 255, 0.18);
-    --glass-shine: rgba(180, 210, 255, 0.10);
-    --glass-blur: 28px;
-    --glass-saturate: 180%;
-    --glass-shadow: 0 8px 40px rgba(0,0,0,0.45), 0 1px 0 rgba(180,210,255,0.12) inset;
-    --brand-glow: rgba(99, 102, 241, 0.35);
-    --teal-glow: rgba(20, 184, 166, 0.25);
-  }
-
-  @keyframes drawerIn {
+  /* ── Animations ─────────────────────────────────────────── */
+  @keyframes adminDrawerIn {
     from { transform: translateY(100%); opacity: 0; }
     to   { transform: translateY(0);    opacity: 1; }
   }
-  @keyframes overlayIn {
+  @keyframes adminOverlayIn {
     from { opacity: 0; }
     to   { opacity: 1; }
   }
   @keyframes adminTabPop {
-    0%   { transform: scale(0.88); }
-    60%  { transform: scale(1.08); }
+    0%   { transform: scale(0.86); }
+    55%  { transform: scale(1.06); }
     100% { transform: scale(1); }
   }
-  @keyframes sidebarIn {
-    from { opacity: 0; transform: translateX(-10px); }
+  @keyframes adminSidebarIn {
+    from { opacity: 0; transform: translateX(-12px); }
     to   { opacity: 1; transform: translateX(0); }
   }
-  @keyframes shimmer {
-    0%   { background-position: -200% center; }
-    100% { background-position: 200% center; }
+
+  /* ══════════════════════════════════════════════════════════
+     DARK MODE  (html[data-theme="dark"] atau sistem gelap)
+  ══════════════════════════════════════════════════════════ */
+  :root,
+  html[data-theme="dark"] {
+    --adm-glass-bg:       rgba(14, 16, 20, 0.72);
+    --adm-glass-bg-deep:  rgba(10, 12, 16, 0.88);
+    --adm-glass-border:   rgba(255, 255, 255, 0.07);
+    --adm-glass-shine:    rgba(255, 255, 255, 0.04);
+    --adm-glass-blur:     28px;
+    --adm-glass-shadow:   0 8px 40px rgba(0,0,0,0.55), 0 1px 0 rgba(255,255,255,0.05) inset;
+    --adm-active-bg:      rgba(var(--brand-rgb, 6,182,212), 0.14);
+    --adm-active-border:  rgba(var(--brand-rgb, 6,182,212), 0.28);
+    --adm-active-color:   var(--brand-on-background-medium, #22d3ee);
+    --adm-active-dot:     var(--brand-background-strong, #0891b2);
+    --adm-hover-bg:       rgba(255, 255, 255, 0.055);
+    --adm-text-strong:    rgba(248, 250, 252, 0.92);
+    --adm-text-muted:     rgba(148, 163, 184, 0.60);
+    --adm-text-label:     rgba(100, 116, 139, 0.55);
+    --adm-divider:        rgba(255, 255, 255, 0.07);
+    --adm-user-bg:        rgba(255, 255, 255, 0.04);
+    --adm-user-border:    rgba(255, 255, 255, 0.08);
+    --adm-tab-inactive:   rgba(148, 163, 184, 0.50);
+    --adm-drawer-bg:      rgba(12, 14, 20, 0.96);
+    --adm-logout-bg:      rgba(239, 68, 68, 0.10);
+    --adm-logout-border:  rgba(239, 68, 68, 0.20);
+    --adm-logout-color:   rgba(252, 165, 165, 0.85);
+    --adm-dot-top-color:  rgba(255, 255, 255, 0.06);
   }
 
-  /* ── Bottom mobile nav ── */
-  .mob-nav-btn {
+  /* ══════════════════════════════════════════════════════════
+     LIGHT MODE
+  ══════════════════════════════════════════════════════════ */
+  html[data-theme="light"] {
+    --adm-glass-bg:       rgba(255, 255, 255, 0.62);
+    --adm-glass-bg-deep:  rgba(248, 250, 252, 0.90);
+    --adm-glass-border:   rgba(0, 0, 0, 0.07);
+    --adm-glass-shine:    rgba(255, 255, 255, 0.70);
+    --adm-glass-blur:     24px;
+    --adm-glass-shadow:   0 4px 32px rgba(0,0,0,0.10), 0 1px 0 rgba(255,255,255,0.80) inset;
+    --adm-active-bg:      rgba(var(--brand-rgb, 8,145,178), 0.10);
+    --adm-active-border:  rgba(var(--brand-rgb, 8,145,178), 0.24);
+    --adm-active-color:   var(--brand-on-background-strong, #0e7490);
+    --adm-active-dot:     var(--brand-background-strong, #0891b2);
+    --adm-hover-bg:       rgba(0, 0, 0, 0.04);
+    --adm-text-strong:    rgba(15, 23, 42, 0.92);
+    --adm-text-muted:     rgba(71, 85, 105, 0.75);
+    --adm-text-label:     rgba(100, 116, 139, 0.60);
+    --adm-divider:        rgba(0, 0, 0, 0.07);
+    --adm-user-bg:        rgba(0, 0, 0, 0.03);
+    --adm-user-border:    rgba(0, 0, 0, 0.08);
+    --adm-tab-inactive:   rgba(71, 85, 105, 0.50);
+    --adm-drawer-bg:      rgba(252, 253, 255, 0.97);
+    --adm-logout-bg:      rgba(239, 68, 68, 0.07);
+    --adm-logout-border:  rgba(239, 68, 68, 0.18);
+    --adm-logout-color:   rgba(185, 28, 28, 0.85);
+    --adm-dot-top-color:  rgba(255, 255, 255, 0.80);
+  }
+
+  /* ── Bottom mobile nav button ────────────────────────── */
+  .adm-mob-btn {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -166,58 +227,57 @@ const LIQUID_GLASS_CSS = `
     -webkit-tap-highlight-color: transparent;
     transition: color 0.15s ease;
   }
-  .mob-nav-btn.active {
-    color: #a5b4fc;
-    animation: adminTabPop 0.25s cubic-bezier(0.34,1.56,0.64,1);
+  .adm-mob-btn.active {
+    color: var(--adm-active-color);
+    animation: adminTabPop 0.22s cubic-bezier(0.34,1.56,0.64,1);
   }
-  .mob-nav-btn:not(.active) {
-    color: rgba(148,163,184,0.65);
+  .adm-mob-btn:not(.active) {
+    color: var(--adm-tab-inactive);
   }
-  .mob-nav-label {
+  .adm-mob-label {
     font-size: 9px;
     font-weight: 600;
     letter-spacing: 0.02em;
     line-height: 1;
     font-family: inherit;
   }
-  .mob-nav-dot {
+  .adm-mob-dot {
     position: absolute;
     top: 4px;
-    width: 20px; height: 3px;
-    border-radius: 0 0 4px 4px;
-    background: linear-gradient(90deg, #818cf8, #38bdf8);
+    width: 18px; height: 2.5px;
+    border-radius: 0 0 3px 3px;
+    background: var(--adm-active-dot);
     left: 50%;
     transform: translateX(-50%);
-    box-shadow: 0 0 8px rgba(129,140,248,0.6);
+    opacity: 0.75;
   }
 
-  /* ── Drawer items ── */
-  .drawer-item {
+  /* ── Drawer grid items ───────────────────────────────── */
+  .adm-drawer-item {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 7px;
-    padding: 14px 8px;
-    border-radius: 16px;
-    border: 1px solid rgba(120,160,255,0.10);
+    padding: 13px 8px;
+    border-radius: 14px;
+    border: 1px solid var(--adm-glass-border);
     cursor: pointer;
-    background: rgba(20,28,58,0.55);
-    color: rgba(148,163,184,0.8);
-    transition: background 0.18s, color 0.18s, border-color 0.18s, transform 0.15s, box-shadow 0.18s;
+    background: var(--adm-hover-bg);
+    color: var(--adm-text-muted);
+    transition: background 0.16s, color 0.16s, border-color 0.16s, transform 0.14s;
     -webkit-tap-highlight-color: transparent;
     font-family: inherit;
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
   }
-  .drawer-item.active {
-    background: rgba(99,102,241,0.18);
-    color: #a5b4fc;
-    border-color: rgba(129,140,248,0.35);
-    box-shadow: 0 0 16px rgba(99,102,241,0.2), inset 0 1px 0 rgba(165,180,252,0.15);
+  .adm-drawer-item.active {
+    background: var(--adm-active-bg);
+    color: var(--adm-active-color);
+    border-color: var(--adm-active-border);
   }
-  .drawer-item:active { transform: scale(0.94); }
-  .drawer-label {
+  .adm-drawer-item:active { transform: scale(0.93); }
+  .adm-drawer-label {
     font-size: 10px;
     font-weight: 600;
     text-align: center;
@@ -225,59 +285,63 @@ const LIQUID_GLASS_CSS = `
     font-family: inherit;
   }
 
-  /* ── Desktop sidebar nav items ── */
-  .cms-nav-item {
+  /* ── Desktop sidebar nav items ───────────────────────── */
+  .adm-nav-item {
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 9px 12px;
-    border-radius: 12px;
+    padding: 8px 11px;
+    border-radius: 11px;
     cursor: pointer;
     background: none;
-    border: none;
-    color: rgba(148,163,184,0.7);
+    border: 1px solid transparent;
+    color: var(--adm-text-muted);
     font-size: 13px;
     font-weight: 500;
     width: 100%;
     text-align: left;
     font-family: inherit;
-    transition: background 0.16s, color 0.16s, transform 0.16s, box-shadow 0.16s;
+    transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.14s;
     white-space: nowrap;
     letter-spacing: -0.01em;
   }
-  .cms-nav-item:hover {
-    background: rgba(120,160,255,0.10);
-    color: rgba(226,232,240,0.95);
-    transform: translateX(2px);
+  .adm-nav-item:hover {
+    background: var(--adm-hover-bg);
+    color: var(--adm-text-strong);
+    transform: translateX(1.5px);
   }
-  .cms-nav-item.active {
-    background: rgba(99,102,241,0.18) !important;
-    color: #a5b4fc !important;
+  .adm-nav-item.active {
+    background: var(--adm-active-bg) !important;
+    color: var(--adm-active-color) !important;
+    border-color: var(--adm-active-border) !important;
     font-weight: 600;
-    box-shadow: 0 0 16px rgba(99,102,241,0.15), inset 0 1px 0 rgba(165,180,252,0.12);
-    border: 1px solid rgba(129,140,248,0.22);
   }
-  .cms-nav-item.logout-btn { color: rgba(248,113,113,0.75); }
-  .cms-nav-item.logout-btn:hover {
-    background: rgba(239,68,68,0.12);
-    color: #fca5a5;
+  .adm-nav-item.adm-logout {
+    color: var(--adm-logout-color);
+    border-color: transparent;
+  }
+  .adm-nav-item.adm-logout:hover {
+    background: var(--adm-logout-bg);
+    border-color: var(--adm-logout-border);
+    color: var(--adm-logout-color);
     transform: none;
+    opacity: 1;
   }
-  .cms-group-label {
+  .adm-group-label {
     font-size: 9px;
     font-weight: 700;
-    letter-spacing: 0.14em;
+    letter-spacing: 0.13em;
     text-transform: uppercase;
-    color: rgba(100,116,139,0.65);
-    padding: 8px 12px 4px;
+    color: var(--adm-text-label);
+    padding: 8px 11px 4px;
   }
 
-  /* ── Liquid glass scrollbar ── */
-  .cms-scroll::-webkit-scrollbar { width: 4px; }
-  .cms-scroll::-webkit-scrollbar-track { background: transparent; }
-  .cms-scroll::-webkit-scrollbar-thumb {
-    background: rgba(120,160,255,0.18);
-    border-radius: 4px;
+  /* ── Thin scrollbar ──────────────────────────────────── */
+  .adm-scroll::-webkit-scrollbar { width: 3px; }
+  .adm-scroll::-webkit-scrollbar-track { background: transparent; }
+  .adm-scroll::-webkit-scrollbar-thumb {
+    background: var(--adm-divider);
+    border-radius: 3px;
   }
 `;
 
@@ -321,7 +385,7 @@ export function AdminShell({ children, user }: AdminShellProps) {
       : pathname.startsWith(i.href)
   );
 
-  /* ═══════════════════════════ MOBILE ═══════════════════════════════ */
+  /* ════════════════════════════════ MOBILE ════════════════════════════════ */
   if (isMobile) {
     return (
       <div style={{
@@ -336,56 +400,46 @@ export function AdminShell({ children, user }: AdminShellProps) {
       }}>
         <style>{LIQUID_GLASS_CSS}</style>
 
-        {/* ── Top Header Bar – LIQUID GLASS ── */}
+        {/* ── Top Header ── */}
         <div style={{
-          position: "sticky",
-          top: 0,
-          zIndex: 50,
-          width: "100%",
-          height: 56,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          padding: "0 16px",
-          /* Liquid glass effect */
-          background: "linear-gradient(135deg, rgba(10,15,40,0.70) 0%, rgba(20,25,60,0.65) 50%, rgba(10,20,50,0.70) 100%)",
-          backdropFilter: "blur(28px) saturate(180%)",
-          WebkitBackdropFilter: "blur(28px) saturate(180%)",
-          borderBottom: "1px solid rgba(120,160,255,0.15)",
-          boxShadow: "0 4px 24px rgba(0,0,0,0.35), 0 1px 0 rgba(180,210,255,0.08) inset",
+          position: "sticky", top: 0, zIndex: 50,
+          width: "100%", height: 56,
+          display: "flex", alignItems: "center",
+          justifyContent: "space-between", padding: "0 16px",
+          background: "var(--adm-glass-bg)",
+          backdropFilter: `blur(var(--adm-glass-blur)) saturate(180%)`,
+          WebkitBackdropFilter: `blur(var(--adm-glass-blur)) saturate(180%)`,
+          borderBottom: "1px solid var(--adm-glass-border)",
+          boxShadow: "var(--adm-glass-shadow)",
         }}>
-          {/* Shine overlay */}
+          {/* Shine */}
           <div style={{
-            position: "absolute",
-            top: 0, left: 0, right: 0,
-            height: "50%",
-            background: "linear-gradient(180deg, rgba(180,210,255,0.07) 0%, transparent 100%)",
-            borderRadius: "inherit",
+            position: "absolute", top: 0, left: 0, right: 0, height: "50%",
+            background: "linear-gradient(180deg, var(--adm-glass-shine) 0%, transparent 100%)",
             pointerEvents: "none",
           }} />
 
-          {/* Logo + Title */}
+          {/* Logo */}
           <div style={{ display: "flex", alignItems: "center", gap: 10, position: "relative" }}>
             <div style={{
-              width: 32, height: 32, borderRadius: 10,
-              background: "linear-gradient(135deg, #6366f1, #38bdf8)",
+              width: 30, height: 30, borderRadius: 9,
+              background: "var(--brand-background-strong)",
               display: "flex", alignItems: "center", justifyContent: "center",
-              color: "white", flexShrink: 0,
-              boxShadow: "0 0 16px rgba(99,102,241,0.45), 0 2px 8px rgba(0,0,0,0.3)",
+              color: "var(--brand-on-solid-strong)", flexShrink: 0,
+              boxShadow: "0 2px 12px rgba(0,0,0,0.20)",
             }}>
               {Icons.logo}
             </div>
             <div>
               <div style={{
                 fontSize: 13, fontWeight: 700, letterSpacing: "-0.02em",
-                color: "rgba(226,232,240,0.95)", lineHeight: 1,
+                color: "var(--adm-text-strong)", lineHeight: 1,
               }}>
                 Reza Control
               </div>
               <div style={{
-                fontSize: 10, lineHeight: 1, marginTop: 2,
-                color: "rgba(148,163,184,0.65)",
-                letterSpacing: "0.01em",
+                fontSize: 10, lineHeight: 1, marginTop: 2.5,
+                color: "var(--adm-text-label)",
               }}>
                 {currentPage?.label ?? "CMS"}
               </div>
@@ -397,16 +451,12 @@ export function AdminShell({ children, user }: AdminShellProps) {
             onClick={() => setDrawerOpen((v) => !v)}
             style={{
               display: "flex", alignItems: "center", justifyContent: "center",
-              width: 38, height: 38, borderRadius: 12,
-              border: "1px solid rgba(120,160,255,0.20)",
-              background: drawerOpen
-                ? "rgba(99,102,241,0.20)"
-                : "rgba(255,255,255,0.05)",
-              color: "rgba(226,232,240,0.9)",
+              width: 36, height: 36, borderRadius: 10,
+              border: "1px solid var(--adm-glass-border)",
+              background: drawerOpen ? "var(--adm-active-bg)" : "var(--adm-hover-bg)",
+              color: drawerOpen ? "var(--adm-active-color)" : "var(--adm-text-muted)",
               cursor: "pointer",
-              transition: "background 0.18s, box-shadow 0.18s",
-              boxShadow: drawerOpen ? "0 0 14px rgba(99,102,241,0.25)" : "none",
-              position: "relative",
+              transition: "background 0.16s, color 0.16s",
               backdropFilter: "blur(8px)",
               WebkitBackdropFilter: "blur(8px)",
             }}
@@ -415,17 +465,17 @@ export function AdminShell({ children, user }: AdminShellProps) {
           </button>
         </div>
 
-        {/* ── Full Menu Drawer (slide up) ── */}
+        {/* ── Full Menu Drawer ── */}
         {drawerOpen && (
           <>
             <div
               style={{
                 position: "fixed", inset: 0,
-                background: "rgba(0,0,0,0.55)",
-                backdropFilter: "blur(6px)",
-                WebkitBackdropFilter: "blur(6px)",
+                background: "rgba(0,0,0,0.40)",
+                backdropFilter: "blur(4px)",
+                WebkitBackdropFilter: "blur(4px)",
                 zIndex: 98,
-                animation: "overlayIn 0.2s ease",
+                animation: "adminOverlayIn 0.2s ease",
               }}
               onClick={() => setDrawerOpen(false)}
             />
@@ -433,58 +483,52 @@ export function AdminShell({ children, user }: AdminShellProps) {
               position: "fixed",
               bottom: 0, left: 0, right: 0,
               zIndex: 99,
-              /* Liquid glass drawer */
-              background: "linear-gradient(170deg, rgba(10,15,40,0.92) 0%, rgba(15,22,55,0.95) 100%)",
-              backdropFilter: "blur(32px) saturate(200%)",
-              WebkitBackdropFilter: "blur(32px) saturate(200%)",
-              borderRadius: "24px 24px 0 0",
-              borderTop: "1px solid rgba(120,160,255,0.18)",
-              borderLeft: "1px solid rgba(120,160,255,0.10)",
-              borderRight: "1px solid rgba(120,160,255,0.10)",
+              background: "var(--adm-drawer-bg)",
+              backdropFilter: `blur(var(--adm-glass-blur)) saturate(200%)`,
+              WebkitBackdropFilter: `blur(var(--adm-glass-blur)) saturate(200%)`,
+              borderRadius: "22px 22px 0 0",
+              borderTop: "1px solid var(--adm-glass-border)",
               paddingBottom: "max(env(safe-area-inset-bottom), 24px)",
-              animation: "drawerIn 0.28s cubic-bezier(0.16,1,0.3,1)",
-              boxShadow: "0 -20px 60px rgba(0,0,0,0.5), 0 -1px 0 rgba(180,210,255,0.10) inset",
+              animation: "adminDrawerIn 0.26s cubic-bezier(0.16,1,0.3,1)",
+              boxShadow: "0 -16px 48px rgba(0,0,0,0.18)",
             }}>
               {/* Shine top */}
               <div style={{
                 position: "absolute",
-                top: 0, left: 0, right: 0,
-                height: 60,
-                background: "linear-gradient(180deg, rgba(180,210,255,0.08) 0%, transparent 100%)",
-                borderRadius: "24px 24px 0 0",
+                top: 0, left: 0, right: 0, height: 56,
+                background: "linear-gradient(180deg, var(--adm-dot-top-color) 0%, transparent 100%)",
+                borderRadius: "22px 22px 0 0",
                 pointerEvents: "none",
               }} />
 
               {/* Drag handle */}
               <div style={{
-                width: 40, height: 4, borderRadius: 2,
-                background: "linear-gradient(90deg, #6366f1, #38bdf8)",
+                width: 36, height: 3.5, borderRadius: 2,
+                background: "var(--adm-divider)",
                 margin: "14px auto 18px",
-                boxShadow: "0 0 10px rgba(99,102,241,0.4)",
               }} />
 
               {/* User info */}
               <div style={{
-                margin: "0 16px 18px",
-                padding: "12px 14px",
-                borderRadius: 16,
-                background: "rgba(30,40,80,0.60)",
-                border: "1px solid rgba(120,160,255,0.16)",
+                margin: "0 16px 16px",
+                padding: "11px 13px",
+                borderRadius: 14,
+                background: "var(--adm-user-bg)",
+                border: "1px solid var(--adm-user-border)",
                 display: "flex", alignItems: "center", gap: 10,
               }}>
                 <div style={{
-                  width: 38, height: 38, borderRadius: "50%", flexShrink: 0,
-                  background: "linear-gradient(135deg, rgba(99,102,241,0.5), rgba(56,189,248,0.4))",
-                  border: "1px solid rgba(129,140,248,0.4)",
+                  width: 36, height: 36, borderRadius: "50%", flexShrink: 0,
+                  background: "var(--brand-alpha-weak)",
+                  border: "1px solid var(--adm-active-border)",
                   display: "flex", alignItems: "center", justifyContent: "center",
-                  color: "#a5b4fc", fontWeight: 700, fontSize: 14,
-                  boxShadow: "0 0 12px rgba(99,102,241,0.3)",
+                  color: "var(--adm-active-color)", fontWeight: 700, fontSize: 14,
                 }}>
                   {user.email?.[0]?.toUpperCase() ?? "R"}
                 </div>
                 <div style={{ minWidth: 0 }}>
-                  <div style={{ fontSize: 12, fontWeight: 600, color: "rgba(226,232,240,0.9)", lineHeight: 1.3 }}>Admin</div>
-                  <div style={{ fontSize: 11, color: "rgba(100,116,139,0.8)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: "var(--adm-text-strong)", lineHeight: 1.3 }}>Admin</div>
+                  <div style={{ fontSize: 11, color: "var(--adm-text-muted)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                     {user.email}
                   </div>
                 </div>
@@ -492,14 +536,14 @@ export function AdminShell({ children, user }: AdminShellProps) {
 
               {/* Group: Konten */}
               <div style={{ padding: "0 16px 10px" }}>
-                <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", color: "rgba(100,116,139,0.6)", textTransform: "uppercase", marginBottom: 8, paddingLeft: 4 }}>
+                <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.12em", color: "var(--adm-text-label)", textTransform: "uppercase", marginBottom: 8, paddingLeft: 2 }}>
                   Konten
                 </div>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 7 }}>
                   {allNavItems.filter(i => i.group === "main").map((item) => (
-                    <button key={item.href} className={`drawer-item${isActive(item.href) ? " active" : ""}`} onClick={() => navigate(item.href)}>
+                    <button key={item.href} className={`adm-drawer-item${isActive(item.href) ? " active" : ""}`} onClick={() => navigate(item.href)}>
                       {item.icon}
-                      <span className="drawer-label">{item.label}</span>
+                      <span className="adm-drawer-label">{item.label}</span>
                     </button>
                   ))}
                 </div>
@@ -507,14 +551,14 @@ export function AdminShell({ children, user }: AdminShellProps) {
 
               {/* Group: Media & Data */}
               <div style={{ padding: "0 16px 10px" }}>
-                <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", color: "rgba(100,116,139,0.6)", textTransform: "uppercase", marginBottom: 8, paddingLeft: 4 }}>
+                <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.12em", color: "var(--adm-text-label)", textTransform: "uppercase", marginBottom: 8, paddingLeft: 2 }}>
                   Media & Data
                 </div>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 7 }}>
                   {allNavItems.filter(i => i.group === "content").map((item) => (
-                    <button key={item.href} className={`drawer-item${isActive(item.href) ? " active" : ""}`} onClick={() => navigate(item.href)}>
+                    <button key={item.href} className={`adm-drawer-item${isActive(item.href) ? " active" : ""}`} onClick={() => navigate(item.href)}>
                       {item.icon}
-                      <span className="drawer-label">{item.label}</span>
+                      <span className="adm-drawer-label">{item.label}</span>
                     </button>
                   ))}
                 </div>
@@ -522,35 +566,33 @@ export function AdminShell({ children, user }: AdminShellProps) {
 
               {/* Group: Sistem */}
               <div style={{ padding: "0 16px 10px" }}>
-                <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", color: "rgba(100,116,139,0.6)", textTransform: "uppercase", marginBottom: 8, paddingLeft: 4 }}>
+                <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.12em", color: "var(--adm-text-label)", textTransform: "uppercase", marginBottom: 8, paddingLeft: 2 }}>
                   Sistem
                 </div>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 7 }}>
                   {allNavItems.filter(i => i.group === "system").map((item) => (
-                    <button key={item.href} className={`drawer-item${isActive(item.href) ? " active" : ""}`} onClick={() => navigate(item.href)}>
+                    <button key={item.href} className={`adm-drawer-item${isActive(item.href) ? " active" : ""}`} onClick={() => navigate(item.href)}>
                       {item.icon}
-                      <span className="drawer-label">{item.label}</span>
+                      <span className="adm-drawer-label">{item.label}</span>
                     </button>
                   ))}
                 </div>
               </div>
 
               {/* Logout */}
-              <div style={{ padding: "8px 16px 0" }}>
-                <div style={{ height: 1, background: "rgba(120,160,255,0.10)", marginBottom: 12 }} />
+              <div style={{ padding: "6px 16px 0" }}>
+                <div style={{ height: 1, background: "var(--adm-divider)", marginBottom: 12 }} />
                 <button
                   onClick={handleLogout}
                   style={{
                     width: "100%", display: "flex", alignItems: "center",
                     justifyContent: "center", gap: 8,
-                    padding: "12px 16px", borderRadius: 14,
-                    border: "1px solid rgba(239,68,68,0.25)",
-                    background: "rgba(239,68,68,0.10)",
-                    color: "#fca5a5",
+                    padding: "11px 16px", borderRadius: 12,
+                    border: "1px solid var(--adm-logout-border)",
+                    background: "var(--adm-logout-bg)",
+                    color: "var(--adm-logout-color)",
                     fontSize: 13, fontWeight: 600, cursor: "pointer",
                     fontFamily: "inherit",
-                    backdropFilter: "blur(8px)",
-                    WebkitBackdropFilter: "blur(8px)",
                   }}
                 >
                   {Icons.logout}
@@ -563,38 +605,30 @@ export function AdminShell({ children, user }: AdminShellProps) {
 
         {/* ── Main Content ── */}
         <div style={{
-          flex: 1,
-          width: "100%",
-          maxWidth: "100vw",
+          flex: 1, width: "100%", maxWidth: "100vw",
           padding: "16px 16px 96px",
-          overflowX: "hidden",
-          boxSizing: "border-box",
+          overflowX: "hidden", boxSizing: "border-box",
         }}>
           {children}
         </div>
 
-        {/* ── Bottom Navigation Bar – LIQUID GLASS ── */}
+        {/* ── Bottom Nav Bar ── */}
         <nav style={{
           position: "fixed",
-          bottom: 0, left: 0, right: 0,
-          zIndex: 50,
+          bottom: 0, left: 0, right: 0, zIndex: 50,
           height: "calc(62px + env(safe-area-inset-bottom))",
           paddingBottom: "env(safe-area-inset-bottom)",
-          /* Liquid glass */
-          background: "linear-gradient(135deg, rgba(10,15,40,0.78) 0%, rgba(15,20,55,0.80) 50%, rgba(10,15,45,0.78) 100%)",
-          backdropFilter: "blur(28px) saturate(180%)",
-          WebkitBackdropFilter: "blur(28px) saturate(180%)",
-          borderTop: "1px solid rgba(120,160,255,0.18)",
-          boxShadow: "0 -4px 32px rgba(0,0,0,0.4), 0 1px 0 rgba(180,210,255,0.08) inset",
-          display: "flex",
-          alignItems: "stretch",
-          width: "100%",
+          background: "var(--adm-glass-bg)",
+          backdropFilter: `blur(var(--adm-glass-blur)) saturate(180%)`,
+          WebkitBackdropFilter: `blur(var(--adm-glass-blur)) saturate(180%)`,
+          borderTop: "1px solid var(--adm-glass-border)",
+          boxShadow: "var(--adm-glass-shadow)",
+          display: "flex", alignItems: "stretch", width: "100%",
         }}>
-          {/* Shine */}
+          {/* Shine line */}
           <div style={{
-            position: "absolute",
-            top: 0, left: 0, right: 0, height: 1,
-            background: "linear-gradient(90deg, transparent, rgba(180,210,255,0.25), transparent)",
+            position: "absolute", top: 0, left: 0, right: 0, height: 1,
+            background: "linear-gradient(90deg, transparent, var(--adm-dot-top-color), transparent)",
             pointerEvents: "none",
           }} />
 
@@ -603,111 +637,86 @@ export function AdminShell({ children, user }: AdminShellProps) {
             return (
               <button
                 key={item.href}
-                className={`mob-nav-btn${active ? " active" : ""}`}
+                className={`adm-mob-btn${active ? " active" : ""}`}
                 onClick={() => navigate(item.href)}
               >
-                {active && <div className="mob-nav-dot" />}
+                {active && <div className="adm-mob-dot" />}
                 {item.icon}
-                <span className="mob-nav-label">{item.label}</span>
+                <span className="adm-mob-label">{item.label}</span>
               </button>
             );
           })}
 
           <button
-            className={`mob-nav-btn${drawerOpen ? " active" : ""}`}
+            className={`adm-mob-btn${drawerOpen ? " active" : ""}`}
             onClick={() => setDrawerOpen((v) => !v)}
-            style={{ color: drawerOpen ? "#a5b4fc" : "rgba(148,163,184,0.65)" }}
           >
             {drawerOpen ? Icons.close : Icons.menu}
-            <span className="mob-nav-label">Menu</span>
+            <span className="adm-mob-label">Menu</span>
           </button>
         </nav>
       </div>
     );
   }
 
-  /* ═══════════════════════════ DESKTOP ═══════════════════════════════ */
+  /* ════════════════════════════════ DESKTOP ════════════════════════════════ */
   return (
     <div style={{
-      display: "flex",
-      minHeight: "100vh",
-      width: "100%",
-      background: "var(--page-background)",
+      display: "flex", minHeight: "100vh",
+      width: "100%", background: "var(--page-background)",
     }}>
       <style>{LIQUID_GLASS_CSS}</style>
 
-      {/* ── Sidebar – LIQUID GLASS ── */}
+      {/* ── Sidebar ── */}
       <div
         style={{
           position: "fixed",
           left: 12, top: 12, bottom: 12,
-          width: collapsed ? 64 : 228,
-          transition: "width 0.26s cubic-bezier(0.4,0,0.2,1)",
+          width: collapsed ? 60 : 224,
+          transition: "width 0.25s cubic-bezier(0.4,0,0.2,1)",
           zIndex: 100,
-          borderRadius: 20,
-          /* Liquid glass sidebar */
-          background: "linear-gradient(160deg, rgba(10,15,42,0.80) 0%, rgba(14,20,54,0.85) 50%, rgba(8,14,40,0.82) 100%)",
-          backdropFilter: "blur(32px) saturate(190%)",
-          WebkitBackdropFilter: "blur(32px) saturate(190%)",
-          border: "1px solid rgba(120,160,255,0.15)",
-          boxShadow: `
-            0 8px 48px rgba(0,0,0,0.5),
-            0 2px 8px rgba(0,0,0,0.3),
-            inset 0 1px 0 rgba(180,210,255,0.10),
-            inset 1px 0 0 rgba(180,210,255,0.05)
-          `,
-          display: "flex",
-          flexDirection: "column",
+          borderRadius: 18,
+          background: "var(--adm-glass-bg)",
+          backdropFilter: `blur(var(--adm-glass-blur)) saturate(180%)`,
+          WebkitBackdropFilter: `blur(var(--adm-glass-blur)) saturate(180%)`,
+          border: "1px solid var(--adm-glass-border)",
+          boxShadow: "var(--adm-glass-shadow)",
+          display: "flex", flexDirection: "column",
           overflow: "hidden",
-          animation: "sidebarIn 0.32s cubic-bezier(0.34,1.56,0.64,1)",
+          animation: "adminSidebarIn 0.30s cubic-bezier(0.34,1.56,0.64,1)",
         }}
       >
-        {/* Shine top strip */}
+        {/* Shine top */}
         <div style={{
-          position: "absolute",
-          top: 0, left: 0, right: 0,
-          height: 80,
-          background: "linear-gradient(180deg, rgba(180,210,255,0.07) 0%, transparent 100%)",
-          borderRadius: "20px 20px 0 0",
-          pointerEvents: "none",
+          position: "absolute", top: 0, left: 0, right: 0, height: 72,
+          background: "linear-gradient(180deg, var(--adm-dot-top-color) 0%, transparent 100%)",
+          borderRadius: "18px 18px 0 0", pointerEvents: "none",
         }} />
 
-        {/* Orb glow behind */}
-        <div style={{
-          position: "absolute",
-          top: -20, left: -20,
-          width: 120, height: 120,
-          borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(99,102,241,0.18) 0%, transparent 70%)",
-          pointerEvents: "none",
-        }} />
-
-        <div style={{ display: "flex", flexDirection: "column", height: "100%", padding: "12px 8px", position: "relative" }}>
+        <div style={{ display: "flex", flexDirection: "column", height: "100%", padding: "10px 7px", position: "relative" }}>
 
           {/* Header */}
           <div style={{
-            display: "flex",
-            alignItems: "center",
+            display: "flex", alignItems: "center",
             justifyContent: collapsed ? "center" : "space-between",
-            padding: "4px 6px 10px",
-            gap: 8,
+            padding: "4px 5px 10px", gap: 8,
           }}>
             {!collapsed && (
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
                 <div style={{
-                  width: 28, height: 28, borderRadius: 9,
-                  background: "linear-gradient(135deg, #6366f1, #38bdf8)",
+                  width: 26, height: 26, borderRadius: 8,
+                  background: "var(--brand-background-strong)",
                   display: "flex", alignItems: "center", justifyContent: "center",
-                  color: "white", flexShrink: 0,
-                  boxShadow: "0 0 14px rgba(99,102,241,0.4), 0 2px 6px rgba(0,0,0,0.4)",
+                  color: "var(--brand-on-solid-strong)", flexShrink: 0,
+                  boxShadow: "0 2px 10px rgba(0,0,0,0.18)",
                 }}>
                   {Icons.logo}
                 </div>
                 <div>
-                  <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: "-0.02em", color: "rgba(226,232,240,0.95)", lineHeight: 1.1 }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: "-0.02em", color: "var(--adm-text-strong)", lineHeight: 1.1 }}>
                     Reza Control
                   </div>
-                  <div style={{ fontSize: 9, color: "rgba(100,116,139,0.65)", letterSpacing: "0.04em" }}>
+                  <div style={{ fontSize: 9, color: "var(--adm-text-label)", letterSpacing: "0.04em", marginTop: 1 }}>
                     CMS Panel
                   </div>
                 </div>
@@ -717,110 +726,101 @@ export function AdminShell({ children, user }: AdminShellProps) {
               onClick={() => setCollapsed(!collapsed)}
               style={{
                 display: "flex", alignItems: "center", justifyContent: "center",
-                width: 28, height: 28, borderRadius: 8,
-                background: "rgba(255,255,255,0.04)",
-                border: "1px solid rgba(120,160,255,0.16)",
-                cursor: "pointer",
-                color: "rgba(100,116,139,0.8)",
-                transition: "background 0.15s, color 0.15s, box-shadow 0.15s",
+                width: 26, height: 26, borderRadius: 7,
+                background: "var(--adm-hover-bg)",
+                border: "1px solid var(--adm-glass-border)",
+                cursor: "pointer", color: "var(--adm-text-muted)",
+                transition: "background 0.14s, color 0.14s",
                 flexShrink: 0,
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.background = "rgba(99,102,241,0.15)";
-                e.currentTarget.style.color = "#a5b4fc";
-                e.currentTarget.style.boxShadow = "0 0 10px rgba(99,102,241,0.2)";
+                e.currentTarget.style.background = "var(--adm-active-bg)";
+                e.currentTarget.style.color = "var(--adm-active-color)";
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.background = "rgba(255,255,255,0.04)";
-                e.currentTarget.style.color = "rgba(100,116,139,0.8)";
-                e.currentTarget.style.boxShadow = "none";
+                e.currentTarget.style.background = "var(--adm-hover-bg)";
+                e.currentTarget.style.color = "var(--adm-text-muted)";
               }}
             >
               {collapsed ? Icons.chevronRight : Icons.chevronLeft}
             </button>
           </div>
 
-          <div style={{ height: 1, background: "rgba(120,160,255,0.10)", margin: "0 4px 8px" }} />
+          <div style={{ height: 1, background: "var(--adm-divider)", margin: "0 4px 7px" }} />
 
           {/* Nav groups */}
-          <div className="cms-scroll" style={{ flex: 1, overflowY: "auto", overflowX: "hidden", display: "flex", flexDirection: "column", gap: 0 }}>
-            {!collapsed && <div className="cms-group-label">Konten</div>}
+          <div className="adm-scroll" style={{ flex: 1, overflowY: "auto", overflowX: "hidden", display: "flex", flexDirection: "column", gap: 0 }}>
+            {!collapsed && <div className="adm-group-label">Konten</div>}
             {allNavItems.filter(i => i.group === "main").map((item) => {
               const active = isActive(item.href);
               return (
                 <button
                   key={item.href}
-                  className={`cms-nav-item${active ? " active" : ""}`}
+                  className={`adm-nav-item${active ? " active" : ""}`}
                   onClick={() => navigate(item.href)}
                   title={collapsed ? item.label : undefined}
                   style={{ justifyContent: collapsed ? "center" : "flex-start" }}
                 >
-                  <span style={{ flexShrink: 0, width: 18, height: 18, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <span style={{ flexShrink: 0, width: 17, height: 17, display: "flex", alignItems: "center", justifyContent: "center" }}>
                     {item.icon}
                   </span>
                   {!collapsed && <span style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis" }}>{item.label}</span>}
                   {active && !collapsed && (
                     <span style={{
-                      width: 6, height: 6, borderRadius: "50%",
-                      background: "linear-gradient(135deg, #818cf8, #38bdf8)",
-                      flexShrink: 0,
-                      boxShadow: "0 0 6px rgba(129,140,248,0.6)",
+                      width: 5, height: 5, borderRadius: "50%",
+                      background: "var(--adm-active-dot)", flexShrink: 0,
                     }} />
                   )}
                 </button>
               );
             })}
 
-            {!collapsed && <div className="cms-group-label" style={{ marginTop: 6 }}>Media & Data</div>}
-            {collapsed && <div style={{ height: 8 }} />}
+            {!collapsed && <div className="adm-group-label" style={{ marginTop: 6 }}>Media & Data</div>}
+            {collapsed && <div style={{ height: 7 }} />}
             {allNavItems.filter(i => i.group === "content").map((item) => {
               const active = isActive(item.href);
               return (
                 <button
                   key={item.href}
-                  className={`cms-nav-item${active ? " active" : ""}`}
+                  className={`adm-nav-item${active ? " active" : ""}`}
                   onClick={() => navigate(item.href)}
                   title={collapsed ? item.label : undefined}
                   style={{ justifyContent: collapsed ? "center" : "flex-start" }}
                 >
-                  <span style={{ flexShrink: 0, width: 18, height: 18, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <span style={{ flexShrink: 0, width: 17, height: 17, display: "flex", alignItems: "center", justifyContent: "center" }}>
                     {item.icon}
                   </span>
                   {!collapsed && <span style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis" }}>{item.label}</span>}
                   {active && !collapsed && (
                     <span style={{
-                      width: 6, height: 6, borderRadius: "50%",
-                      background: "linear-gradient(135deg, #818cf8, #38bdf8)",
-                      flexShrink: 0,
-                      boxShadow: "0 0 6px rgba(129,140,248,0.6)",
+                      width: 5, height: 5, borderRadius: "50%",
+                      background: "var(--adm-active-dot)", flexShrink: 0,
                     }} />
                   )}
                 </button>
               );
             })}
 
-            {!collapsed && <div className="cms-group-label" style={{ marginTop: 6 }}>Sistem</div>}
-            {collapsed && <div style={{ height: 8 }} />}
+            {!collapsed && <div className="adm-group-label" style={{ marginTop: 6 }}>Sistem</div>}
+            {collapsed && <div style={{ height: 7 }} />}
             {allNavItems.filter(i => i.group === "system").map((item) => {
               const active = isActive(item.href);
               return (
                 <button
                   key={item.href}
-                  className={`cms-nav-item${active ? " active" : ""}`}
+                  className={`adm-nav-item${active ? " active" : ""}`}
                   onClick={() => navigate(item.href)}
                   title={collapsed ? item.label : undefined}
                   style={{ justifyContent: collapsed ? "center" : "flex-start" }}
                 >
-                  <span style={{ flexShrink: 0, width: 18, height: 18, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <span style={{ flexShrink: 0, width: 17, height: 17, display: "flex", alignItems: "center", justifyContent: "center" }}>
                     {item.icon}
                   </span>
                   {!collapsed && <span style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis" }}>{item.label}</span>}
                   {active && !collapsed && (
                     <span style={{
-                      width: 6, height: 6, borderRadius: "50%",
-                      background: "linear-gradient(135deg, #818cf8, #38bdf8)",
-                      flexShrink: 0,
-                      boxShadow: "0 0 6px rgba(129,140,248,0.6)",
+                      width: 5, height: 5, borderRadius: "50%",
+                      background: "var(--adm-active-dot)", flexShrink: 0,
                     }} />
                   )}
                 </button>
@@ -828,41 +828,41 @@ export function AdminShell({ children, user }: AdminShellProps) {
             })}
           </div>
 
-          <div style={{ height: 1, background: "rgba(120,160,255,0.10)", margin: "8px 4px" }} />
+          <div style={{ height: 1, background: "var(--adm-divider)", margin: "7px 4px" }} />
 
           {/* Footer */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
             {!collapsed && (
               <div style={{
-                padding: "8px 12px", borderRadius: 12, marginBottom: 2,
-                background: "rgba(30,40,80,0.50)",
-                border: "1px solid rgba(120,160,255,0.12)",
+                padding: "8px 11px", borderRadius: 11, marginBottom: 2,
+                background: "var(--adm-user-bg)",
+                border: "1px solid var(--adm-user-border)",
                 display: "flex", alignItems: "center", gap: 8,
               }}>
                 <div style={{
-                  width: 24, height: 24, borderRadius: "50%", flexShrink: 0,
-                  background: "linear-gradient(135deg, rgba(99,102,241,0.45), rgba(56,189,248,0.35))",
-                  border: "1px solid rgba(129,140,248,0.35)",
+                  width: 22, height: 22, borderRadius: "50%", flexShrink: 0,
+                  background: "var(--brand-alpha-weak)",
+                  border: "1px solid var(--adm-active-border)",
                   display: "flex", alignItems: "center", justifyContent: "center",
-                  color: "#a5b4fc", fontSize: 10, fontWeight: 700,
+                  color: "var(--adm-active-color)", fontSize: 9, fontWeight: 700,
                 }}>
                   {user.email?.[0]?.toUpperCase() ?? "R"}
                 </div>
                 <Text variant="body-default-xs" style={{
                   overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-                  display: "block", color: "rgba(100,116,139,0.75)",
+                  display: "block", color: "var(--adm-text-muted)",
                 }}>
                   {user.email}
                 </Text>
               </div>
             )}
             <button
-              className="cms-nav-item logout-btn"
+              className="adm-nav-item adm-logout"
               onClick={handleLogout}
               title={collapsed ? "Sign Out" : undefined}
               style={{ justifyContent: collapsed ? "center" : "flex-start" }}
             >
-              <span style={{ flexShrink: 0, width: 18, height: 18, display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <span style={{ flexShrink: 0, width: 17, height: 17, display: "flex", alignItems: "center", justifyContent: "center" }}>
                 {Icons.logout}
               </span>
               {!collapsed && <span>Sign Out</span>}
@@ -874,12 +874,12 @@ export function AdminShell({ children, user }: AdminShellProps) {
       {/* ── Main Content ── */}
       <div style={{
         flex: 1,
-        marginLeft: collapsed ? 88 : 252,
-        transition: "margin-left 0.26s cubic-bezier(0.4,0,0.2,1)",
+        marginLeft: collapsed ? 84 : 248,
+        transition: "margin-left 0.25s cubic-bezier(0.4,0,0.2,1)",
         padding: "24px 24px 24px 0",
         minHeight: "100vh",
-        width: `calc(100vw - ${collapsed ? 88 : 252}px)`,
-        maxWidth: `calc(100vw - ${collapsed ? 88 : 252}px)`,
+        width: `calc(100vw - ${collapsed ? 84 : 248}px)`,
+        maxWidth: `calc(100vw - ${collapsed ? 84 : 248}px)`,
         overflowX: "hidden",
         boxSizing: "border-box",
       }}>
