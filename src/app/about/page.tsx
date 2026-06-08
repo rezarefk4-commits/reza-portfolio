@@ -89,7 +89,7 @@ export default async function About() {
           <Column className={styles.avatar} top="64" fitHeight position="sticky"
             s={{ position: "relative", style: { top: "auto" } }}
             xs={{ style: { top: "auto" } }}
-            minWidth="180" paddingX="l" paddingBottom="xl" flex={3} horizontal="center">
+            minWidth={160} paddingX="l" paddingBottom="xl" flex={3} horizontal="center">
             <ScrollReveal type="scale">
               <AvatarFromCms />
             </ScrollReveal>
