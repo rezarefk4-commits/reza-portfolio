@@ -60,14 +60,12 @@ export function ContactSection({ settings }: ContactSectionProps) {
   const [message, setMessage] = useState("");
   const [formState, setFormState] = useState<FormState>("idle");
 
-  // Email dari CMS, fallback ke placeholder
   const recipientEmail = settings?.social_email || "";
 
   const handleSubmit = async () => {
     if (!name || !senderEmail || !message) return;
     setFormState("sending");
 
-    // Buka mailto dengan data form terisi
     const body = `Nama: ${name}\nEmail: ${senderEmail}\n\n${message}`;
     const mailtoLink = `mailto:${recipientEmail}?subject=${encodeURIComponent(subject || "Pesan dari Portfolio")}&body=${encodeURIComponent(body)}`;
     window.location.href = mailtoLink;
@@ -76,7 +74,6 @@ export function ContactSection({ settings }: ContactSectionProps) {
     setTimeout(() => setFormState("idle"), 3500);
   };
 
-  // Sosial links dari settings
   const socialLinks = [
     settings?.social_github   && { label: "GitHub",    href: settings.social_github,    icon: icons.github },
     settings?.social_linkedin && { label: "LinkedIn",  href: settings.social_linkedin,  icon: icons.linkedin },
@@ -94,18 +91,20 @@ export function ContactSection({ settings }: ContactSectionProps) {
           color:var(--neutral-on-background-strong);
           outline:none;transition:border-color .18s,box-shadow .18s;
           font-family:inherit;
+          box-sizing: border-box;
         }
         .cf-input:focus{border-color:var(--brand-alpha-medium);box-shadow:0 0 0 3px var(--brand-alpha-weak);}
         .cf-input::placeholder{color:var(--neutral-on-background-weak);}
         .cf-textarea{resize:vertical;min-height:120px;}
         .cf-submit{
-          display:inline-flex;align-items:center;gap:8px;
-          padding:13px 32px;border-radius:12px;
+          display:inline-flex;align-items:center;justify-content:center;gap:8px;
+          padding:13px 28px;border-radius:12px;
           font-size:15px;font-weight:600;cursor:pointer;
           background:var(--brand-background-strong);
           color:var(--brand-on-background-strong);
           border:none;transition:opacity .18s,transform .18s,box-shadow .18s;
           box-shadow:0 2px 16px var(--brand-alpha-medium);
+          white-space: nowrap;
         }
         .cf-submit:hover:not(:disabled){opacity:.88;transform:translateY(-1px);box-shadow:0 6px 24px var(--brand-alpha-medium);}
         .cf-submit:disabled{opacity:.55;cursor:not-allowed;}
@@ -117,9 +116,42 @@ export function ContactSection({ settings }: ContactSectionProps) {
           background:var(--neutral-background-medium);
           color:var(--neutral-on-background-strong);
           transition:border-color .18s,background .18s,transform .18s;
+          white-space: nowrap;
         }
         .cf-social-link:hover{border-color:var(--neutral-alpha-medium);background:var(--neutral-alpha-weak);transform:translateY(-1px);}
         .cf-label{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:500;color:var(--neutral-on-background-weak);margin-bottom:6px;}
+
+        /* submit row — stack on mobile */
+        .cf-submit-row {
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: flex-end;
+          gap: 12px;
+          flex-wrap: wrap;
+        }
+        @media (max-width: 520px) {
+          .cf-submit-row {
+            flex-direction: column;
+            align-items: stretch;
+          }
+          .cf-submit-row .cf-email-hint {
+            text-align: center;
+            order: 2;
+          }
+          .cf-submit { order: 1; width: 100%; }
+        }
+
+        /* name+email row */
+        .cf-fields-row {
+          display: flex;
+          flex-direction: row;
+          gap: 16px;
+          width: 100%;
+        }
+        @media (max-width: 520px) {
+          .cf-fields-row { flex-direction: column; gap: 12px; }
+        }
       `}</style>
 
       <Column
@@ -137,6 +169,7 @@ export function ContactSection({ settings }: ContactSectionProps) {
               background: "var(--brand-background-strong)",
               animation: "contactPulse 2.4s ease-in-out infinite",
               display: "inline-block",
+              flexShrink: 0,
             }}/>
             <Text variant="label-default-xs" onBackground="neutral-weak"
               style={{ letterSpacing: "0.1em", textTransform: "uppercase" }}>
@@ -148,13 +181,13 @@ export function ContactSection({ settings }: ContactSectionProps) {
             Mari Terhubung
           </Text>
           <Text variant="body-default-m" onBackground="neutral-weak"
-            style={{ textAlign: "center", maxWidth: 420, lineHeight: 1.65 }}>
+            style={{ textAlign: "center", maxWidth: 400, lineHeight: 1.65, padding: "0 8px" }}>
             Punya proyek menarik atau ingin berdiskusi? Kirim pesan dan saya
             akan merespons secepatnya.
           </Text>
         </Column>
 
-        {/* Contact Form Card */}
+        {/* Contact Form */}
         <Column
           gap="l"
           border="neutral-alpha-weak"
@@ -163,9 +196,9 @@ export function ContactSection({ settings }: ContactSectionProps) {
           background="surface"
           style={{ backdropFilter: "blur(8px)" }}
         >
-          {/* Nama + Email baris */}
-          <Row gap="m" s={{ direction: "column" }}>
-            <Column flex={1} gap="0">
+          {/* Nama + Email */}
+          <div className="cf-fields-row">
+            <Column flex={1} gap="0" style={{ minWidth: 0 }}>
               <label className="cf-label">{icons.user} Nama Lengkap</label>
               <input
                 className="cf-input"
@@ -175,7 +208,7 @@ export function ContactSection({ settings }: ContactSectionProps) {
                 onChange={(e) => setName(e.target.value)}
               />
             </Column>
-            <Column flex={1} gap="0">
+            <Column flex={1} gap="0" style={{ minWidth: 0 }}>
               <label className="cf-label">{icons.email} Email Anda</label>
               <input
                 className="cf-input"
@@ -185,7 +218,7 @@ export function ContactSection({ settings }: ContactSectionProps) {
                 onChange={(e) => setSenderEmail(e.target.value)}
               />
             </Column>
-          </Row>
+          </div>
 
           {/* Subjek */}
           <Column gap="0">
@@ -211,9 +244,9 @@ export function ContactSection({ settings }: ContactSectionProps) {
           </Column>
 
           {/* Submit */}
-          <Row horizontal="end" vertical="center" gap="12">
+          <div className="cf-submit-row">
             {recipientEmail && (
-              <Text variant="body-default-xs" onBackground="neutral-weak">
+              <Text variant="body-default-xs" onBackground="neutral-weak" className="cf-email-hint">
                 Kirim ke: <span style={{ color: "var(--brand-on-background-medium)" }}>{recipientEmail}</span>
               </Text>
             )}
@@ -225,7 +258,7 @@ export function ContactSection({ settings }: ContactSectionProps) {
               {icons.send}
               {formState === "sending" ? "Membuka..." : formState === "sent" ? "✓ Terkirim!" : "Kirim Pesan"}
             </button>
-          </Row>
+          </div>
         </Column>
 
         {/* Social Links */}

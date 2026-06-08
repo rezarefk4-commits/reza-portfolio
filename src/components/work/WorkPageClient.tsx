@@ -79,7 +79,6 @@ export function WorkPageClient({ projects }: WorkPageClientProps) {
     }, 220);
   };
 
-  // Animasi saat pertama load
   useEffect(() => {
     if (!listRef.current || isTransitioning) return;
     triggerCardAnimations(listRef.current, 200);
@@ -113,6 +112,28 @@ export function WorkPageClient({ projects }: WorkPageClientProps) {
           pointer-events: none;
         }
 
+        /* Filter chips */
+        .work-filter-wrap {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
+          justify-content: center;
+          padding: 0 8px;
+        }
+        .work-filter-chip {
+          padding: 6px 16px;
+          border-radius: 99px;
+          border: 1px solid;
+          cursor: pointer;
+          font-size: 13px;
+          transition: all 0.2s cubic-bezier(0.22,1,0.36,1);
+          white-space: nowrap;
+          font-family: inherit;
+        }
+        @media (max-width: 480px) {
+          .work-filter-chip { font-size: 12px; padding: 5px 12px; }
+        }
+
         /* Pagination */
         .pag-btn {
           display: inline-flex;
@@ -129,6 +150,7 @@ export function WorkPageClient({ projects }: WorkPageClientProps) {
           font-weight: 500;
           cursor: pointer;
           transition: all 0.18s ease;
+          font-family: inherit;
         }
         .pag-btn:hover:not(:disabled) {
           border-color: var(--brand-background-strong);
@@ -149,15 +171,13 @@ export function WorkPageClient({ projects }: WorkPageClientProps) {
 
       <Column fillWidth gap="xl">
         {/* Category Filter */}
-        <Row gap="8" wrap horizontal="center">
+        <div className="work-filter-wrap">
           {CATEGORIES.map((cat) => (
             <button
               key={cat}
+              className="work-filter-chip"
               onClick={() => handleCategoryChange(cat)}
               style={{
-                padding: "6px 16px",
-                borderRadius: 99,
-                border: "1px solid",
                 borderColor: activeCategory === cat
                   ? "var(--brand-background-strong)"
                   : "var(--neutral-alpha-medium)",
@@ -167,11 +187,7 @@ export function WorkPageClient({ projects }: WorkPageClientProps) {
                 color: activeCategory === cat
                   ? "var(--brand-on-background-strong)"
                   : "var(--neutral-on-background-weak)",
-                cursor: "pointer",
-                fontSize: 13,
                 fontWeight: activeCategory === cat ? 600 : 400,
-                transition: "all 0.2s cubic-bezier(0.22,1,0.36,1)",
-                whiteSpace: "nowrap",
               }}
             >
               {categoryLabel(cat)}
@@ -182,7 +198,7 @@ export function WorkPageClient({ projects }: WorkPageClientProps) {
               )}
             </button>
           ))}
-        </Row>
+        </div>
 
         {/* Project Cards */}
         {filtered.length === 0 ? (
@@ -204,7 +220,7 @@ export function WorkPageClient({ projects }: WorkPageClientProps) {
                 flexDirection: "column",
                 gap: "var(--static-space-40)",
                 width: "100%",
-                paddingInline: "var(--static-space-24)",
+                paddingInline: "var(--static-space-16)",
                 marginBottom: "40px",
               }}
             >
@@ -250,7 +266,6 @@ export function WorkPageClient({ projects }: WorkPageClientProps) {
             {/* Pagination */}
             {totalPages > 1 && !isTransitioning && (
               <Row horizontal="center" gap="8" wrap style={{ paddingBottom: 40 }}>
-                {/* Prev */}
                 <button
                   className="pag-btn"
                   onClick={() => handlePageChange(page - 1)}
@@ -261,9 +276,7 @@ export function WorkPageClient({ projects }: WorkPageClientProps) {
                   </svg>
                 </button>
 
-                {/* Page numbers */}
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => {
-                  // Show first, last, current, and neighbors
                   const show =
                     p === 1 ||
                     p === totalPages ||
@@ -293,7 +306,6 @@ export function WorkPageClient({ projects }: WorkPageClientProps) {
                   );
                 })}
 
-                {/* Next */}
                 <button
                   className="pag-btn"
                   onClick={() => handlePageChange(page + 1)}
@@ -306,7 +318,6 @@ export function WorkPageClient({ projects }: WorkPageClientProps) {
               </Row>
             )}
 
-            {/* Info */}
             {totalPages > 1 && (
               <Row horizontal="center" paddingBottom="8">
                 <Text variant="body-default-xs" onBackground="neutral-weak">

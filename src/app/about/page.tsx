@@ -156,9 +156,15 @@ export default async function About() {
             </Row>
           </ScrollReveal>
 
+          <style>{`
+            @media (max-width: 480px) {
+              .timeline-dot-wrap { display: none !important; }
+              .timeline-line { display: none !important; }
+            }
+          `}</style>
           <Column fillWidth gap="0" marginBottom="48" style={{ position: "relative" }}>
             {/* Vertical timeline line */}
-            <div style={{
+            <div className="timeline-line" style={{
               position: "absolute", left: 19, top: 8, bottom: 8, width: 2,
               background: "linear-gradient(to bottom, var(--brand-alpha-medium), var(--neutral-alpha-weak))",
               borderRadius: 2,
@@ -170,7 +176,7 @@ export default async function About() {
                 <ScrollReveal key={isCms ? (exp as typeof experiences[0]).id : i} delay={i * 80}>
                   <Row fillWidth gap="l" paddingBottom="32">
                     {/* Timeline dot */}
-                    <div style={{ position: "relative", flexShrink: 0, paddingTop: 4 }}>
+                    <div className="timeline-dot-wrap" style={{ position: "relative", flexShrink: 0, paddingTop: 4 }}>
                       <div style={{
                         width: 40, height: 40, borderRadius: "50%",
                         background: i === 0 ? "var(--brand-background-strong)" : "var(--neutral-background-strong)",
@@ -442,7 +448,7 @@ export default async function About() {
                 <ScrollReveal key={i} delay={i * 80}>
                   <div className="edu-card">
                     <div className="edu-accent-bar" />
-                    <div style={{ flex: 1, padding: "20px 24px" }}>
+                    <div className="edu-inner" style={{ flex: 1, padding: "20px 24px" }}>
                       <Row gap="16" vertical="center">
                         <div style={{
                           width: 48, height: 48, borderRadius: 12,

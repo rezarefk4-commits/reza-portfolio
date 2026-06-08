@@ -8,6 +8,11 @@
     }
 }
 
+/* Avatar sticky sidebar */
+.avatar {
+    align-self: flex-start;
+}
+
 @media (max-width: breakpoints.$s) {
     .textAlign {
         text-align: center;
@@ -15,5 +20,15 @@
 
     .blockAlign {
         align-self: center;
+    }
+
+    /* On mobile, avatar becomes non-sticky and centered */
+    .avatar {
+        position: relative !important;
+        top: auto !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        flex: none !important;
+        padding-bottom: 8px !important;
     }
 }
