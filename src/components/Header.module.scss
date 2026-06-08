@@ -1,70 +1,8 @@
 @use "./breakpoints.scss" as breakpoints;
 
-.mask {
-  pointer-events: none;
-  backdrop-filter: blur(0.5rem);
-  background: linear-gradient(to bottom, var(--page-background), var(--static-transparent));
-  mask-image: linear-gradient(rgba(0,0,0) 25%, rgba(0, 0, 0, 0) 100%);
-  mask-size: 100% 100%;
-}
-
-/* ── True Liquid Glass navbar — iOS Dynamic Island style ────────── */
-.glassNav {
-  /* Multi-layer glass */
-  background: color-mix(in srgb, var(--page-background) 58%, transparent) !important;
-  backdrop-filter: blur(28px) saturate(200%) brightness(1.02) !important;
-  -webkit-backdrop-filter: blur(28px) saturate(200%) brightness(1.02) !important;
-  border: 1px solid color-mix(in srgb, var(--neutral-on-background-strong) 10%, transparent) !important;
-  box-shadow:
-    0 4px 32px color-mix(in srgb, var(--neutral-on-background-strong) 6%, transparent),
-    0 1px 4px color-mix(in srgb, var(--neutral-on-background-strong) 4%, transparent),
-    inset 0 1px 0 color-mix(in srgb, var(--neutral-on-background-strong) 10%, transparent),
-    inset 0 -1px 0 color-mix(in srgb, var(--neutral-on-background-strong) 4%, transparent) !important;
-  transition: background 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease !important;
-  /* Bigger pill */
-  min-height: 50px;
-  padding-left: 8px !important;
-  padding-right: 8px !important;
-  border-radius: 9999px !important;
-
-  /* Subtle noise texture for glass depth */
-  position: relative;
-
-  /* ToggleButton sizing */
-  :global([data-component="ToggleButton"]),
-  :global(button[class*="toggleButton"]),
-  :global(a[class*="toggleButton"]) {
-    min-height: 36px !important;
-    padding-top: 6px !important;
-    padding-bottom: 6px !important;
-    padding-left: 12px !important;
-    padding-right: 12px !important;
-    font-size: 14px !important;
-    border-radius: 9999px !important;
-  }
-
-  &::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    background: linear-gradient(
-      135deg,
-      color-mix(in srgb, var(--neutral-on-background-strong) 4%, transparent) 0%,
-      transparent 50%,
-      color-mix(in srgb, var(--neutral-on-background-strong) 2%, transparent) 100%
-    );
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  &:hover {
-    background: color-mix(in srgb, var(--page-background) 72%, transparent) !important;
-    box-shadow:
-      0 6px 40px color-mix(in srgb, var(--neutral-on-background-strong) 10%, transparent),
-      0 2px 8px color-mix(in srgb, var(--neutral-on-background-strong) 6%, transparent),
-      inset 0 1px 0 color-mix(in srgb, var(--neutral-on-background-strong) 14%, transparent) !important;
-  }
+/* ── Position: desktop sticky top, mobile fixed bottom ─────────────── */
+.position {
+  top: 0;
 }
 
 @media (max-width: breakpoints.$s) {
@@ -72,13 +10,145 @@
     top: auto;
     bottom: var(--static-space-24);
   }
+}
 
-  .mask {
-    transform: rotate(180deg);
-    bottom: 0;
+/* ── Liquid Glass pill navbar ───────────────────────────────────────── */
+.glassNav {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 8px;
+  border-radius: 9999px;
+
+  /* Glass layers */
+  background: color-mix(in srgb, var(--page-background) 55%, transparent);
+  backdrop-filter: blur(32px) saturate(180%) brightness(1.04);
+  -webkit-backdrop-filter: blur(32px) saturate(180%) brightness(1.04);
+
+  /* Single-color (cyan) tinted border */
+  border: 1px solid color-mix(in srgb, var(--brand-background-strong) 22%, transparent);
+
+  /* Layered shadow with cyan glow */
+  box-shadow:
+    0 2px 20px color-mix(in srgb, var(--brand-background-strong) 12%, transparent),
+    0 1px 4px color-mix(in srgb, var(--neutral-on-background-strong) 6%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--neutral-on-background-strong) 10%, transparent),
+    inset 0 -1px 0 color-mix(in srgb, var(--brand-background-strong) 8%, transparent);
+
+  transition: background 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  position: relative;
+  overflow: hidden;
+
+  /* Top-left specular highlight */
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--neutral-on-background-strong) 5%, transparent) 0%,
+      transparent 45%,
+      color-mix(in srgb, var(--brand-background-strong) 3%, transparent) 100%
+    );
+    pointer-events: none;
+    z-index: 0;
   }
 
+  &:hover {
+    background: color-mix(in srgb, var(--page-background) 70%, transparent);
+    border-color: color-mix(in srgb, var(--brand-background-strong) 35%, transparent);
+    box-shadow:
+      0 4px 28px color-mix(in srgb, var(--brand-background-strong) 20%, transparent),
+      0 2px 8px color-mix(in srgb, var(--neutral-on-background-strong) 8%, transparent),
+      inset 0 1px 0 color-mix(in srgb, var(--neutral-on-background-strong) 14%, transparent);
+  }
+}
+
+/* ── Nav row inside pill ─────────────────────────────────────────────── */
+.navInner {
+  position: relative;
+  z-index: 1;
+  flex-wrap: nowrap;
+}
+
+/* ── Divider ─────────────────────────────────────────────────────────── */
+.divider {
+  width: 1px;
+  height: 20px;
+  flex-shrink: 0;
+  background: color-mix(in srgb, var(--neutral-alpha-medium) 60%, transparent);
+  margin: 0 2px;
+}
+
+/* ── Nav buttons ─────────────────────────────────────────────────────── */
+.navBtn {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  min-height: 36px !important;
+  padding: 6px 10px !important;
+  border-radius: 9999px !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.01em !important;
+  white-space: nowrap !important;
+  color: var(--neutral-on-background-medium) !important;
+  transition: color 0.2s ease, background 0.2s ease !important;
+
+  /* Icon sizing */
+  svg,
+  :global([data-component="Icon"]),
+  :global(i) {
+    width: 16px !important;
+    height: 16px !important;
+    flex-shrink: 0 !important;
+    color: inherit !important;
+  }
+
+  &:hover {
+    color: var(--brand-on-background-strong) !important;
+    background: color-mix(in srgb, var(--brand-background-weak) 30%, transparent) !important;
+  }
+}
+
+/* ── Active / selected state — cyan accent ───────────────────────────── */
+.navBtnActive,
+.navBtn[aria-current="page"],
+:global([data-component="ToggleButton"][data-selected="true"]).navBtn,
+:global(a[class*="toggleButton"][aria-current]).navBtn {
+  color: var(--brand-on-background-strong) !important;
+  background: color-mix(in srgb, var(--brand-background-medium) 28%, transparent) !important;
+  font-weight: 600 !important;
+}
+
+/* ── Label: visible desktop, hidden mobile ───────────────────────────── */
+.navLabel {
+  display: inline;
+  font-size: 13px;
+  font-weight: inherit;
+  line-height: 1;
+}
+
+@media (max-width: breakpoints.$s) {
   .glassNav {
-    min-height: 48px;
+    padding: 5px 6px;
+  }
+
+  .navBtn {
+    padding: 7px 9px !important;
+    min-height: 38px !important;
+    gap: 0 !important;
+
+    svg,
+    :global([data-component="Icon"]),
+    :global(i) {
+      width: 18px !important;
+      height: 18px !important;
+    }
+  }
+
+  /* Hide text labels on mobile — keep icons */
+  .navLabel {
+    display: none;
   }
 }

@@ -81,103 +81,77 @@ export const Header = () => {
         </Row>
         <Row fillWidth horizontal="center">
           <Row
-            background="page"
-            border="neutral-alpha-weak"
             radius="m-4"
-            shadow="l"
-            padding="8"
-            horizontal="center"
             zIndex={1}
             className={styles.glassNav}
           >
-            <Row gap="4" vertical="center" textVariant="body-default-s" suppressHydrationWarning>
+            <Row gap="2" vertical="center" textVariant="body-default-s" suppressHydrationWarning className={styles.navInner}>
               {routes["/"] && (
-                <ToggleButton prefixIcon="home" href="/" selected={pathname === "/"} />
+                <ToggleButton
+                  prefixIcon="home"
+                  href="/"
+                  selected={pathname === "/"}
+                  className={`${styles.navBtn} ${pathname === "/" ? styles.navBtnActive : ""}`}
+                >
+                  <span className={styles.navLabel}>Home</span>
+                </ToggleButton>
               )}
-              <Line background="neutral-alpha-medium" vert maxHeight="24" />
+
+              {(routes["/"] && (routes["/about"] || routes["/work"] || routes["/blog"] || routes["/gallery"])) && (
+                <div className={styles.divider} />
+              )}
+
               {routes["/about"] && (
-                <>
-                  <Row s={{ hide: true }}>
-                    <ToggleButton
-                      prefixIcon="person"
-                      href="/about"
-                      label={about.label}
-                      selected={pathname === "/about"}
-                    />
-                  </Row>
-                  <Row hide s={{ hide: false }}>
-                    <ToggleButton
-                      prefixIcon="person"
-                      href="/about"
-                      selected={pathname === "/about"}
-                    />
-                  </Row>
-                </>
+                <ToggleButton
+                  prefixIcon="person"
+                  href="/about"
+                  selected={pathname === "/about"}
+                  className={`${styles.navBtn} ${pathname === "/about" ? styles.navBtnActive : ""}`}
+                >
+                  <span className={styles.navLabel}>{about.label}</span>
+                </ToggleButton>
               )}
+
               {routes["/work"] && (
-                <>
-                  <Row s={{ hide: true }}>
-                    <ToggleButton
-                      prefixIcon="grid"
-                      href="/work"
-                      label={work.label}
-                      selected={pathname.startsWith("/work")}
-                    />
-                  </Row>
-                  <Row hide s={{ hide: false }}>
-                    <ToggleButton
-                      prefixIcon="grid"
-                      href="/work"
-                      selected={pathname.startsWith("/work")}
-                    />
-                  </Row>
-                </>
+                <ToggleButton
+                  prefixIcon="grid"
+                  href="/work"
+                  selected={pathname.startsWith("/work")}
+                  className={`${styles.navBtn} ${pathname.startsWith("/work") ? styles.navBtnActive : ""}`}
+                >
+                  <span className={styles.navLabel}>{work.label}</span>
+                </ToggleButton>
               )}
+
               {routes["/blog"] && (
-                <>
-                  <Row s={{ hide: true }}>
-                    <ToggleButton
-                      prefixIcon="book"
-                      href="/blog"
-                      label={blog.label}
-                      selected={pathname.startsWith("/blog")}
-                    />
-                  </Row>
-                  <Row hide s={{ hide: false }}>
-                    <ToggleButton
-                      prefixIcon="book"
-                      href="/blog"
-                      selected={pathname.startsWith("/blog")}
-                    />
-                  </Row>
-                </>
+                <ToggleButton
+                  prefixIcon="book"
+                  href="/blog"
+                  selected={pathname.startsWith("/blog")}
+                  className={`${styles.navBtn} ${pathname.startsWith("/blog") ? styles.navBtnActive : ""}`}
+                >
+                  <span className={styles.navLabel}>{blog.label}</span>
+                </ToggleButton>
               )}
+
               {routes["/gallery"] && (
-                <>
-                  <Row s={{ hide: true }}>
-                    <ToggleButton
-                      prefixIcon="gallery"
-                      href="/gallery"
-                      label={gallery.label}
-                      selected={pathname.startsWith("/gallery")}
-                    />
-                  </Row>
-                  <Row hide s={{ hide: false }}>
-                    <ToggleButton
-                      prefixIcon="gallery"
-                      href="/gallery"
-                      selected={pathname.startsWith("/gallery")}
-                    />
-                  </Row>
-                </>
+                <ToggleButton
+                  prefixIcon="gallery"
+                  href="/gallery"
+                  selected={pathname.startsWith("/gallery")}
+                  className={`${styles.navBtn} ${pathname.startsWith("/gallery") ? styles.navBtnActive : ""}`}
+                >
+                  <span className={styles.navLabel}>{gallery.label}</span>
+                </ToggleButton>
               )}
+
               {display.themeSwitcher && (
                 <>
-                  <Line background="neutral-alpha-medium" vert maxHeight="24" />
+                  <div className={styles.divider} />
                   <ThemeToggle />
                 </>
               )}
-              <Line background="neutral-alpha-medium" vert maxHeight="24" />
+              <div className={styles.divider} />
               <LangToggle />
             </Row>
           </Row>
