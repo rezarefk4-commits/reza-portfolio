@@ -70,7 +70,7 @@ export default async function About() {
   ];
 
   return (
-    <Column maxWidth="m">
+    <Column maxWidth="m" style={{ overflow: "visible" }}>
       <style>{`
         @media (max-width: 768px) {
           .about-row-wrap {

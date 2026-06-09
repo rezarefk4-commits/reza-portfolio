@@ -145,8 +145,8 @@ main, [data-page-content] {
 }
 
 /* ─── Responsive Base ────────────────────────────────────────────────────── */
-html { scroll-behavior: smooth; overflow-x: hidden; }
-body { overflow-x: hidden; }
+html { scroll-behavior: smooth; }
+body { overflow-x: clip; } /* clip instead of hidden — preserves sticky positioning */
 :focus-visible { outline: 2px solid var(--brand-background-strong); outline-offset: 2px; border-radius: 4px; }
 
 /* ─── Global mobile heading scale ─────────────────────────────────────────── */

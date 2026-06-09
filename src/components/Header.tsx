@@ -223,27 +223,22 @@ export const Header = () => {
               background: #14532d; border-color: #15803d; color: #bbf7d0;
             }
 
-            /* ── Mobile: icon only, compact, bottom-right ── */
+            /* ── Mobile: icon only, compact, top-right (same as desktop) ── */
             @media (max-width: 768px) {
               .hcv-btn {
-                top: auto;
-                bottom: 96px;
-                right: 16px;
-                padding: 10px;
+                top: 14px;
+                right: 14px;
+                padding: 8px;
                 gap: 0;
                 border-radius: 50%;
-                width: 40px;
-                height: 40px;
+                width: 36px;
+                height: 36px;
                 justify-content: center;
                 box-shadow: 0 2px 12px rgba(0,0,0,0.30),
                             inset 0 1px 0 rgba(255,255,255,0.12);
               }
               .hcv-label { display: none; }
-              .hcv-btn::before { animation: hcv-shimmer 3s cubic-bezier(0.45,0,0.55,1) infinite; }
               .hcv-dl-icon { opacity: 1; }
-              [data-theme="light"] .hcv-btn, .light .hcv-btn {
-                bottom: 96px;
-              }
             }
           `}</style>
           <button
