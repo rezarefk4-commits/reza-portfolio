@@ -8,11 +8,21 @@
     }
 }
 
-/* Desktop: sticky sidebar */
+/* ── Desktop: true sticky sidebar ── */
 .avatar {
-    align-self: flex-start;
+    position: sticky !important;
+    top: 88px !important;
+    align-self: flex-start !important;
+    height: fit-content !important;
+    min-width: 200px;
+    max-width: 240px;
+    flex-shrink: 0;
+    padding: 0 16px 24px 16px;
+    /* Ensure it doesn't scroll with page */
+    z-index: 2;
 }
 
+/* ── Mobile: non-sticky, full width, centered ── */
 @media (max-width: breakpoints.$s) {
     .textAlign {
         text-align: center;
@@ -22,7 +32,6 @@
         align-self: center;
     }
 
-    /* Mobile: non-sticky, centered, compact */
     .avatar {
         position: relative !important;
         top: auto !important;
@@ -33,5 +42,7 @@
         padding: 0 0 16px 0 !important;
         height: auto !important;
         align-self: center !important;
+        z-index: auto !important;
+        flex-shrink: unset !important;
     }
 }

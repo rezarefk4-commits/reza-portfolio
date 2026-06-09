@@ -61,12 +61,12 @@ export default async function About() {
   ]);
 
   const structure = [
-    { title: about.intro.title,     display: about.intro.display,     items: [] },
-    { title: about.work.title,      display: true,                     items: [] },
-    { title: about.studies.title,   display: true,                     items: [] },
-    { title: "Keahlian",            display: true,                     items: [] },
-    { title: "Organisasi",          display: organizations.length > 0, items: [] },
-    { title: "Sertifikat",          display: certificates.length > 0,  items: [] },
+    { title: "Perkenalan",       display: about.intro.display,     items: [], id: "perkenalan" },
+    { title: "Pengalaman Kerja", display: true,                     items: [], id: "pengalaman-kerja" },
+    { title: "Pendidikan",       display: true,                     items: [], id: "pendidikan" },
+    { title: "Keahlian",         display: true,                     items: [], id: "keahlian" },
+    { title: "Organisasi",       display: organizations.length > 0, items: [], id: "organisasi" },
+    { title: "Sertifikat",       display: certificates.length > 0,  items: [], id: "sertifikat" },
   ];
 
   return (
@@ -82,27 +82,14 @@ export default async function About() {
         </Column>
       )}
 
-      <Row fillWidth s={{ direction: "column" }} horizontal="center" gap="0">
+      <Row fillWidth s={{ direction: "column" }} horizontal="center" gap="0" vertical="start" style={{ alignItems: "flex-start" }}>
 
         {/* ── Avatar Sidebar ──────────────────────────────────────────── */}
         {about.avatar.display && (
           <Column
             className={styles.avatar}
-            s={{ position: "relative", style: { top: "auto", minWidth: "unset", maxWidth: "unset", width: "100%", padding: "0 0 16px 0" } }}
             horizontal="center"
-            style={{
-              position: "sticky",
-              top: 80,
-              alignSelf: "flex-start",
-              height: "fit-content",
-              minWidth: 200,
-              maxWidth: 240,
-              width: "100%",
-              paddingLeft: 16,
-              paddingRight: 16,
-              paddingBottom: 24,
-              flexShrink: 0,
-            }}>
+          >
             <ScrollReveal type="scale">
               <AvatarFromCms />
             </ScrollReveal>
@@ -113,7 +100,7 @@ export default async function About() {
 
           {/* ── Nama + Social ───────────────────────────────────────── */}
           <ScrollReveal>
-            <Column id={about.intro.title} fillWidth minHeight="160" vertical="center" marginBottom="32">
+            <Column id="perkenalan" fillWidth minHeight="160" vertical="center" marginBottom="32">
               <Heading className={styles.textAlign} variant="display-strong-xl">{person.name}</Heading>
               <Text className={styles.textAlign} variant="display-default-xs" onBackground="neutral-weak">
                 {person.role}
@@ -154,7 +141,7 @@ export default async function About() {
           <ScrollReveal delay={100}>
             <Row fillWidth vertical="center" gap="m" marginBottom="l">
               <div style={{ width: 4, height: 28, borderRadius: 2, background: "var(--brand-background-strong)", flexShrink: 0 }} />
-              <Heading as="h2" id={about.work.title} variant="display-strong-s">
+              <Heading as="h2" id="pengalaman-kerja" variant="display-strong-s">
                 {about.work.title}
               </Heading>
             </Row>
@@ -237,7 +224,7 @@ export default async function About() {
           <ScrollReveal delay={120}>
             <Row fillWidth vertical="center" gap="m" marginBottom="l">
               <div style={{ width: 4, height: 28, borderRadius: 2, background: "var(--accent-background-strong)", flexShrink: 0 }} />
-              <Heading as="h2" id={about.studies.title} variant="display-strong-s">
+              <Heading as="h2" id="pendidikan" variant="display-strong-s">
                 {about.studies.title}
               </Heading>
             </Row>
@@ -559,7 +546,7 @@ export default async function About() {
               <ScrollReveal delay={200}>
                 <Row fillWidth vertical="center" gap="m" marginBottom="l">
                   <div style={{ width: 4, height: 28, borderRadius: 2, background: "#f59e0b", flexShrink: 0 }} />
-                  <Heading as="h2" id="certificates" variant="display-strong-s">Sertifikat</Heading>
+                  <Heading as="h2" id="sertifikat" variant="display-strong-s">Sertifikat</Heading>
                 </Row>
               </ScrollReveal>
               <div style={{

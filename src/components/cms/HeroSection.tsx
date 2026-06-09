@@ -13,14 +13,13 @@ interface HeroSectionProps {
   settings: SiteSettings | null;
 }
 
-/* ── Download CV Button — Liquid Glass CTA ─────────────────────────────── */
+/* ── Download CV Button — Minimal Solid CTA ────────────────────────────── */
 function DownloadCVButton({ cvUrl, label }: { cvUrl: string; label: string }) {
   const [clicked, setClicked] = useState(false);
-  const [hovering, setHovering] = useState(false);
 
   const handleDownload = () => {
     setClicked(true);
-    setTimeout(() => setClicked(false), 2200);
+    setTimeout(() => setClicked(false), 2000);
     const link = document.createElement("a");
     link.href = cvUrl;
     link.download = "CV-Reza-Refka.pdf";
@@ -33,236 +32,141 @@ function DownloadCVButton({ cvUrl, label }: { cvUrl: string; label: string }) {
   return (
     <>
       <style>{`
-        /* ── Keyframes ── */
-        @keyframes cv-scan {
-          0%   { transform: translateX(-130%) rotate(-20deg); opacity: 0; }
-          10%  { opacity: 1; }
-          90%  { opacity: 1; }
-          100% { transform: translateX(220%)  rotate(-20deg); opacity: 0; }
-        }
-        @keyframes cv-ring-pulse {
-          0%, 100% { opacity: 0.55; transform: scale(1); }
-          50%       { opacity: 1;    transform: scale(1.06); }
-        }
-        @keyframes cv-dot-blink {
-          0%, 100% { opacity: 1; }
-          50%       { opacity: 0.25; }
+        @keyframes cv-bounce {
+          0%, 100% { transform: translateY(0); }
+          50%       { transform: translateY(2.5px); }
         }
         @keyframes cv-check-draw {
           from { stroke-dashoffset: 22; }
           to   { stroke-dashoffset: 0; }
         }
-        @keyframes cv-arrow-bounce {
-          0%, 100% { transform: translateY(0); }
-          50%       { transform: translateY(2px); }
-        }
         @keyframes cv-success-pop {
-          0%   { transform: scale(0.7); opacity: 0; }
-          60%  { transform: scale(1.15); }
+          0%   { transform: scale(0.6); opacity: 0; }
+          70%  { transform: scale(1.2); }
           100% { transform: scale(1);   opacity: 1; }
         }
 
-        /* ── Base button ── */
-        .cv-glass-btn {
+        /* ── Base — Solid Dark (Dark Mode) ── */
+        .cv-btn {
           position: relative;
-          overflow: hidden;
-          isolation: isolate;
           display: inline-flex;
           align-items: center;
-          gap: 8px;
-          padding: 10px 20px 10px 12px;
+          gap: 7px;
+          padding: 9px 16px 9px 12px;
           border-radius: 999px;
-          border: 1px solid rgba(255,255,255,0.18);
-          background: rgba(255,255,255,0.07);
-          backdrop-filter: blur(20px) saturate(160%);
-          -webkit-backdrop-filter: blur(20px) saturate(160%);
-          color: var(--neutral-on-background-strong);
-          font-size: 14px;
-          font-weight: 500;
+          border: 1.5px solid rgba(255,255,255,0.14);
+          background: rgba(255,255,255,0.10);
+          color: rgba(255,255,255,0.90);
+          font-size: 13px;
+          font-weight: 600;
           font-family: inherit;
+          letter-spacing: 0.02em;
           cursor: pointer;
-          letter-spacing: 0.01em;
-          transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1),
-                      box-shadow 0.25s ease,
-                      background 0.25s ease,
-                      border-color 0.25s ease;
-          -webkit-tap-highlight-color: transparent;
-          outline: none;
-          text-decoration: none;
           white-space: nowrap;
-          /* soft glow ring on idle */
-          box-shadow:
-            0 0 0 1.5px rgba(99,102,241,0.18),
-            0 2px 14px rgba(99,102,241,0.10),
-            inset 0 1px 0 rgba(255,255,255,0.12);
-          animation: cv-ring-pulse 3.6s ease-in-out infinite;
+          outline: none;
+          overflow: hidden;
+          isolation: isolate;
+          transition:
+            background 0.22s ease,
+            border-color 0.22s ease,
+            transform 0.22s cubic-bezier(0.34,1.56,0.64,1),
+            box-shadow 0.22s ease,
+            color 0.22s ease;
+          box-shadow: 0 1px 8px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.10);
+          -webkit-tap-highlight-color: transparent;
         }
 
-        /* ── Scan shimmer ── */
-        .cv-glass-btn::before {
+        /* shimmer sweep */
+        .cv-btn::before {
           content: "";
           position: absolute;
-          top: -40%; left: 0;
-          width: 28%; height: 180%;
-          background: linear-gradient(
-            105deg,
-            transparent 0%,
-            rgba(255,255,255,0.04) 20%,
-            rgba(255,255,255,0.20) 50%,
-            rgba(255,255,255,0.04) 80%,
-            transparent 100%
-          );
-          animation: cv-scan 4.6s cubic-bezier(0.45,0,0.55,1) infinite;
+          inset: 0;
+          background: linear-gradient(105deg, transparent 30%, rgba(255,255,255,0.08) 50%, transparent 70%);
+          transform: translateX(-100%);
+          transition: transform 0.55s ease;
           pointer-events: none;
-          filter: blur(0.5px);
+          border-radius: inherit;
         }
+        .cv-btn:hover::before { transform: translateX(100%); }
 
-        /* ── Top rim light ── */
-        .cv-glass-btn::after {
-          content: "";
-          position: absolute;
-          top: 0; left: 10%; right: 10%;
-          height: 1px;
-          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.50) 50%, transparent);
-          pointer-events: none;
-          opacity: 0.6;
-          transition: opacity 0.25s;
-        }
-
-        /* ── Hover ── */
-        .cv-glass-btn:hover {
+        .cv-btn:hover {
+          background: rgba(255,255,255,0.16);
+          border-color: rgba(255,255,255,0.30);
           transform: translateY(-2px) scale(1.04);
-          background: rgba(255,255,255,0.11);
-          border-color: rgba(255,255,255,0.28);
-          box-shadow:
-            0 0 0 2px rgba(99,102,241,0.35),
-            0 6px 24px rgba(99,102,241,0.20),
-            inset 0 1px 0 rgba(255,255,255,0.18);
-          animation: none;
+          box-shadow: 0 4px 18px rgba(0,0,0,0.30), inset 0 1px 0 rgba(255,255,255,0.16);
+          color: #fff;
         }
-        .cv-glass-btn:hover::after { opacity: 1; }
-        .cv-glass-btn:hover .cv-arrow-icon {
-          animation: cv-arrow-bounce 0.6s ease-in-out infinite;
+        .cv-btn:hover .cv-icon { animation: cv-bounce 0.55s ease-in-out infinite; }
+        .cv-btn:active { transform: scale(0.97); }
+
+        /* Success */
+        .cv-btn.cv-ok {
+          background: rgba(34,197,94,0.18);
+          border-color: rgba(34,197,94,0.40);
+          color: rgb(74,222,128);
+          box-shadow: 0 2px 14px rgba(34,197,94,0.14);
         }
 
-        /* ── Active / click ── */
-        .cv-glass-btn:active { transform: scale(0.97); }
-
-        /* ── Success state ── */
-        .cv-glass-btn.cv-success {
-          border-color: rgba(52,211,153,0.4);
-          box-shadow:
-            0 0 0 2px rgba(52,211,153,0.25),
-            0 4px 20px rgba(52,211,153,0.15),
-            inset 0 1px 0 rgba(255,255,255,0.15);
-          animation: none;
+        /* ── Icon ── */
+        .cv-icon {
+          display: flex; align-items: center; justify-content: center;
+          flex-shrink: 0; position: relative; z-index: 2;
+          opacity: 0.85;
         }
-
-        /* ── CTA pulse dot ── */
-        .cv-dot {
-          width: 6px;
-          height: 6px;
-          border-radius: 50%;
-          background: var(--brand-solid-strong, #6366f1);
-          flex-shrink: 0;
-          position: relative;
-          z-index: 2;
-          animation: cv-dot-blink 2.4s ease-in-out infinite;
-          transition: background 0.3s;
-        }
-        .cv-glass-btn.cv-success .cv-dot {
-          background: rgb(52,211,153);
-          animation: none;
-        }
-
-        /* ── Icons ── */
-        .cv-icon-wrap {
-          position: relative;
-          z-index: 2;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          width: 18px;
-          height: 18px;
-        }
-        .cv-arrow-icon {
-          position: relative;
-          z-index: 2;
-          opacity: 0.65;
-          transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
-          flex-shrink: 0;
-        }
-        .cv-success-icon {
-          animation: cv-success-pop 0.35s cubic-bezier(0.34,1.56,0.64,1) forwards;
-        }
+        .cv-label { position: relative; z-index: 2; }
         .cv-check {
-          stroke-dasharray: 22;
-          stroke-dashoffset: 22;
-          animation: cv-check-draw 0.4s ease forwards;
+          stroke-dasharray: 22; stroke-dashoffset: 22;
+          animation: cv-check-draw 0.38s ease forwards;
         }
+        .cv-pop { animation: cv-success-pop 0.32s cubic-bezier(0.34,1.56,0.64,1) forwards; }
 
-        /* ── Label ── */
-        .cv-label {
-          position: relative;
-          z-index: 2;
-          transition: opacity 0.15s;
+        /* ── Light Mode ── */
+        [data-theme="light"] .cv-btn,
+        .light .cv-btn {
+          background: #111;
+          border-color: rgba(0,0,0,0.75);
+          color: #f9f9f9;
+          box-shadow: 0 1px 6px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.08);
         }
-
-        /* ── Light mode override — keep glass readable ── */
-        @media (prefers-color-scheme: light) {
-          .cv-glass-btn {
-            border-color: rgba(0,0,0,0.12);
-            background: rgba(255,255,255,0.55);
-            color: var(--neutral-on-background-strong);
-            box-shadow:
-              0 0 0 1.5px rgba(99,102,241,0.20),
-              0 2px 14px rgba(99,102,241,0.08),
-              inset 0 1px 0 rgba(255,255,255,0.90);
-          }
-          .cv-glass-btn:hover {
-            background: rgba(255,255,255,0.80);
-            border-color: rgba(99,102,241,0.30);
-            box-shadow:
-              0 0 0 2px rgba(99,102,241,0.28),
-              0 6px 24px rgba(99,102,241,0.12),
-              inset 0 1px 0 rgba(255,255,255,1);
-          }
-          .cv-glass-btn::after {
-            background: linear-gradient(90deg, transparent, rgba(0,0,0,0.06) 50%, transparent);
-          }
+        [data-theme="light"] .cv-btn:hover,
+        .light .cv-btn:hover {
+          background: #222;
+          border-color: rgba(0,0,0,0.85);
+          box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+          color: #fff;
+        }
+        [data-theme="light"] .cv-btn.cv-ok,
+        .light .cv-btn.cv-ok {
+          background: #166534;
+          border-color: #15803d;
+          color: #bbf7d0;
         }
       `}</style>
 
       <button
-        className={`cv-glass-btn${clicked ? " cv-success" : ""}`}
+        className={`cv-btn${clicked ? " cv-ok" : ""}`}
         onClick={handleDownload}
-        onMouseEnter={() => setHovering(true)}
-        onMouseLeave={() => setHovering(false)}
         type="button"
         aria-label={label}
       >
-        {/* CTA blink dot */}
-        <span className="cv-dot" />
-
-        {/* Icon area */}
-        <span className="cv-icon-wrap">
+        <span className="cv-icon">
           {clicked ? (
-            <svg className="cv-success-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgb(52,211,153)" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+            <svg className="cv-pop" width="14" height="14" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <polyline className="cv-check" points="20 6 9 17 4 12" />
             </svg>
           ) : (
-            <svg className="cv-arrow-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg className="cv-icon" width="14" height="14" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
               <polyline points="7 10 12 15 17 10"/>
               <line x1="12" y1="15" x2="12" y2="3"/>
             </svg>
           )}
         </span>
-
-        {/* Label */}
         <span className="cv-label">
           {clicked
-            ? (label === "Download CV" ? "Downloading…" : "Mengunduh…")
+            ? (label === "Download CV" ? "Saved!" : "Tersimpan!")
             : label}
         </span>
       </button>
