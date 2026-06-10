@@ -2,7 +2,7 @@
  * mediaCompressor.ts
  * Kompresi client-side untuk gambar, video, dan file lainnya
  * - Gambar: Canvas API → WebP/JPEG (target < 800KB)
- * - Video: MediaRecorder re-encode (target bitrate rendah)
+ * - Video: MediaRecorder re-encode (target bitrate 600kbps, threshold 2MB)
  * - PDF/lainnya: pass-through dengan size warning
  */
 
@@ -24,8 +24,12 @@ export interface CompressionOptions {
   imageMaxDimension?: number;
   /** Output format gambar. Default: "image/webp" dengan fallback jpeg */
   imageFormat?: "image/webp" | "image/jpeg" | "image/png";
-  /** Target bitrate video dalam bps. Default: 800_000 (800kbps) */
+  /** Target bitrate video dalam bps. Default: 600_000 (600kbps) */
   videoBitrate?: number;
+  /** Threshold ukuran video untuk trigger kompresi (bytes). Default: 2MB */
+  videoSizeThreshold?: number;
+  /** Max resolusi video (lebar/tinggi). Default: 1280 */
+  videoMaxDimension?: number;
   /** Callback progress 0-100 */
   onProgress?: (pct: number) => void;
 }
@@ -57,7 +61,6 @@ async function compressImage(
       const canvas = document.createElement("canvas");
       let { width, height } = img;
 
-      // Resize jika melebihi batas
       if (width > opts.imageMaxDimension || height > opts.imageMaxDimension) {
         const scale = opts.imageMaxDimension / Math.max(width, height);
         width = Math.round(width * scale);
@@ -70,7 +73,6 @@ async function compressImage(
       ctx.drawImage(img, 0, 0, width, height);
       opts.onProgress(60);
 
-      // Coba WebP dulu, fallback ke JPEG
       const tryFormat = (format: string, quality: number): Promise<Blob | null> =>
         new Promise((res) => canvas.toBlob((b) => res(b), format, quality));
 
@@ -78,7 +80,6 @@ async function compressImage(
         let blob: Blob | null = null;
         let usedFormat = opts.imageFormat;
 
-        // Iterasi kualitas sampai ukuran memenuhi target
         let quality = opts.imageQuality;
         for (let attempt = 0; attempt < 6; attempt++) {
           blob = await tryFormat(usedFormat, quality);
@@ -88,7 +89,6 @@ async function compressImage(
           opts.onProgress(60 + attempt * 5);
         }
 
-        // Fallback ke JPEG kalau WebP tidak didukung atau blob null
         if (!blob || blob.size === 0) {
           usedFormat = "image/jpeg";
           blob = await tryFormat(usedFormat, opts.imageQuality);
@@ -111,7 +111,6 @@ async function compressImage(
         const baseName = file.name.replace(/\.[^.]+$/, "");
         const compressed = new File([blob], `${baseName}.${ext}`, { type: usedFormat });
 
-        // Kalau hasil kompresi malah lebih besar, pakai aslinya
         if (compressed.size >= originalSize * 0.95) {
           return resolve({
             file,
@@ -153,18 +152,23 @@ async function compressImage(
   });
 }
 
-/** Compress video dengan MediaRecorder (re-encode) */
+/**
+ * Compress video dengan MediaRecorder (re-encode)
+ * — resolusi di-cap di videoMaxDimension
+ * — bitrate target configurable, default 600kbps
+ */
 async function compressVideo(
   file: File,
-  opts: { videoBitrate: number; onProgress: (n: number) => void }
+  opts: { videoBitrate: number; videoMaxDimension: number; onProgress: (n: number) => void }
 ): Promise<CompressionResult> {
   const originalSize = file.size;
   opts.onProgress(5);
 
-  // Cek dukungan MediaRecorder
-  const supportedMime = ["video/webm;codecs=vp9", "video/webm;codecs=vp8", "video/webm"].find(
-    (m) => MediaRecorder.isTypeSupported(m)
-  );
+  const supportedMime = [
+    "video/webm;codecs=vp9",
+    "video/webm;codecs=vp8",
+    "video/webm",
+  ].find((m) => typeof MediaRecorder !== "undefined" && MediaRecorder.isTypeSupported(m));
 
   if (!supportedMime) {
     return {
@@ -187,24 +191,43 @@ async function compressVideo(
     video.onloadedmetadata = () => {
       const canvas = document.createElement("canvas");
 
-      // Resize video max 1280px
       let vw = video.videoWidth;
       let vh = video.videoHeight;
-      const maxDim = 1280;
+      const maxDim = opts.videoMaxDimension;
+
       if (vw > maxDim || vh > maxDim) {
         const scale = maxDim / Math.max(vw, vh);
         vw = Math.round(vw * scale);
         vh = Math.round(vh * scale);
       }
+
+      // Pastikan dimensi genap (required oleh beberapa codec)
+      vw = vw % 2 === 0 ? vw : vw - 1;
+      vh = vh % 2 === 0 ? vh : vh - 1;
+
       canvas.width = vw;
       canvas.height = vh;
       const ctx = canvas.getContext("2d")!;
 
       const chunks: Blob[] = [];
-      const recorder = new MediaRecorder(canvas.captureStream(30), {
-        mimeType: supportedMime,
-        videoBitsPerSecond: opts.videoBitrate,
-      });
+      let recorder: MediaRecorder;
+
+      try {
+        recorder = new MediaRecorder(canvas.captureStream(30), {
+          mimeType: supportedMime,
+          videoBitsPerSecond: opts.videoBitrate,
+        });
+      } catch {
+        URL.revokeObjectURL(srcUrl);
+        return resolve({
+          file,
+          originalSize,
+          compressedSize: originalSize,
+          compressionRatio: 1,
+          wasCompressed: false,
+          method: "pass-through (MediaRecorder init error)",
+        });
+      }
 
       recorder.ondataavailable = (e) => {
         if (e.data.size > 0) chunks.push(e.data);
@@ -217,17 +240,19 @@ async function compressVideo(
         const baseName = file.name.replace(/\.[^.]+$/, "");
         const compressed = new File([blob], `${baseName}.${ext}`, { type: "video/webm" });
 
-        if (compressed.size >= originalSize * 0.92) {
+        // Jika hasil kompresi > 90% ukuran original, tidak worthwhile
+        if (compressed.size >= originalSize * 0.90) {
           return resolve({
             file,
             originalSize,
             compressedSize: originalSize,
             compressionRatio: 1,
             wasCompressed: false,
-            method: "pass-through (video sudah cukup kecil)",
+            method: "pass-through (kompresi tidak signifikan)",
           });
         }
 
+        opts.onProgress(100);
         resolve({
           file: compressed,
           originalSize,
@@ -238,16 +263,14 @@ async function compressVideo(
         });
       };
 
-      let frame = 0;
       const duration = video.duration;
 
       const drawFrame = () => {
         if (video.paused || video.ended) {
-          recorder.stop();
+          if (recorder.state !== "inactive") recorder.stop();
           return;
         }
         ctx.drawImage(video, 0, 0, vw, vh);
-        frame++;
         const pct = Math.min(90, 10 + (video.currentTime / duration) * 80);
         opts.onProgress(Math.round(pct));
         requestAnimationFrame(drawFrame);
@@ -255,7 +278,7 @@ async function compressVideo(
 
       recorder.start(100);
       video.play().then(drawFrame).catch(() => {
-        recorder.stop();
+        if (recorder.state !== "inactive") recorder.stop();
         URL.revokeObjectURL(srcUrl);
         resolve({
           file,
@@ -292,7 +315,9 @@ export async function compressFile(
     imageQuality = 0.82,
     imageMaxDimension = 2560,
     imageFormat = "image/webp",
-    videoBitrate = 800_000,
+    videoBitrate = 600_000,          // ↓ lebih agresif dari 800kbps
+    videoSizeThreshold = 2 * 1024 * 1024, // ↓ threshold 2MB (sebelumnya 5MB)
+    videoMaxDimension = 1280,
     onProgress = () => {},
   } = options;
 
@@ -310,8 +335,8 @@ export async function compressFile(
   }
 
   if (category === "video") {
-    // Video kecil (<5MB) tidak perlu kompresi berat
-    if (file.size < 5 * 1024 * 1024) {
+    // Video sangat kecil (<2MB) tidak perlu kompresi
+    if (file.size < videoSizeThreshold) {
       onProgress(100);
       return {
         file,
@@ -319,10 +344,10 @@ export async function compressFile(
         compressedSize: file.size,
         compressionRatio: 1,
         wasCompressed: false,
-        method: "pass-through (video < 5MB, sudah ringan)",
+        method: `pass-through (video < ${Math.round(videoSizeThreshold / 1024 / 1024)}MB, sudah ringan)`,
       };
     }
-    return compressVideo(file, { videoBitrate, onProgress });
+    return compressVideo(file, { videoBitrate, videoMaxDimension, onProgress });
   }
 
   // PDF, ZIP, docx, dll → pass-through
