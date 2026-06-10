@@ -37,6 +37,11 @@ function VideoPlayer({ src, title }: { src: string; title: string }) {
   const [playing, setPlaying] = useState(false);
   const [error, setError] = useState(false);
 
+  // Pakai proxy untuk Supabase URL agar streaming & CORS aman
+  const proxySrc = src.includes("supabase.co") || src.includes("supabase.in")
+    ? `/api/video-proxy?url=${encodeURIComponent(src)}`
+    : src;
+
   // Auto-play saat mount, dengan key={src} React akan re-mount saat URL ganti
   useEffect(() => {
     const v = videoRef.current;
@@ -46,7 +51,6 @@ function VideoPlayer({ src, title }: { src: string; title: string }) {
       v.play()
         .then(() => setPlaying(true))
         .catch(() => {
-          // autoplay gagal (policy) — tampilkan tombol play manual
           setPlaying(false);
         });
     };
@@ -59,7 +63,7 @@ function VideoPlayer({ src, title }: { src: string; title: string }) {
       v.removeEventListener("loadeddata", tryPlay);
       v.pause();
     };
-  }, [src]);
+  }, [proxySrc]);
 
   const handleMetadata = (e: React.SyntheticEvent<HTMLVideoElement>) => {
     const v = e.currentTarget;
@@ -97,8 +101,8 @@ function VideoPlayer({ src, title }: { src: string; title: string }) {
     >
       <video
         ref={videoRef}
-        key={src}
-        src={src}
+        key={proxySrc}
+        src={proxySrc}
         muted
         loop
         playsInline

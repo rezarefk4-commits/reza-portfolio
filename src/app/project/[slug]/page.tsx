@@ -179,7 +179,7 @@ export default async function ProjectPage({
       <ProjectGalleryInline
         thumbnail={thumbClean}
         attachment={attachClean}
-        gallery={project.gallery?.map((g) => g.split("?")[0]).filter(Boolean) ?? []}
+        gallery={project.gallery?.filter(Boolean) ?? []}
         title={project.title_id}
       />
 
