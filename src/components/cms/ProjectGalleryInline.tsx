@@ -90,13 +90,15 @@ function VideoPlayer({ src, title }: { src: string; title: string }) {
     <div
       style={{
         width: "100%",
-        aspectRatio,
+        maxHeight: "60vh",
         background: "#000",
         borderRadius: 18,
         overflow: "hidden",
         boxShadow: "0 8px 48px rgba(0,0,0,0.4)",
         position: "relative",
-        transition: "aspect-ratio 0.3s ease",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
       }}
     >
       <video
@@ -114,6 +116,7 @@ function VideoPlayer({ src, title }: { src: string; title: string }) {
         style={{
           width: "100%",
           height: "100%",
+          maxHeight: "60vh",
           display: "block",
           objectFit: "contain",
           background: "#000",
