@@ -305,9 +305,11 @@ export default async function CertificatePage({
                   transition: "transform 0.2s, box-shadow 0.2s",
                 }}>
                   {c.thumbnail && !isPdf(c.thumbnail) && (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={c.thumbnail} alt={c.title_id}
-                      style={{ width: "100%", height: 110, objectFit: "cover" }} />
+                    <div style={{ width: "100%", overflow: "hidden", background: "var(--neutral-alpha-weak)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={c.thumbnail} alt={c.title_id}
+                        style={{ width: "100%", height: "auto", display: "block", objectFit: "contain" }} />
+                    </div>
                   )}
                   <div style={{ padding: "12px 14px" }}>
                     <Text variant="label-strong-s" style={{ marginBottom: 2 }}>{c.title_id}</Text>

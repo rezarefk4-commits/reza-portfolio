@@ -301,7 +301,21 @@ export default async function About() {
           box-shadow: 0 6px 24px color-mix(in srgb, var(--neutral-on-background-strong) 8%, transparent);
           border-color: var(--neutral-alpha-medium);
         }
-        .cert-thumb { width: 100%; height: 128px; object-fit: cover; display: block; }
+        /* Thumbnail menyesuaikan rasio asli gambar (portrait & landscape) */
+        .cert-thumb-wrap {
+          width: 100%;
+          overflow: hidden;
+          background: var(--neutral-alpha-weak);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .cert-thumb {
+          width: 100%;
+          height: auto;
+          display: block;
+          object-fit: contain;
+        }
         .cert-nothumb {
           width: 100%; height: 80px;
           display: flex; align-items: center; justify-content: center;
@@ -638,8 +652,10 @@ export default async function About() {
                   <ScrollReveal key={cert.id} delay={i * 35}>
                     <a href={`/certificate/${cert.id}`} className="cert-card">
                       {cert.thumbnail ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={cert.thumbnail} alt={cert.title_id} className="cert-thumb" />
+                        <div className="cert-thumb-wrap">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={cert.thumbnail} alt={cert.title_id} className="cert-thumb" />
+                        </div>
                       ) : (
                         <div className="cert-nothumb">
                           <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
