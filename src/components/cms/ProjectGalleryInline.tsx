@@ -28,48 +28,86 @@ function detectType(url: string): MediaType {
 }
 
 /* ─────────────────────────────────────────────────────────────────── */
-/* Video Player — autoplay muted, aspect-ratio dari video asli        */
+/* Video Player — autoplay, progress bar, seek, mute, aspect-ratio    */
 /* ─────────────────────────────────────────────────────────────────── */
+function formatTime(s: number): string {
+  if (!isFinite(s)) return "0:00";
+  const m = Math.floor(s / 60);
+  const sec = Math.floor(s % 60);
+  return `${m}:${sec.toString().padStart(2, "0")}`;
+}
+
 function VideoPlayer({ src, title }: { src: string; title: string }) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const progressRef = useRef<HTMLDivElement>(null);
   const [aspectRatio, setAspectRatio] = useState<string>("16/9");
+  const [isPortrait, setIsPortrait] = useState(false);
   const [muted, setMuted] = useState(true);
   const [playing, setPlaying] = useState(false);
   const [error, setError] = useState(false);
+  const [progress, setProgress] = useState(0);       // 0–1
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [showControls, setShowControls] = useState(true);
+  const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Pakai proxy untuk Supabase URL agar streaming & CORS aman
   const proxySrc = src.includes("supabase.co") || src.includes("supabase.in")
     ? `/api/video-proxy?url=${encodeURIComponent(src)}`
     : src;
 
-  // Auto-play saat mount, dengan key={src} React akan re-mount saat URL ganti
+  // Auto-play on mount / src change
   useEffect(() => {
     const v = videoRef.current;
     if (!v) return;
     v.muted = true;
+    setProgress(0);
+    setCurrentTime(0);
+    setDuration(0);
+    setError(false);
+    setPlaying(false);
+
     const tryPlay = () => {
-      v.play()
-        .then(() => setPlaying(true))
-        .catch(() => {
-          setPlaying(false);
-        });
+      v.play().then(() => setPlaying(true)).catch(() => setPlaying(false));
     };
-    if (v.readyState >= 2) {
-      tryPlay();
-    } else {
-      v.addEventListener("loadeddata", tryPlay, { once: true });
-    }
-    return () => {
-      v.removeEventListener("loadeddata", tryPlay);
-      v.pause();
-    };
+    if (v.readyState >= 2) tryPlay();
+    else v.addEventListener("loadeddata", tryPlay, { once: true });
+
+    return () => { v.removeEventListener("loadeddata", tryPlay); v.pause(); };
   }, [proxySrc]);
+
+  // Auto-hide controls after 3s of playing
+  const resetHideTimer = useCallback(() => {
+    setShowControls(true);
+    if (hideTimer.current) clearTimeout(hideTimer.current);
+    hideTimer.current = setTimeout(() => {
+      if (videoRef.current && !videoRef.current.paused) setShowControls(false);
+    }, 3000);
+  }, []);
+
+  useEffect(() => { return () => { if (hideTimer.current) clearTimeout(hideTimer.current); }; }, []);
 
   const handleMetadata = (e: React.SyntheticEvent<HTMLVideoElement>) => {
     const v = e.currentTarget;
     if (v.videoWidth && v.videoHeight) {
+      const r = v.videoWidth / v.videoHeight;
       setAspectRatio(`${v.videoWidth}/${v.videoHeight}`);
+      setIsPortrait(r < 1);
     }
+    setDuration(v.duration);
+  };
+
+  const handleTimeUpdate = (e: React.SyntheticEvent<HTMLVideoElement>) => {
+    const v = e.currentTarget;
+    setCurrentTime(v.currentTime);
+    setProgress(v.duration ? v.currentTime / v.duration : 0);
+  };
+
+  const togglePlay = () => {
+    const v = videoRef.current;
+    if (!v) return;
+    if (v.paused) v.play().then(() => setPlaying(true)).catch(() => {});
+    else { v.pause(); setPlaying(false); }
+    resetHideTimer();
   };
 
   const toggleMute = (e: React.MouseEvent) => {
@@ -78,27 +116,54 @@ function VideoPlayer({ src, title }: { src: string; title: string }) {
       if (videoRef.current) videoRef.current.muted = !m;
       return !m;
     });
+    resetHideTimer();
   };
 
-  const handleManualPlay = () => {
+  // Seek on progress bar click/drag
+  const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+    const bar = progressRef.current;
     const v = videoRef.current;
-    if (!v) return;
-    v.play().then(() => setPlaying(true)).catch(() => {});
+    if (!bar || !v || !v.duration) return;
+    const rect = bar.getBoundingClientRect();
+    const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    v.currentTime = pct * v.duration;
+    setProgress(pct);
+    resetHideTimer();
   };
 
-  return (
-    <div
-      style={{
+  // Container sizing: portrait capped at 70vh height, landscape full width
+  const containerStyle: React.CSSProperties = isPortrait
+    ? {
         width: "100%",
-        maxHeight: "60vh",
+        maxHeight: "70vh",
+        aspectRatio,
+        margin: "0 auto",
         background: "#000",
         borderRadius: 18,
         overflow: "hidden",
         boxShadow: "0 8px 48px rgba(0,0,0,0.4)",
         position: "relative",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
+        cursor: "pointer",
+      }
+    : {
+        width: "100%",
+        aspectRatio,
+        background: "#000",
+        borderRadius: 18,
+        overflow: "hidden",
+        boxShadow: "0 8px 48px rgba(0,0,0,0.4)",
+        position: "relative",
+        cursor: "pointer",
+      };
+
+  return (
+    <div
+      style={containerStyle}
+      onClick={togglePlay}
+      onMouseMove={resetHideTimer}
+      onMouseLeave={() => {
+        if (playing) setShowControls(false);
       }}
     >
       <video
@@ -110,124 +175,163 @@ function VideoPlayer({ src, title }: { src: string; title: string }) {
         playsInline
         preload="auto"
         onLoadedMetadata={handleMetadata}
+        onTimeUpdate={handleTimeUpdate}
         onError={() => setError(true)}
-        onPlay={() => setPlaying(true)}
+        onPlay={() => { setPlaying(true); resetHideTimer(); }}
         onPause={() => setPlaying(false)}
         style={{
           width: "100%",
           height: "100%",
-          maxHeight: "60vh",
           display: "block",
-          objectFit: "contain",
+          objectFit: isPortrait ? "cover" : "contain",
           background: "#000",
         }}
         title={title}
       />
 
-      {/* Manual play button jika autoplay diblok */}
-      {!playing && !error && (
-        <button
-          onClick={handleManualPlay}
-          style={{
-            position: "absolute",
-            inset: 0,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            background: "rgba(0,0,0,0.35)",
-            border: "none",
-            cursor: "pointer",
-          }}
-          aria-label="Putar video"
-        >
-          <div
-            style={{
-              width: 64, height: 64, borderRadius: "50%",
-              background: "rgba(255,255,255,0.18)",
-              backdropFilter: "blur(12px)",
-              border: "2px solid rgba(255,255,255,0.35)",
-              display: "flex", alignItems: "center", justifyContent: "center",
-            }}
-          >
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="white">
-              <polygon points="5 3 19 12 5 21 5 3" />
-            </svg>
-          </div>
-        </button>
-      )}
-
       {/* Error state */}
       {error && (
-        <div
-          style={{
-            position: "absolute", inset: 0,
-            display: "flex", flexDirection: "column",
-            alignItems: "center", justifyContent: "center",
-            gap: 10, color: "rgba(255,255,255,0.6)", fontSize: 13,
-          }}
-        >
+        <div style={{
+          position: "absolute", inset: 0,
+          display: "flex", flexDirection: "column",
+          alignItems: "center", justifyContent: "center",
+          gap: 10, color: "rgba(255,255,255,0.6)", fontSize: 13,
+        }}>
           <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-            <circle cx="12" cy="12" r="10" />
-            <line x1="12" y1="8" x2="12" y2="12" />
-            <line x1="12" y1="16" x2="12.01" y2="16" />
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
           </svg>
           Video tidak dapat dimuat
         </div>
       )}
 
-      {/* Bottom controls */}
-      <div
-        style={{
-          position: "absolute",
-          bottom: 12, left: 12, right: 12,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
+      {/* Center play/pause indicator (flash on toggle) */}
+      {!error && !playing && (
+        <div style={{
+          position: "absolute", inset: 0,
+          display: "flex", alignItems: "center", justifyContent: "center",
           pointerEvents: "none",
-        }}
-      >
-        {/* VIDEO badge */}
+        }}>
+          <div style={{
+            width: 60, height: 60, borderRadius: "50%",
+            background: "rgba(0,0,0,0.52)", backdropFilter: "blur(10px)",
+            border: "2px solid rgba(255,255,255,0.3)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+          }}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+              <polygon points="6 3 20 12 6 21 6 3"/>
+            </svg>
+          </div>
+        </div>
+      )}
+
+      {/* ── Bottom Controls Bar ──────────────────────────────── */}
+      <div style={{
+        position: "absolute",
+        bottom: 0, left: 0, right: 0,
+        padding: "32px 14px 12px",
+        background: "linear-gradient(to top, rgba(0,0,0,0.75) 0%, transparent 100%)",
+        display: "flex", flexDirection: "column", gap: 8,
+        opacity: showControls || !playing ? 1 : 0,
+        transition: "opacity 0.3s ease",
+        pointerEvents: showControls || !playing ? "all" : "none",
+      }}>
+        {/* Progress bar */}
         <div
+          ref={progressRef}
+          onClick={handleSeek}
           style={{
-            padding: "4px 10px", borderRadius: 99, fontSize: 11, fontWeight: 600,
-            background: "rgba(0,0,0,0.58)", backdropFilter: "blur(8px)",
-            color: "#fff", display: "flex", alignItems: "center", gap: 5,
+            width: "100%", height: 4, borderRadius: 99,
+            background: "rgba(255,255,255,0.25)",
+            cursor: "pointer", position: "relative",
           }}
         >
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor">
-            <polygon points="5 3 19 12 5 21 5 3" />
-          </svg>
-          VIDEO
+          {/* Buffered / progress fill */}
+          <div style={{
+            position: "absolute", left: 0, top: 0, bottom: 0,
+            width: `${progress * 100}%`,
+            background: "var(--brand-background-strong, #6366f1)",
+            borderRadius: 99,
+            transition: "width 0.1s linear",
+          }}/>
+          {/* Scrubber thumb */}
+          <div style={{
+            position: "absolute", top: "50%",
+            left: `${progress * 100}%`,
+            transform: "translate(-50%, -50%)",
+            width: 12, height: 12, borderRadius: "50%",
+            background: "#fff",
+            boxShadow: "0 0 4px rgba(0,0,0,0.5)",
+          }}/>
         </div>
 
-        {/* Mute toggle */}
-        <button
-          onClick={toggleMute}
-          style={{
-            width: 34, height: 34, borderRadius: "50%",
-            background: "rgba(0,0,0,0.58)", backdropFilter: "blur(8px)",
-            border: "1px solid rgba(255,255,255,0.15)",
-            color: "#fff", cursor: "pointer",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            pointerEvents: "all",
-            transition: "background 0.2s",
-          }}
-          aria-label={muted ? "Aktifkan suara" : "Matikan suara"}
-          title={muted ? "Aktifkan suara" : "Matikan suara"}
-        >
-          {muted ? (
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
-              <line x1="23" y1="9" x2="17" y2="15" /><line x1="17" y1="9" x2="23" y2="15" />
-            </svg>
-          ) : (
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
-              <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
-              <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
-            </svg>
-          )}
-        </button>
+        {/* Controls row */}
+        <div style={{
+          display: "flex", alignItems: "center",
+          gap: 10,
+        }}>
+          {/* Play/Pause */}
+          <button
+            onClick={(e) => { e.stopPropagation(); togglePlay(); }}
+            style={{
+              width: 32, height: 32, borderRadius: "50%",
+              background: "rgba(255,255,255,0.15)", backdropFilter: "blur(8px)",
+              border: "1px solid rgba(255,255,255,0.2)",
+              color: "#fff", cursor: "pointer",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              flexShrink: 0,
+            }}
+            aria-label={playing ? "Pause" : "Play"}
+          >
+            {playing ? (
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="white">
+                <rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>
+              </svg>
+            ) : (
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="white">
+                <polygon points="5 3 19 12 5 21 5 3"/>
+              </svg>
+            )}
+          </button>
+
+          {/* Timestamp */}
+          <span style={{
+            fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.85)",
+            fontVariantNumeric: "tabular-nums", letterSpacing: "0.02em", flexShrink: 0,
+          }}>
+            {formatTime(currentTime)} / {formatTime(duration)}
+          </span>
+
+          {/* Spacer */}
+          <div style={{ flex: 1 }}/>
+
+          {/* Mute toggle */}
+          <button
+            onClick={toggleMute}
+            style={{
+              width: 32, height: 32, borderRadius: "50%",
+              background: "rgba(255,255,255,0.15)", backdropFilter: "blur(8px)",
+              border: "1px solid rgba(255,255,255,0.2)",
+              color: "#fff", cursor: "pointer",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              flexShrink: 0,
+            }}
+            aria-label={muted ? "Aktifkan suara" : "Matikan suara"}
+          >
+            {muted ? (
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                <line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>
+              </svg>
+            ) : (
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+              </svg>
+            )}
+          </button>
+        </div>
       </div>
     </div>
   );
