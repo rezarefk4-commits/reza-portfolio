@@ -15,36 +15,27 @@ export async function getSettings(): Promise<SiteSettings | null> {
 
 // ─── PROJECTS ─────────────────────────────────────────────────────────────────
 
-/**
- * Normalise the gallery field coming from Supabase.
- * DB stores it as JSONB array: [{ url, caption, sort_order }]
- * Legacy rows may still have a plain string array — handle both.
- */
 function normalizeGallery(raw: unknown): GalleryItem[] {
   if (!Array.isArray(raw)) return [];
-  return raw
-    .map((item, idx) => {
-      if (typeof item === "string") {
-        // legacy plain-url row
-        return { url: item, caption: "", sort_order: idx };
-      }
-      if (item && typeof item === "object" && "url" in item) {
-        return {
-          url: String((item as Record<string, unknown>).url ?? ""),
-          caption: String((item as Record<string, unknown>).caption ?? ""),
-          sort_order:
-            typeof (item as Record<string, unknown>).sort_order === "number"
-              ? (item as Record<string, unknown>).sort_order as number
-              : idx,
-        };
-      }
-      return null;
-    })
-    .filter((x): x is GalleryItem => x !== null && Boolean(x.url))
-    .sort((a, b) => a.sort_order - b.sort_order);
+  const result: GalleryItem[] = [];
+  raw.forEach((item, idx) => {
+    if (typeof item === "string" && item) {
+      result.push({ url: item, caption: "", sort_order: idx });
+    } else if (item && typeof item === "object" && "url" in item) {
+      const obj = item as Record<string, unknown>;
+      const url = String(obj.url ?? "");
+      if (!url) return;
+      result.push({
+        url,
+        caption: String(obj.caption ?? ""),
+        sort_order: typeof obj.sort_order === "number" ? obj.sort_order : idx,
+      });
+    }
+  });
+  return result.sort((a, b) => a.sort_order - b.sort_order);
 }
 
-function normalizeProject(p: unknown): import("./types").Project {
+function normalizeProject(p: unknown): Project {
   const proj = p as Record<string, unknown>;
   const tools = proj.tools ?? proj["tools_"];
   const gallery = proj.gallery ?? proj["gallery_"];
@@ -52,10 +43,10 @@ function normalizeProject(p: unknown): import("./types").Project {
     ...proj,
     tools: Array.isArray(tools) ? tools : [],
     gallery: normalizeGallery(gallery),
-  } as import("./types").Project;
+  } as Project;
 }
 
-export async function getPublishedProjects(): Promise<import("./types").Project[]> {
+export async function getPublishedProjects(): Promise<Project[]> {
   const supabase = await createClient();
   const { data } = await supabase
     .from("projects")
@@ -65,7 +56,7 @@ export async function getPublishedProjects(): Promise<import("./types").Project[
   return (data || []).map(normalizeProject);
 }
 
-export async function getProjectBySlug(slug: string): Promise<import("./types").Project | null> {
+export async function getProjectBySlug(slug: string): Promise<Project | null> {
   const supabase = await createClient();
   const { data } = await supabase
     .from("projects")
@@ -76,7 +67,7 @@ export async function getProjectBySlug(slug: string): Promise<import("./types").
   return data ? normalizeProject(data) : null;
 }
 
-export async function getFeaturedProjects(): Promise<import("./types").Project[]> {
+export async function getFeaturedProjects(): Promise<Project[]> {
   const supabase = await createClient();
   const { data } = await supabase
     .from("projects")
