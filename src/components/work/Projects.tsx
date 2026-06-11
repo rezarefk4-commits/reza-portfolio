@@ -31,7 +31,8 @@ export async function Projects({ range, exclude }: ProjectsProps) {
           if (thumbClean) images.push(thumbClean);
           if (project.gallery?.length > 0) {
             project.gallery.forEach((g) => {
-              const gc = g ?? "";
+              // g is GalleryItem { url, caption, sort_order }
+              const gc = (typeof g === "string" ? g : g.url) ?? "";
               if (gc && !images.includes(gc)) images.push(gc);
             });
           }

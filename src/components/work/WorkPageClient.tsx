@@ -256,11 +256,12 @@ export function WorkPageClient({ projects }: WorkPageClientProps) {
                   ))
                 : paginated.map((project, index) => {
                     const thumbUrl = project.thumbnail ?? "";
-                    const galleryUrls = (project.gallery ?? []).filter(Boolean);
                     const images: string[] = [];
                     if (thumbUrl) images.push(thumbUrl);
-                    galleryUrls.forEach((g) => {
-                      if (!images.includes(g)) images.push(g);
+                    (project.gallery ?? []).forEach((g) => {
+                      // g is GalleryItem { url, caption, sort_order }
+                      const url = (typeof g === "string" ? g : g.url) ?? "";
+                      if (url && !images.includes(url)) images.push(url);
                     });
 
                     return (
