@@ -50,6 +50,52 @@ export async function generateMetadata() {
   });
 }
 
+/** Parse deskripsi: jika mengandung baris bullet (- / • / *), render sebagai <ul><li>.
+ *  Jika tidak, render sebagai <p> biasa dengan justify. */
+function renderDescription(text: string) {
+  const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+  const bulletLines = lines.filter(l => /^[-•*]\s/.test(l));
+
+  if (bulletLines.length > 0) {
+    // Mode campuran: ada baris biasa (intro) + bullet
+    const introLines: string[] = [];
+    const listItems: string[] = [];
+    let inList = false;
+
+    for (const line of lines) {
+      if (/^[-•*]\s/.test(line)) {
+        inList = true;
+        listItems.push(line.replace(/^[-•*]\s+/, ""));
+      } else if (!inList) {
+        introLines.push(line);
+      }
+    }
+
+    return (
+      <>
+        {introLines.length > 0 && (
+          <p className="tl-desc" style={{ marginBottom: listItems.length ? 10 : 0 }}>
+            {introLines.join(" ")}
+          </p>
+        )}
+        {listItems.length > 0 && (
+          <ul className="tl-desc-list">
+            {listItems.map((item, idx) => (
+              <li key={idx}>
+                <span className="tl-desc-bullet" />
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </>
+    );
+  }
+
+  // Plain text — justify
+  return <p className="tl-desc">{text}</p>;
+}
+
 export default async function About() {
   const [certificates, educations, experiences, skills, organizations] = await Promise.all([
     getCertificates().catch(() => []),
@@ -163,18 +209,58 @@ export default async function About() {
           font-weight: 500;
           margin-bottom: 10px;
         }
+        /* ══ Experience card body ══════════════════════════════ */
+        .tl-card {
+          background: var(--neutral-background-medium);
+          border: 1px solid var(--neutral-alpha-weak);
+          border-radius: 12px;
+          padding: 16px 18px 18px;
+          transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .tl-card:hover {
+          border-color: var(--neutral-alpha-medium);
+          box-shadow: 0 4px 20px color-mix(in srgb, var(--neutral-on-background-strong) 5%, transparent);
+        }
         .tl-desc {
           font-size: 13.5px;
           color: var(--neutral-on-background-weak);
-          line-height: 1.65;
+          line-height: 1.7;
           margin: 0;
-          border-left: 2px solid var(--neutral-alpha-weak);
-          padding-left: 12px;
+          text-align: justify;
+          hyphens: auto;
+          -webkit-hyphens: auto;
+        }
+        /* Bullet list inside description */
+        .tl-desc-list {
+          margin: 0;
+          padding-left: 0;
+          list-style: none;
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+          text-align: left;
+        }
+        .tl-desc-list li {
+          display: flex;
+          align-items: flex-start;
+          gap: 8px;
+          font-size: 13.5px;
+          color: var(--neutral-on-background-weak);
+          line-height: 1.65;
+        }
+        .tl-desc-bullet {
+          flex-shrink: 0;
+          width: 5px;
+          height: 5px;
+          border-radius: 50%;
+          background: var(--brand-background-strong);
+          margin-top: 7px;
         }
         @media (max-width: 480px) {
           .tl-line { display: none; }
           .tl-dot { display: none; }
           .tl-row { gap: 0; }
+          .tl-card { padding: 14px 14px 16px; }
         }
 
         /* ══ Education cards ══════════════════════════════════════ */
@@ -457,19 +543,23 @@ export default async function About() {
 
                     {/* Content */}
                     <div className="tl-content">
-                      <p className="tl-company">
-                        {isCms ? (exp as typeof experiences[0]).company : (exp as typeof about.work.experiences[0]).company}
-                      </p>
-                      <p className="tl-role">
-                        {isCms ? (exp as typeof experiences[0]).role_id : (exp as typeof about.work.experiences[0]).role}
-                      </p>
-                      <span className="tl-badge">
-                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-                        {isCms ? (exp as typeof experiences[0]).timeframe : (exp as typeof about.work.experiences[0]).timeframe}
-                      </span>
-                      {isCms && (exp as typeof experiences[0]).description_id && (
-                        <p className="tl-desc">{(exp as typeof experiences[0]).description_id}</p>
-                      )}
+                      <div className="tl-card">
+                        <p className="tl-company">
+                          {isCms ? (exp as typeof experiences[0]).company : (exp as typeof about.work.experiences[0]).company}
+                        </p>
+                        <p className="tl-role">
+                          {isCms ? (exp as typeof experiences[0]).role_id : (exp as typeof about.work.experiences[0]).role}
+                        </p>
+                        <span className="tl-badge">
+                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                          {isCms ? (exp as typeof experiences[0]).timeframe : (exp as typeof about.work.experiences[0]).timeframe}
+                        </span>
+                        {isCms && (exp as typeof experiences[0]).description_id && (
+                          <div style={{ marginTop: 10 }}>
+                            {renderDescription((exp as typeof experiences[0]).description_id!)}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </ScrollReveal>
