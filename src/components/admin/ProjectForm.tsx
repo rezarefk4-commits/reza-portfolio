@@ -10,6 +10,7 @@ import { ImageUpload } from "@/components/admin/ImageUpload";
 import { ToolsInput } from "@/components/admin/ToolsInput";
 import { pdfToImages } from "@/lib/pdfToImages";
 import type { Project, ProjectCategory, GalleryItem, GalleryDisplayMode } from "@/lib/types";
+import { ConfirmModal } from "@/components/admin/ConfirmModal";
 
 const CATEGORIES: ProjectCategory[] = [
   "Web App",
@@ -260,6 +261,7 @@ function GalleryManager({
   const [dragOver, setDragOver] = useState(false);
   const [dragIdx, setDragIdx] = useState<number | null>(null);
   const [dragOverIdx, setDragOverIdx] = useState<number | null>(null);
+  const [confirmGalleryOpen, setConfirmGalleryOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const reorder = (from: number, to: number) => {
@@ -481,7 +483,7 @@ function GalleryManager({
             </Text>
             <button
               onClick={() => {
-                if (confirm("Hapus semua gambar galeri?")) onChange([]);
+                setConfirmGalleryOpen(true);
               }}
               style={{
                 fontSize: 11, fontWeight: 600,
@@ -572,6 +574,7 @@ export function ProjectForm({ project }: ProjectFormProps) {
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState<"id" | "en">("id");
   const [deleting, setDeleting] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   const set = (key: string, value: unknown) => setForm((f) => ({ ...f, [key]: value }));
 
@@ -625,8 +628,12 @@ export function ProjectForm({ project }: ProjectFormProps) {
 
   const handleDelete = async () => {
     if (!project) return;
-    if (!confirm(`Hapus project "${project.title_id}"? Tindakan ini tidak dapat dibatalkan.`))
-      return;
+    setConfirmOpen(true);
+  };
+
+  const doDelete = async () => {
+    if (!project) return;
+    setConfirmOpen(false);
     setDeleting(true);
     const supabase = createClient();
     await supabase.from("projects").delete().eq("id", project.id);
@@ -988,6 +995,15 @@ export function ProjectForm({ project }: ProjectFormProps) {
           </Button>
         )}
       </Row>
+
+      <ConfirmModal
+        open={confirmOpen}
+        title="Hapus Project?"
+        message={`Project "${project?.title_id}" akan dihapus permanen dan tidak dapat dikembalikan.`}
+        confirmLabel="Ya, Hapus"
+        onConfirm={doDelete}
+        onCancel={() => setConfirmOpen(false)}
+      />
     </Column>
   );
 }

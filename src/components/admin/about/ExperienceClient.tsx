@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Column, Row, Text, Button, Input, Line, Card } from "@once-ui-system/core";
 import { createClient } from "@/lib/supabase/client";
 import type { AboutExperience } from "@/lib/types";
+import { ConfirmModal } from "@/components/admin/ConfirmModal";
 
 interface Props { initialData: AboutExperience[]; }
 
@@ -16,6 +17,7 @@ export function ExperienceClient({ initialData }: Props) {
   const [editing, setEditing] = useState<Partial<AboutExperience>|null>(null);
   const [isNew, setIsNew]     = useState(false);
   const [loading, setLoading] = useState(false);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [msg, setMsg]         = useState("");
 
   const set = (k: string, v: unknown) => setEditing((e) => e ? {...e,[k]:v} : e);
@@ -41,8 +43,10 @@ export function ExperienceClient({ initialData }: Props) {
     setLoading(false);
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Hapus data ini?")) return;
+  const handleDelete = (id: string) => { setConfirmDeleteId(id); };
+
+  const doDeleteExp = async (id: string) => {
+    setConfirmDeleteId(null);
     await createClient().from("about_experiences").delete().eq("id", id);
     setItems((p) => p.filter((x) => x.id !== id));
     if (editing?.id === id) setEditing(null);
@@ -102,5 +106,14 @@ export function ExperienceClient({ initialData }: Props) {
         </Card>
       ))}
     </Column>
+
+      <ConfirmModal
+        open={!!confirmDeleteId}
+        title="Hapus Pengalaman?"
+        message="Data pengalaman kerja ini akan dihapus permanen."
+        confirmLabel="Ya, Hapus"
+        onConfirm={() => confirmDeleteId && doDeleteExp(confirmDeleteId)}
+        onCancel={() => setConfirmDeleteId(null)}
+      />
   );
 }

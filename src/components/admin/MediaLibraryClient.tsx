@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
+import { ConfirmModal } from "@/components/admin/ConfirmModal";
 import { Column, Row, Text, Button, Input } from "@once-ui-system/core";
 import { createClient } from "@/lib/supabase/client";
 import { format } from "date-fns";
@@ -22,6 +23,7 @@ export function MediaLibraryClient({ initialMedia }: MediaLibraryClientProps) {
   const [uploading, setUploading] = useState(false);
   const [copied, setCopied] = useState<string | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
+  const [confirmItem, setConfirmItem] = useState<typeof initialMedia[0] | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const filtered = media.filter((m) =>
@@ -66,8 +68,12 @@ export function MediaLibraryClient({ initialMedia }: MediaLibraryClientProps) {
     setTimeout(() => setCopied(null), 2000);
   };
 
-  const handleDelete = async (item: Media) => {
-    if (!confirm(`Hapus file "${item.name}"?`)) return;
+  const handleDelete = (item: Media) => {
+    setConfirmItem(item);
+  };
+
+  const doDelete = async (item: Media) => {
+    setConfirmItem(null);
     const supabase = createClient();
     await supabase.storage.from(item.bucket).remove([item.path]);
     await supabase.from("media").delete().eq("id", item.id);
@@ -230,5 +236,14 @@ export function MediaLibraryClient({ initialMedia }: MediaLibraryClientProps) {
         </Text>
       )}
     </Column>
+
+      <ConfirmModal
+        open={!!confirmItem}
+        title="Hapus File?"
+        message={`File "${confirmItem?.name}" akan dihapus permanen dari storage.`}
+        confirmLabel="Ya, Hapus"
+        onConfirm={() => confirmItem && doDelete(confirmItem)}
+        onCancel={() => setConfirmItem(null)}
+      />
   );
 }

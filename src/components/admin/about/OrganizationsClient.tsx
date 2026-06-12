@@ -4,6 +4,7 @@ import { Column, Row, Text, Button, Input, Line, Card } from "@once-ui-system/co
 import { createClient } from "@/lib/supabase/client";
 import { ImageUpload } from "@/components/admin/ImageUpload";
 import type { AboutOrganization } from "@/lib/types";
+import { ConfirmModal } from "@/components/admin/ConfirmModal";
 
 interface Props { initialData: AboutOrganization[]; }
 const empty = (): Omit<AboutOrganization,"id"|"created_at"|"updated_at"> => ({
@@ -15,6 +16,7 @@ export function OrganizationsClient({ initialData }: Props) {
   const [editing, setEditing] = useState<Partial<AboutOrganization>|null>(null);
   const [isNew, setIsNew]     = useState(false);
   const [loading, setLoading] = useState(false);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [msg, setMsg]         = useState("");
   const set = (k:string,v:unknown) => setEditing((e) => e?{...e,[k]:v}:e);
   const ta = { background:"var(--neutral-background-medium)",border:"1px solid var(--neutral-alpha-medium)",
@@ -38,8 +40,10 @@ export function OrganizationsClient({ initialData }: Props) {
     setLoading(false);
   };
 
-  const handleDelete = async (id:string) => {
-    if (!confirm("Hapus organisasi ini?")) return;
+  const handleDelete = (id: string) => { setConfirmDeleteId(id); };
+
+  const doDeleteOrg = async (id: string) => {
+    setConfirmDeleteId(null);
     await createClient().from("about_organizations").delete().eq("id",id);
     setItems((p)=>p.filter((x)=>x.id!==id));
     if (editing?.id===id) setEditing(null);
@@ -107,5 +111,14 @@ export function OrganizationsClient({ initialData }: Props) {
         </Card>
       ))}
     </Column>
+
+      <ConfirmModal
+        open={!!confirmDeleteId}
+        title="Hapus Organisasi?"
+        message="Data organisasi ini akan dihapus permanen."
+        confirmLabel="Ya, Hapus"
+        onConfirm={() => confirmDeleteId && doDeleteOrg(confirmDeleteId)}
+        onCancel={() => setConfirmDeleteId(null)}
+      />
   );
 }

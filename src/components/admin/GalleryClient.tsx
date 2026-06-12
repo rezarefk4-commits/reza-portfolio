@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
+import { ConfirmModal } from "@/components/admin/ConfirmModal";
 import { Column, Row, Text, Button } from "@once-ui-system/core";
 import { createClient } from "@/lib/supabase/client";
 
@@ -22,6 +23,7 @@ export function GalleryClient({ initialPhotos }: GalleryClientProps) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editCaption, setEditCaption] = useState("");
   const [preview, setPreview] = useState<string | null>(null);
+  const [confirmPhoto, setConfirmPhoto] = useState<typeof initialPhotos[0] | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleUpload = async (files: FileList) => {
@@ -64,8 +66,12 @@ export function GalleryClient({ initialPhotos }: GalleryClientProps) {
     setUploading(false);
   };
 
-  const handleDelete = async (photo: GalleryPhoto) => {
-    if (!confirm(`Hapus foto ini?`)) return;
+  const handleDelete = (photo: GalleryPhoto) => {
+    setConfirmPhoto(photo);
+  };
+
+  const doDelete = async (photo: GalleryPhoto) => {
+    setConfirmPhoto(null);
     const supabase = createClient();
     const path = photo.url.split("/media/")[1];
     if (path) await supabase.storage.from("media").remove([path]);
@@ -233,5 +239,14 @@ export function GalleryClient({ initialPhotos }: GalleryClientProps) {
         </div>
       )}
     </Column>
+
+      <ConfirmModal
+        open={!!confirmPhoto}
+        title="Hapus Foto?"
+        message="Foto ini akan dihapus permanen dari galeri."
+        confirmLabel="Ya, Hapus"
+        onConfirm={() => confirmPhoto && doDelete(confirmPhoto)}
+        onCancel={() => setConfirmPhoto(null)}
+      />
   );
 }

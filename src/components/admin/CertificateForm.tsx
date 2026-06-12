@@ -6,6 +6,7 @@ import { Column, Row, Text, Button, Input, Line } from "@once-ui-system/core";
 import { createClient } from "@/lib/supabase/client";
 import { ImageUpload } from "@/components/admin/ImageUpload";
 import type { Certificate } from "@/lib/types";
+import { ConfirmModal } from "@/components/admin/ConfirmModal";
 
 interface CertificateFormProps {
   certificate?: Certificate;
@@ -32,6 +33,7 @@ export function CertificateForm({ certificate }: CertificateFormProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [deleting, setDeleting] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   const set = (k: string, v: unknown) => setForm((f) => ({ ...f, [k]: v }));
 
@@ -62,7 +64,12 @@ export function CertificateForm({ certificate }: CertificateFormProps) {
 
   const handleDelete = async () => {
     if (!certificate) return;
-    if (!confirm(`Hapus sertifikat "${certificate.title_id}"?`)) return;
+    setConfirmOpen(true);
+  };
+
+  const doDelete = async () => {
+    if (!certificate) return;
+    setConfirmOpen(false);
     setDeleting(true);
     const supabase = createClient();
     await supabase.from("certificates").delete().eq("id", certificate.id);
@@ -178,6 +185,15 @@ export function CertificateForm({ certificate }: CertificateFormProps) {
           </Button>
         )}
       </Row>
+
+      <ConfirmModal
+        open={confirmOpen}
+        title="Hapus Sertifikat?"
+        message={`Sertifikat "${certificate?.title_id}" akan dihapus permanen.`}
+        confirmLabel="Ya, Hapus"
+        onConfirm={doDelete}
+        onCancel={() => setConfirmOpen(false)}
+      />
     </Column>
   );
 }

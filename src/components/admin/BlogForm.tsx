@@ -8,6 +8,7 @@ import { generateSlug } from "@/lib/slug";
 import { TiptapEditor } from "@/components/admin/TiptapEditor";
 import { ImageUpload } from "@/components/admin/ImageUpload";
 import type { Blog } from "@/lib/types";
+import { ConfirmModal } from "@/components/admin/ConfirmModal";
 
 interface BlogFormProps {
   blog?: Blog;
@@ -33,6 +34,7 @@ export function BlogForm({ blog }: BlogFormProps) {
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState<"id" | "en">("id");
   const [deleting, setDeleting] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   const set = (k: string, v: unknown) => setForm((f) => ({ ...f, [k]: v }));
 
@@ -68,7 +70,12 @@ export function BlogForm({ blog }: BlogFormProps) {
 
   const handleDelete = async () => {
     if (!blog) return;
-    if (!confirm(`Hapus artikel "${blog.title_id}"?`)) return;
+    setConfirmOpen(true);
+  };
+
+  const doDelete = async () => {
+    if (!blog) return;
+    setConfirmOpen(false);
     setDeleting(true);
     const supabase = createClient();
     await supabase.from("blogs").delete().eq("id", blog.id);
@@ -179,6 +186,15 @@ export function BlogForm({ blog }: BlogFormProps) {
           </Button>
         )}
       </Row>
+
+      <ConfirmModal
+        open={confirmOpen}
+        title="Hapus Artikel?"
+        message={`Artikel "${blog?.title_id}" akan dihapus permanen dan tidak dapat dikembalikan.`}
+        confirmLabel="Ya, Hapus"
+        onConfirm={doDelete}
+        onCancel={() => setConfirmOpen(false)}
+      />
     </Column>
   );
 }

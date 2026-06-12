@@ -5,6 +5,7 @@ import { Column, Row, Text, Button, Input, Line, Card } from "@once-ui-system/co
 import { createClient } from "@/lib/supabase/client";
 import { ImageUpload } from "@/components/admin/ImageUpload";
 import type { AboutEducation } from "@/lib/types";
+import { ConfirmModal } from "@/components/admin/ConfirmModal";
 
 interface Props { initialData: AboutEducation[]; }
 
@@ -57,6 +58,7 @@ export function EducationClient({ initialData }: Props) {
   const [editing, setEditing] = useState<Partial<AboutEducation> | null>(null);
   const [isNew, setIsNew]     = useState(false);
   const [loading, setLoading] = useState(false);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [msg, setMsg]         = useState("");
 
   const set = (k: string, v: unknown) => setEditing((e) => e ? { ...e, [k]: v } : e);
@@ -85,8 +87,10 @@ export function EducationClient({ initialData }: Props) {
     setLoading(false);
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Hapus data pendidikan ini?")) return;
+  const handleDelete = (id: string) => { setConfirmDeleteId(id); };
+
+  const doDeleteEdu = async (id: string) => {
+    setConfirmDeleteId(null);
     await createClient().from("about_education").delete().eq("id", id);
     setItems((p) => p.filter((x) => x.id !== id));
     if (editing?.id === id) setEditing(null);
@@ -307,5 +311,14 @@ export function EducationClient({ initialData }: Props) {
         </div>
       ))}
     </Column>
+
+      <ConfirmModal
+        open={!!confirmDeleteId}
+        title="Hapus Data Pendidikan?"
+        message="Data pendidikan ini akan dihapus permanen."
+        confirmLabel="Ya, Hapus"
+        onConfirm={() => confirmDeleteId && doDeleteEdu(confirmDeleteId)}
+        onCancel={() => setConfirmDeleteId(null)}
+      />
   );
 }

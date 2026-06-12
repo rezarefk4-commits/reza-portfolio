@@ -4,6 +4,7 @@ import { Column, Row, Text, Button, Input, Line, Card } from "@once-ui-system/co
 import { createClient } from "@/lib/supabase/client";
 import { ImageUpload } from "@/components/admin/ImageUpload";
 import type { AboutSkill } from "@/lib/types";
+import { ConfirmModal } from "@/components/admin/ConfirmModal";
 
 interface Props { initialData: AboutSkill[]; }
 const empty = (): Omit<AboutSkill,"id"|"created_at"|"updated_at"> => ({
@@ -15,6 +16,7 @@ export function SkillsClient({ initialData }: Props) {
   const [editing, setEditing] = useState<Partial<AboutSkill>|null>(null);
   const [isNew, setIsNew]     = useState(false);
   const [loading, setLoading] = useState(false);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [msg, setMsg]         = useState("");
   const set = (k:string,v:unknown) => setEditing((e) => e?{...e,[k]:v}:e);
 
@@ -36,8 +38,10 @@ export function SkillsClient({ initialData }: Props) {
     setLoading(false);
   };
 
-  const handleDelete = async (id:string) => {
-    if (!confirm("Hapus skill ini?")) return;
+  const handleDelete = (id: string) => { setConfirmDeleteId(id); };
+
+  const doDeleteSkill = async (id: string) => {
+    setConfirmDeleteId(null);
     await createClient().from("about_skills").delete().eq("id",id);
     setItems((p)=>p.filter((x)=>x.id!==id));
     if (editing?.id===id) setEditing(null);
@@ -131,5 +135,14 @@ export function SkillsClient({ initialData }: Props) {
         </Row>
       )}
     </Column>
+
+      <ConfirmModal
+        open={!!confirmDeleteId}
+        title="Hapus Skill?"
+        message="Data skill ini akan dihapus permanen."
+        confirmLabel="Ya, Hapus"
+        onConfirm={() => confirmDeleteId && doDeleteSkill(confirmDeleteId)}
+        onCancel={() => setConfirmDeleteId(null)}
+      />
   );
 }
