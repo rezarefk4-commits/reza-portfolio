@@ -8,6 +8,7 @@ import { generateSlug } from "@/lib/slug";
 import { TiptapEditor } from "@/components/admin/TiptapEditor";
 import { ImageUpload } from "@/components/admin/ImageUpload";
 import { ToolsInput } from "@/components/admin/ToolsInput";
+import { pdfToImages } from "@/lib/pdfToImages";
 import type { Project, ProjectCategory, GalleryItem, GalleryDisplayMode } from "@/lib/types";
 
 const CATEGORIES: ProjectCategory[] = [
@@ -284,18 +285,63 @@ function GalleryManager({
     setUploading(true);
     setUploadError("");
 
-    const newItems: GalleryItem[] = [];
-    const fileArr = Array.from(files).filter((f) =>
-      f.type.startsWith("image/") || f.type.startsWith("video/")
-    );
+    // ── Expand PDF → JPG pages, compress gambar ──────────────────────
+    const expandedFiles: File[] = [];
 
-    if (fileArr.length === 0) {
-      setUploadError("Hanya file gambar dan video yang didukung.");
+    for (const file of Array.from(files)) {
+      const isPdf = file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
+
+      if (isPdf) {
+        try {
+          const result = await pdfToImages(file, {
+            scale: 2.0,
+            quality: 0.88,
+            onProgress: () => {}, // progress di-handle lewat state uploading
+          });
+          expandedFiles.push(...result.pages);
+        } catch {
+          setUploadError(`Gagal konversi PDF "${file.name}" ke gambar.`);
+          // fallback: skip PDF, jangan upload
+        }
+        continue;
+      }
+
+      // Gambar: compress via Canvas → WebP
+      if (file.type.startsWith("image/")) {
+        try {
+          const { compressFile } = await import("@/lib/mediaCompressor");
+          const compressed = await compressFile(file, {
+            imageMaxBytes: 800 * 1024,
+            imageQuality: 0.82,
+            imageMaxDimension: 2560,
+            imageFormat: "image/webp",
+          });
+          expandedFiles.push(compressed.file);
+        } catch {
+          expandedFiles.push(file); // fallback: file asli
+        }
+        continue;
+      }
+
+      // Video: langsung upload tanpa compress di gallery
+      if (file.type.startsWith("video/")) {
+        expandedFiles.push(file);
+        continue;
+      }
+
+      // Tipe lain: skip
+    }
+
+    if (expandedFiles.length === 0) {
+      setUploadError("Tidak ada file yang bisa diproses. Gunakan gambar, video, atau PDF.");
       setUploading(false);
       return;
     }
 
-    for (const file of fileArr) {
+    // ── Upload ke Supabase ────────────────────────────────────────────
+    const newItems: GalleryItem[] = [];
+
+    for (const file of expandedFiles) {
       const ext = file.name.split(".").pop() ?? "bin";
       const filename = `gallery/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
       const { data, error } = await supabase.storage
@@ -398,7 +444,7 @@ function GalleryManager({
               </svg>
             </div>
             <div>
-              <Text variant="label-strong-s">Drag & drop gambar/video</Text>
+              <Text variant="label-strong-s">Drag & drop gambar, video, atau PDF</Text>
               <Text variant="body-default-xs" onBackground="neutral-weak">
                 atau klik untuk pilih file • Bisa pilih beberapa sekaligus
               </Text>
@@ -408,7 +454,7 @@ function GalleryManager({
               background: "var(--neutral-alpha-weak)",
               borderRadius: 99, padding: "3px 12px",
             }}>
-              JPG, PNG, WEBP, GIF, MP4, WEBM, MOV
+              JPG, PNG, WEBP, GIF, MP4, WEBM, MOV · PDF (→ JPG per halaman otomatis)
             </div>
           </>
         )}
@@ -416,7 +462,7 @@ function GalleryManager({
           ref={fileInputRef}
           type="file"
           multiple
-          accept="image/*,video/*"
+          accept="image/*,video/*,.pdf"
           style={{ display: "none" }}
           onChange={handleFileInput}
         />
@@ -491,7 +537,7 @@ function GalleryManager({
           fontStyle: "italic",
           opacity: 0.6,
         }}>
-          Belum ada gambar/video. Upload di atas untuk menambahkan.
+          Belum ada gambar/video. Upload di atas untuk menambahkan. PDF akan dikonversi ke JPG otomatis.
         </div>
       )}
     </div>
