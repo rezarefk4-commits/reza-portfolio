@@ -97,7 +97,6 @@ export function ImageUpload({
   const [saved, setSaved] = useState(false);
   const [dragOver, setDragOver] = useState(false);
   const [videoQualityPreset, setVideoQualityPreset] = useState<"low" | "medium" | "high">("medium");
-  const [hasVideoFile, setHasVideoFile] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const displayUrl = value ? value.split("?")[0] : "";
@@ -105,9 +104,6 @@ export function ImageUpload({
   const isVideo = /\.(mp4|webm|mov|ogg)$/.test(displayUrl);
   const isImage = !isPdf && !isVideo;
   const previewUrl = displayUrl && isImage ? `${displayUrl}?t=${Math.floor(Date.now() / 30000)}` : "";
-
-  // Jika value sudah berupa video (edit mode), tampilkan panel video
-  const showVideoPanel = hasVideoFile || isVideo;
 
   const setPhase = (name: string, phase: FileProgress["phase"], pct: number, label: string) => {
     setFileProgress((prev) => ({ ...prev, [name]: { phase, pct, label } }));
@@ -197,10 +193,6 @@ export function ImageUpload({
     setUploading(true);
     setError("");
     setSaved(false);
-
-    // Deteksi apakah ada file video
-    const containsVideo = fileArr.some((f) => f.type.startsWith("video/"));
-    if (containsVideo) setHasVideoFile(true);
 
     // ── Expand PDF files → JPG pages ──────────────────────────────────
     const expandedFiles: File[] = [];
@@ -395,7 +387,7 @@ export function ImageUpload({
       </div>
 
       {/* ── Pilihan Kualitas Video ── */}
-      {enableCompression && showVideoPanel && (
+      {enableCompression && (
         <div style={{
           padding: "10px 12px",
           borderRadius: 10,

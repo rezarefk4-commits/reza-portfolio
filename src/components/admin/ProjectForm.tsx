@@ -10,7 +10,6 @@ import { ImageUpload } from "@/components/admin/ImageUpload";
 import { ToolsInput } from "@/components/admin/ToolsInput";
 import { pdfToImages } from "@/lib/pdfToImages";
 import type { Project, ProjectCategory, GalleryItem, GalleryDisplayMode } from "@/lib/types";
-import { ConfirmModal } from "@/components/admin/ConfirmModal";
 
 const CATEGORIES: ProjectCategory[] = [
   "Web App",
@@ -257,11 +256,11 @@ function GalleryManager({
   onChange: (items: GalleryItem[]) => void;
 }) {
   const [uploading, setUploading] = useState(false);
+  const [uploadStatus, setUploadStatus] = useState("Memproses...");
   const [uploadError, setUploadError] = useState("");
   const [dragOver, setDragOver] = useState(false);
   const [dragIdx, setDragIdx] = useState<number | null>(null);
   const [dragOverIdx, setDragOverIdx] = useState<number | null>(null);
-  const [confirmGalleryOpen, setConfirmGalleryOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const reorder = (from: number, to: number) => {
@@ -285,6 +284,7 @@ function GalleryManager({
   const uploadFiles = useCallback(async (files: FileList | File[]) => {
     const supabase = createClient();
     setUploading(true);
+    setUploadStatus("Memproses file...");
     setUploadError("");
 
     // ── Expand PDF → JPG pages, compress gambar ──────────────────────
@@ -295,15 +295,28 @@ function GalleryManager({
 
       if (isPdf) {
         try {
+          setUploadStatus(`Mengonversi PDF "${file.name}"...`);
           const result = await pdfToImages(file, {
             scale: 2.0,
             quality: 0.88,
-            onProgress: () => {}, // progress di-handle lewat state uploading
+            onProgress: ({ page, total }) => {
+              setUploadStatus(
+                total > 1
+                  ? `Render halaman ${page}/${total} dari "${file.name}"...`
+                  : `Merender PDF "${file.name}"...`
+              );
+            },
           });
-          expandedFiles.push(...result.pages);
-        } catch {
-          setUploadError(`Gagal konversi PDF "${file.name}" ke gambar.`);
-          // fallback: skip PDF, jangan upload
+          if (result.pages.length > 0) {
+            expandedFiles.push(...result.pages);
+          } else {
+            throw new Error("Tidak ada halaman yang berhasil dirender");
+          }
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : String(err);
+          setUploadError(`PDF "${file.name}": ${msg}. Mengunggah PDF asli sebagai fallback.`);
+          // Fallback: upload PDF aslinya langsung
+          expandedFiles.push(file);
         }
         continue;
       }
@@ -320,27 +333,29 @@ function GalleryManager({
           });
           expandedFiles.push(compressed.file);
         } catch {
-          expandedFiles.push(file); // fallback: file asli
+          expandedFiles.push(file);
         }
         continue;
       }
 
-      // Video: langsung upload tanpa compress di gallery
+      // Video
       if (file.type.startsWith("video/")) {
         expandedFiles.push(file);
         continue;
       }
 
-      // Tipe lain: skip
+      // Tipe lain: tetap upload (doc, zip, dll)
+      expandedFiles.push(file);
     }
 
     if (expandedFiles.length === 0) {
-      setUploadError("Tidak ada file yang bisa diproses. Gunakan gambar, video, atau PDF.");
+      setUploadError("Tidak ada file yang bisa diproses.");
       setUploading(false);
       return;
     }
 
     // ── Upload ke Supabase ────────────────────────────────────────────
+    setUploadStatus(`Mengunggah ${expandedFiles.length} file...`);
     const newItems: GalleryItem[] = [];
 
     for (const file of expandedFiles) {
@@ -428,7 +443,7 @@ function GalleryManager({
               animation: "pgSpin 0.8s linear infinite",
             }} />
             <style>{`@keyframes pgSpin{to{transform:rotate(360deg)}}`}</style>
-            <Text variant="body-default-s" onBackground="neutral-weak">Mengupload...</Text>
+            <Text variant="body-default-s" onBackground="neutral-weak">{uploadStatus}</Text>
           </>
         ) : (
           <>
@@ -483,7 +498,7 @@ function GalleryManager({
             </Text>
             <button
               onClick={() => {
-                setConfirmGalleryOpen(true);
+                if (confirm("Hapus semua gambar galeri?")) onChange([]);
               }}
               style={{
                 fontSize: 11, fontWeight: 600,
@@ -574,7 +589,6 @@ export function ProjectForm({ project }: ProjectFormProps) {
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState<"id" | "en">("id");
   const [deleting, setDeleting] = useState(false);
-  const [confirmOpen, setConfirmOpen] = useState(false);
 
   const set = (key: string, value: unknown) => setForm((f) => ({ ...f, [key]: value }));
 
@@ -628,12 +642,8 @@ export function ProjectForm({ project }: ProjectFormProps) {
 
   const handleDelete = async () => {
     if (!project) return;
-    setConfirmOpen(true);
-  };
-
-  const doDelete = async () => {
-    if (!project) return;
-    setConfirmOpen(false);
+    if (!confirm(`Hapus project "${project.title_id}"? Tindakan ini tidak dapat dibatalkan.`))
+      return;
     setDeleting(true);
     const supabase = createClient();
     await supabase.from("projects").delete().eq("id", project.id);
@@ -995,15 +1005,6 @@ export function ProjectForm({ project }: ProjectFormProps) {
           </Button>
         )}
       </Row>
-
-      <ConfirmModal
-        open={confirmOpen}
-        title="Hapus Project?"
-        message={`Project "${project?.title_id}" akan dihapus permanen dan tidak dapat dikembalikan.`}
-        confirmLabel="Ya, Hapus"
-        onConfirm={doDelete}
-        onCancel={() => setConfirmOpen(false)}
-      />
     </Column>
   );
 }
