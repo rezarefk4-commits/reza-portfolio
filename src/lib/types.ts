@@ -47,6 +47,8 @@ export interface Certificate {
   issue_date: string;
   thumbnail: string | null;
   pdf: string | null;
+  /** Array URL gambar sertifikat untuk slider (jpg/png/webp) */
+  images: string[] | null;
   created_at: string;
   updated_at: string;
 }

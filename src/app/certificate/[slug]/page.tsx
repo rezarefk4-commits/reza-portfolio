@@ -2,7 +2,7 @@ export const dynamic = "force-dynamic";
 
 import { notFound } from "next/navigation";
 import {
-  Column, Heading, Text, SmartLink, Row, Meta, Line,
+  Column, Heading, Text, SmartLink, Row, Meta,
 } from "@once-ui-system/core";
 import { baseURL } from "@/resources";
 import { getCertificateBySlug, getCertificates } from "@/lib/db";
@@ -10,6 +10,7 @@ import { Metadata } from "next";
 import { format } from "date-fns";
 import { id as localeId } from "date-fns/locale";
 import { ScrollToHash } from "@/components";
+import { CertificateSlider } from "@/components/certificate/CertificateSlider";
 
 function safeDate(d: string | null | undefined, fmt: string, opts?: Parameters<typeof format>[2]): string {
   if (!d) return "—";
@@ -18,133 +19,6 @@ function safeDate(d: string | null | undefined, fmt: string, opts?: Parameters<t
     if (isNaN(date.getTime())) return "—";
     return format(date, fmt, opts);
   } catch { return "—"; }
-}
-
-function isPdf(url: string | null | undefined): boolean {
-  if (!url) return false;
-  return url.split("?")[0].toLowerCase().endsWith(".pdf");
-}
-
-/* ── Elegant inline PDF card ─────────────────────────────────── */
-function ElegantPdfCard({ src, title }: { src: string; title: string }) {
-  return (
-    <div
-      style={{
-        width: "100%",
-        borderRadius: 20,
-        overflow: "hidden",
-        background: "var(--neutral-background-medium)",
-        border: "1px solid var(--neutral-alpha-weak)",
-        boxShadow:
-          "0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -1px rgba(0,0,0,0.04), 0 20px 60px rgba(0,0,0,0.08)",
-        position: "relative",
-      }}
-    >
-      {/* Decorative top accent line */}
-      <div
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          height: 2,
-          background: "linear-gradient(90deg, var(--brand-background-strong) 0%, transparent 70%)",
-          borderRadius: "20px 20px 0 0",
-          zIndex: 1,
-        }}
-      />
-
-      {/* Card header */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 14,
-          padding: "18px 22px",
-          background: "var(--neutral-background-strong)",
-          borderBottom: "1px solid var(--neutral-alpha-weak)",
-        }}
-      >
-        <div
-          style={{
-            width: 38,
-            height: 38,
-            borderRadius: 10,
-            background: "rgba(239,68,68,0.1)",
-            border: "1px solid rgba(239,68,68,0.2)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: "#ef4444",
-            flexShrink: 0,
-          }}
-        >
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-            <polyline points="14 2 14 8 20 8" />
-            <line x1="9" y1="13" x2="15" y2="13" />
-            <line x1="9" y1="17" x2="15" y2="17" />
-            <polyline points="9 9 10 9" />
-          </svg>
-        </div>
-
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div
-            style={{
-              fontSize: 14,
-              fontWeight: 700,
-              color: "var(--neutral-on-background-strong)",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
-              letterSpacing: "-0.01em",
-            }}
-          >
-            {title}
-          </div>
-          <div
-            style={{
-              fontSize: 11,
-              color: "var(--neutral-on-background-weak)",
-              marginTop: 2,
-              letterSpacing: "0.03em",
-              textTransform: "uppercase",
-              fontWeight: 500,
-            }}
-          >
-            Dokumen PDF
-          </div>
-        </div>
-      </div>
-
-      {/* PDF iframe */}
-      <div style={{ position: "relative" }}>
-        <iframe
-          src={`${src}#toolbar=0&navpanes=0&scrollbar=1&view=FitH`}
-          title={title}
-          style={{
-            width: "100%",
-            height: "680px",
-            border: "none",
-            display: "block",
-            background: "var(--neutral-background-weak)",
-          }}
-        />
-        <div
-          style={{
-            position: "absolute",
-            bottom: 0,
-            left: 0,
-            right: 0,
-            height: 32,
-            background:
-              "linear-gradient(to top, var(--neutral-background-medium) 0%, transparent 100%)",
-            pointerEvents: "none",
-          }}
-        />
-      </div>
-    </div>
-  );
 }
 
 export async function generateMetadata({
@@ -176,148 +50,245 @@ export default async function CertificatePage({
   const allCerts = await getCertificates().catch(() => []);
   const otherCerts = allCerts.filter((c) => c.id !== cert.id).slice(0, 3);
 
-  const certIsPdf = isPdf(cert.pdf);
-  const thumbIsPdf = isPdf(cert.thumbnail);
+  /* Kumpulkan semua gambar untuk slider: images[] > thumbnail sebagai fallback */
+  const sliderImages: string[] = [];
+  if (cert.images && cert.images.length > 0) {
+    sliderImages.push(...cert.images.filter(Boolean));
+  } else if (cert.thumbnail) {
+    sliderImages.push(cert.thumbnail);
+  }
 
   return (
-    <Column as="section" maxWidth="m" horizontal="center" gap="l" paddingTop="24">
+    <Column as="section" maxWidth="m" gap="l" paddingTop="24">
 
-      {/* ── Breadcrumb ──────────────────────────────────────────────── */}
-      <Column maxWidth="s" gap="12" horizontal="center" align="center">
-        <SmartLink href="/about#certificates">
-          <Text variant="label-strong-m">← Kembali ke Sertifikat</Text>
-        </SmartLink>
+      {/* ── Breadcrumb ─────────────────────────────────────────── */}
+      <SmartLink href="/about#sertifikat">
+        <Text variant="label-strong-m">← Kembali ke Sertifikat</Text>
+      </SmartLink>
 
-        <Text variant="body-default-xs" onBackground="neutral-weak">
-          {safeDate(cert.issue_date, "MMMM yyyy", { locale: localeId })}
-        </Text>
+      {/* ── Main content: 2-col layout ──────────────────────────── */}
+      <style>{`
+        .cert-detail-wrap {
+          display: flex;
+          flex-direction: row;
+          gap: 36px;
+          align-items: flex-start;
+          width: 100%;
+        }
+        .cert-slider-col {
+          flex: 0 0 min(420px, 52%);
+          max-width: min(420px, 52%);
+          position: sticky;
+          top: 100px;
+        }
+        .cert-info-col {
+          flex: 1;
+          min-width: 0;
+          display: flex;
+          flex-direction: column;
+          gap: 20px;
+        }
+        @media (max-width: 720px) {
+          .cert-detail-wrap {
+            flex-direction: column;
+            gap: 24px;
+          }
+          .cert-slider-col {
+            flex: none;
+            max-width: 100%;
+            width: 100%;
+            position: static;
+          }
+        }
 
-        <Heading variant="display-strong-m" style={{ textAlign: "center", lineHeight: 1.2 }}>
-          {cert.title_id}
-        </Heading>
+        /* ── Detail card ──────────────────────────────────────── */
+        .cert-detail-card {
+          border-radius: 16px;
+          border: 1px solid var(--neutral-alpha-weak);
+          background: var(--neutral-background-medium);
+          overflow: hidden;
+        }
+        .cert-detail-accent {
+          height: 3px;
+          background: linear-gradient(90deg, #f59e0b 0%, var(--brand-background-strong) 60%, transparent 100%);
+        }
+        .cert-detail-body { padding: 22px 24px; }
+        .cert-detail-eyebrow {
+          font-size: 10px; font-weight: 700; text-transform: uppercase;
+          letter-spacing: 0.14em; color: var(--neutral-on-background-weak);
+          margin-bottom: 6px;
+        }
+        .cert-detail-title {
+          font-size: 20px; font-weight: 800; line-height: 1.25;
+          color: var(--neutral-on-background-strong);
+          margin: 0 0 14px;
+          word-break: break-word;
+        }
+        .cert-issuer-badge {
+          display: inline-flex; align-items: center; gap: 6px;
+          padding: 5px 14px; border-radius: 99px; margin-bottom: 20px;
+          background: var(--brand-alpha-weak);
+          border: 1px solid var(--brand-alpha-medium);
+          color: var(--brand-on-background-medium);
+          font-size: 12px; font-weight: 600; letter-spacing: 0.02em;
+        }
+        .cert-meta-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 12px;
+          padding: 14px 0;
+          border-top: 1px solid var(--neutral-alpha-weak);
+          border-bottom: 1px solid var(--neutral-alpha-weak);
+          margin-bottom: 20px;
+        }
+        .cert-meta-item {}
+        .cert-meta-label {
+          font-size: 9.5px; font-weight: 700; text-transform: uppercase;
+          letter-spacing: 0.1em; color: var(--neutral-on-background-weak);
+          margin-bottom: 4px;
+        }
+        .cert-meta-value {
+          font-size: 13px; font-weight: 600;
+          color: var(--neutral-on-background-strong);
+          line-height: 1.4;
+        }
+        .cert-desc-label {
+          font-size: 10px; font-weight: 700; text-transform: uppercase;
+          letter-spacing: 0.12em; color: var(--neutral-on-background-weak);
+          margin-bottom: 8px;
+        }
+        .cert-desc-text {
+          font-size: 13.5px; color: var(--neutral-on-background-weak);
+          line-height: 1.75; text-align: justify; hyphens: auto;
+          -webkit-hyphens: auto;
+        }
 
-        {/* Issuer badge */}
-        <span style={{
-          padding: "4px 14px", borderRadius: 99, fontSize: 13, fontWeight: 600,
-          background: "var(--brand-alpha-weak)", color: "var(--brand-on-background-medium)",
-          border: "1px solid var(--brand-alpha-medium)", letterSpacing: "0.02em",
-        }}>
-          {cert.issuer}
-        </span>
-      </Column>
+        /* ── Other certs ─────────────────────────────────────── */
+        .other-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+          gap: 12px;
+        }
+        .other-card {
+          border-radius: 12px; overflow: hidden;
+          border: 1px solid var(--neutral-alpha-weak);
+          background: var(--neutral-background-medium);
+          text-decoration: none; display: block;
+          transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.2s, border-color 0.2s;
+        }
+        .other-card:hover {
+          transform: translateY(-3px);
+          box-shadow: 0 6px 24px color-mix(in srgb, var(--neutral-on-background-strong) 8%, transparent);
+          border-color: var(--neutral-alpha-medium);
+        }
+        .other-thumb-wrap {
+          width: 100%; overflow: hidden;
+          background: var(--neutral-alpha-weak);
+        }
+        .other-thumb {
+          width: 100%; height: auto; display: block; object-fit: contain;
+        }
+        .other-body { padding: 12px 14px 14px; }
+        .other-issuer {
+          font-size: 10px; font-weight: 700; text-transform: uppercase;
+          letter-spacing: 0.1em; color: var(--brand-on-background-medium);
+          margin-bottom: 4px; display: flex; align-items: center; gap: 4px;
+        }
+        .other-title {
+          font-size: 13px; font-weight: 700;
+          color: var(--neutral-on-background-strong);
+          line-height: 1.35; margin-bottom: 4px;
+          display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+        .other-date { font-size: 11px; color: var(--neutral-on-background-weak); }
+      `}</style>
 
-      {/* ── PDF card (if pdf field is a pdf file) ──────────────────── */}
-      {cert.pdf && certIsPdf && (
-        <ElegantPdfCard src={cert.pdf} title={cert.title_id} />
-      )}
+      <div className="cert-detail-wrap">
 
-      {/* ── Thumbnail (image only, skip if thumbnail is pdf) ────────── */}
-      {cert.thumbnail && !thumbIsPdf && (
-        <div style={{
-          width: "100%", borderRadius: 16, overflow: "hidden",
-          border: "1px solid var(--neutral-alpha-weak)",
-          boxShadow: "0 8px 32px rgba(0,0,0,0.18)",
-        }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={cert.thumbnail}
-            alt={cert.title_id}
-            style={{ width: "100%", height: "auto", display: "block" }}
-          />
+        {/* ── Kiri: Image Slider ─────────────────────────────── */}
+        <div className="cert-slider-col">
+          <CertificateSlider images={sliderImages} title={cert.title_id} />
         </div>
-      )}
 
-      {/* ── Thumbnail is PDF ─────────────────────────────────────────── */}
-      {cert.thumbnail && thumbIsPdf && !certIsPdf && (
-        <ElegantPdfCard src={cert.thumbnail} title={cert.title_id} />
-      )}
+        {/* ── Kanan: Info ────────────────────────────────────── */}
+        <div className="cert-info-col">
 
-      {/* ── Info Card ───────────────────────────────────────────────── */}
-      <div style={{
-        width: "100%", borderRadius: 16,
-        border: "1px solid var(--neutral-alpha-weak)",
-        background: "var(--neutral-background-medium)",
-        padding: "24px 28px",
-        display: "flex", flexDirection: "column", gap: 16,
-      }}>
-        <Text variant="label-strong-m" onBackground="neutral-weak">Detail Sertifikat</Text>
-        <Line background="neutral-alpha-weak" />
+          {/* Detail card */}
+          <div className="cert-detail-card">
+            <div className="cert-detail-accent" />
+            <div className="cert-detail-body">
+              <div className="cert-detail-eyebrow">Sertifikat</div>
+              <h1 className="cert-detail-title">{cert.title_id}</h1>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 20 }}>
-          <div>
-            <Text variant="label-default-xs" onBackground="neutral-weak" style={{ marginBottom: 4 }}>
-              Penerbit
-            </Text>
-            <Text variant="label-strong-s">{cert.issuer}</Text>
-          </div>
-          <div>
-            <Text variant="label-default-xs" onBackground="neutral-weak" style={{ marginBottom: 4 }}>
-              Tanggal Terbit
-            </Text>
-            <Text variant="label-strong-s">
-              {safeDate(cert.issue_date, "d MMMM yyyy", { locale: localeId })}
-            </Text>
-          </div>
-          {cert.title_en && cert.title_en !== cert.title_id && (
-            <div>
-              <Text variant="label-default-xs" onBackground="neutral-weak" style={{ marginBottom: 4 }}>
-                Judul (EN)
-              </Text>
-              <Text variant="label-strong-s">{cert.title_en}</Text>
+              {/* Issuer badge */}
+              <div className="cert-issuer-badge">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                </svg>
+                {cert.issuer}
+              </div>
+
+              {/* Meta grid */}
+              <div className="cert-meta-grid">
+                <div className="cert-meta-item">
+                  <div className="cert-meta-label">Penerbit</div>
+                  <div className="cert-meta-value">{cert.issuer}</div>
+                </div>
+                <div className="cert-meta-item">
+                  <div className="cert-meta-label">Tahun Terbit</div>
+                  <div className="cert-meta-value">
+                    {safeDate(cert.issue_date, "d MMMM yyyy", { locale: localeId })}
+                  </div>
+                </div>
+                {cert.title_en && cert.title_en !== cert.title_id && (
+                  <div className="cert-meta-item" style={{ gridColumn: "1 / -1" }}>
+                    <div className="cert-meta-label">Judul (EN)</div>
+                    <div className="cert-meta-value">{cert.title_en}</div>
+                  </div>
+                )}
+              </div>
+
+              {/* Deskripsi */}
+              {cert.description_id && (
+                <div>
+                  <div className="cert-desc-label">Deskripsi</div>
+                  <p className="cert-desc-text">{cert.description_id}</p>
+                  {cert.description_en && cert.description_en !== cert.description_id && (
+                    <p className="cert-desc-text" style={{ marginTop: 10, fontStyle: "italic", opacity: 0.65 }}>
+                      {cert.description_en}
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
-          )}
+          </div>
+
         </div>
       </div>
 
-      {/* ── Deskripsi ───────────────────────────────────────────────── */}
-      {cert.description_id && (
-        <Column maxWidth="s" style={{ margin: "0 auto", width: "100%" }} gap="12">
-          <Text variant="label-strong-m" onBackground="neutral-weak">Deskripsi</Text>
-          <Text variant="body-default-l" onBackground="neutral-weak" style={{ lineHeight: 1.75 }}>
-            {cert.description_id}
-          </Text>
-          {cert.description_en && cert.description_en !== cert.description_id && (
-            <Text variant="body-default-m" onBackground="neutral-weak"
-              style={{ lineHeight: 1.75, fontStyle: "italic", opacity: 0.7 }}>
-              {cert.description_en}
-            </Text>
-          )}
-        </Column>
-      )}
-
-      {/* ── Sertifikat Lainnya ───────────────────────────────────────── */}
+      {/* ── Sertifikat Lainnya ───────────────────────────────────── */}
       {otherCerts.length > 0 && (
-        <Column fillWidth gap="24" marginTop="24">
-          <Line maxWidth="40" />
-          <Heading as="h2" variant="heading-strong-xl">Sertifikat Lainnya</Heading>
-          <div style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))",
-            gap: 12,
-          }}>
+        <Column fillWidth gap="20" marginTop="24" style={{ borderTop: "1px solid var(--neutral-alpha-weak)", paddingTop: 32 }}>
+          <Heading as="h2" variant="heading-strong-l">Sertifikat Lainnya</Heading>
+          <div className="other-grid">
             {otherCerts.map((c) => (
-              <a key={c.id} href={`/certificate/${c.id}`}
-                style={{ textDecoration: "none", display: "block" }}>
-                <div className="cert-card" style={{
-                  borderRadius: 12, overflow: "hidden",
-                  border: "1px solid var(--neutral-alpha-weak)",
-                  background: "var(--neutral-background-medium)",
-                  transition: "transform 0.2s, box-shadow 0.2s",
-                }}>
-                  {c.thumbnail && !isPdf(c.thumbnail) && (
-                    <div style={{ width: "100%", overflow: "hidden", background: "var(--neutral-alpha-weak)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={c.thumbnail} alt={c.title_id}
-                        style={{ width: "100%", height: "auto", display: "block", objectFit: "contain" }} />
-                    </div>
-                  )}
-                  <div style={{ padding: "12px 14px" }}>
-                    <Text variant="label-strong-s" style={{ marginBottom: 2 }}>{c.title_id}</Text>
-                    <Text variant="label-default-xs" onBackground="brand-weak">{c.issuer}</Text>
-                    <Text variant="label-default-xs" onBackground="neutral-weak" style={{ marginTop: 4 }}>
-                      {safeDate(c.issue_date, "MMMM yyyy", { locale: localeId })}
-                    </Text>
+              <a key={c.id} href={`/certificate/${c.id}`} className="other-card">
+                {c.thumbnail && (
+                  <div className="other-thumb-wrap">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={c.thumbnail} alt={c.title_id} className="other-thumb" />
                   </div>
+                )}
+                <div className="other-body">
+                  <div className="other-issuer">
+                    <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                    </svg>
+                    {c.issuer}
+                  </div>
+                  <div className="other-title">{c.title_id}</div>
+                  <div className="other-date">{safeDate(c.issue_date, "MMMM yyyy", { locale: localeId })}</div>
                 </div>
               </a>
             ))}

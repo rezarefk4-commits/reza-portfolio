@@ -26,6 +26,7 @@ export function CertificateForm({ certificate }: CertificateFormProps) {
       : new Date().toISOString().split("T")[0],
     thumbnail: certificate?.thumbnail ?? "",
     pdf: certificate?.pdf ?? "",
+    images: (certificate?.images ?? []) as string[],
   });
 
   const [loading, setLoading] = useState(false);
@@ -122,17 +123,45 @@ export function CertificateForm({ certificate }: CertificateFormProps) {
         </Column>
       </Column>
 
+      {/* Thumbnail — gambar utama untuk grid di About */}
       <Column gap="m" border="neutral-alpha-weak" radius="m" padding="l" background="surface">
         <Text variant="label-strong-m">Thumbnail</Text>
+        <Text variant="body-default-s" onBackground="neutral-weak">
+          Gambar utama yang tampil di grid sertifikat halaman About.
+        </Text>
         <Line background="neutral-alpha-weak" />
-        <ImageUpload bucket="certificates" value={form.thumbnail} onChange={(url) => set("thumbnail", url)} />
+        <ImageUpload bucket="certificates" value={form.thumbnail} onChange={(url) => set("thumbnail", url)}
+          accept="image/*" label="Upload thumbnail (jpg, png, webp)" />
       </Column>
 
+      {/* Gambar Sertifikat — slider di halaman detail */}
       <Column gap="m" border="neutral-alpha-weak" radius="m" padding="l" background="surface">
-        <Text variant="label-strong-m">File PDF</Text>
+        <Text variant="label-strong-m">Gambar Sertifikat (Slider)</Text>
+        <Text variant="body-default-s" onBackground="neutral-weak">
+          Upload 1–5 gambar sertifikat (jpg, png, webp). Tampil sebagai slider di halaman detail.
+          Sertifikat 2 halaman: upload gambar halaman 1 & 2.
+        </Text>
         <Line background="neutral-alpha-weak" />
-        <ImageUpload bucket="certificates" value={form.pdf} onChange={(url) => set("pdf", url)}
-          accept=".pdf" label="Upload PDF sertifikat" />
+
+        {[0, 1, 2, 3, 4].map((idx) => (
+          <Column key={idx} gap="s">
+            <Text variant="label-default-xs" onBackground="neutral-weak">
+              Gambar {idx + 1}{idx === 0 ? " (utama)" : " (opsional)"}
+            </Text>
+            <ImageUpload
+              bucket="certificates"
+              value={form.images?.[idx] ?? ""}
+              onChange={(url) => {
+                const next = [...(form.images ?? [])];
+                next[idx] = url;
+                while (next.length > 0 && !next[next.length - 1]) next.pop();
+                set("images", next);
+              }}
+              accept="image/*"
+              label={`Upload gambar ${idx + 1}`}
+            />
+          </Column>
+        ))}
       </Column>
 
       {error && <Text variant="body-default-s" onBackground="danger-strong">{error}</Text>}
