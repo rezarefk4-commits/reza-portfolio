@@ -1045,10 +1045,9 @@ function ScrollVerticalGallery({
         <div style={{
           display: "flex",
           flexDirection: "column",
-          gap: 2,
+          gap: 14,
           background: "#0a0a0f",
           padding: "14px",
-          gap: 14,
         }}>
           {mediaItems.map((item, i) => (
             <div
