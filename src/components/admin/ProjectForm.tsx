@@ -8,13 +8,41 @@ import { generateSlug } from "@/lib/slug";
 import { TiptapEditor } from "@/components/admin/TiptapEditor";
 import { ImageUpload } from "@/components/admin/ImageUpload";
 import { ToolsInput } from "@/components/admin/ToolsInput";
-import type { Project, ProjectCategory, GalleryItem } from "@/lib/types";
+import type { Project, ProjectCategory, GalleryItem, GalleryDisplayMode } from "@/lib/types";
 
 const CATEGORIES: ProjectCategory[] = [
   "Web App",
   "Mobile App",
   "Data Visualization",
   "Creativity",
+];
+
+interface GalleryDisplayOption {
+  value: GalleryDisplayMode;
+  label: string;
+  icon: string;
+  desc: string;
+}
+
+const GALLERY_DISPLAY_MODES: GalleryDisplayOption[] = [
+  {
+    value: "slider",
+    label: "Slider",
+    icon: "↔",
+    desc: "1 media sekaligus, tombol prev/next + thumbnail strip",
+  },
+  {
+    value: "scroll-horizontal",
+    label: "Scroll Horizontal",
+    icon: "⟹",
+    desc: "Semua media berjajar, geser kanan-kiri (cocok untuk banyak gambar)",
+  },
+  {
+    value: "scroll-vertical",
+    label: "Scroll Vertikal",
+    icon: "⬇",
+    desc: "Semua media bertumpuk atas-bawah (cocok untuk screenshot panjang)",
+  },
 ];
 
 interface ProjectFormProps {
@@ -491,6 +519,7 @@ export function ProjectForm({ project }: ProjectFormProps) {
     published: project?.published ?? false,
     tools: project?.tools ?? [],
     gallery: (project?.gallery ?? []) as GalleryItem[],
+    gallery_display_mode: (project?.gallery_display_mode ?? "slider") as GalleryDisplayMode,
   });
 
   const [loading, setLoading] = useState(false);
@@ -719,6 +748,86 @@ export function ProjectForm({ project }: ProjectFormProps) {
             </div>
           )}
         </Row>
+
+        {/* ── Mode Tampilan Gallery ── */}
+        <Column gap="8" style={{ padding: "14px 16px", borderRadius: 10, background: "var(--neutral-background-medium)", border: "1px solid var(--neutral-alpha-weak)" }}>
+          <Row vertical="center" gap="8">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--brand-on-background-strong)" strokeWidth="2.2" strokeLinecap="round">
+              <rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/>
+            </svg>
+            <Text variant="label-strong-s">Mode Tampilan Gallery</Text>
+          </Row>
+          <Text variant="body-default-xs" onBackground="neutral-weak" style={{ marginBottom: 8 }}>
+            Pilih bagaimana pengunjung melihat koleksi karya ini di halaman proyek.
+          </Text>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            {GALLERY_DISPLAY_MODES.map((mode) => {
+              const isActive = form.gallery_display_mode === mode.value;
+              return (
+                <button
+                  key={mode.value}
+                  type="button"
+                  onClick={() => set("gallery_display_mode", mode.value)}
+                  style={{
+                    display: "flex", alignItems: "flex-start", gap: 12,
+                    padding: "12px 14px", borderRadius: 10, cursor: "pointer", textAlign: "left",
+                    background: isActive ? "var(--brand-alpha-weak)" : "var(--neutral-background-strong)",
+                    border: isActive
+                      ? "1.5px solid var(--brand-alpha-strong)"
+                      : "1.5px solid var(--neutral-alpha-medium)",
+                    transition: "all 0.18s",
+                    width: "100%",
+                  }}
+                >
+                  <span style={{
+                    width: 32, height: 32, borderRadius: 8, flexShrink: 0,
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    fontSize: 16,
+                    background: isActive ? "var(--brand-alpha-medium)" : "var(--neutral-alpha-weak)",
+                    border: isActive ? "1px solid var(--brand-alpha-medium)" : "1px solid var(--neutral-alpha-weak)",
+                    transition: "all 0.18s",
+                  }}>
+                    {mode.icon}
+                  </span>
+                  <span style={{ flex: 1 }}>
+                    <span style={{
+                      display: "flex", alignItems: "center", gap: 7, marginBottom: 3,
+                    }}>
+                      <span style={{
+                        fontSize: 13, fontWeight: 700,
+                        color: isActive ? "var(--brand-on-background-strong)" : "var(--neutral-on-background-strong)",
+                      }}>
+                        {mode.label}
+                      </span>
+                      {isActive && (
+                        <span style={{
+                          fontSize: 9, fontWeight: 800, letterSpacing: "0.08em",
+                          padding: "2px 7px", borderRadius: 99,
+                          background: "var(--brand-background-strong)",
+                          color: "var(--brand-on-background-strong)",
+                        }}>
+                          AKTIF
+                        </span>
+                      )}
+                    </span>
+                    <span style={{
+                      fontSize: 12, lineHeight: 1.5,
+                      color: "var(--neutral-on-background-weak)",
+                    }}>
+                      {mode.desc}
+                    </span>
+                  </span>
+                  {isActive && (
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--brand-on-background-strong)" strokeWidth="2.5" strokeLinecap="round" style={{ flexShrink: 0, marginTop: 4 }}>
+                      <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </Column>
+
         <Line background="neutral-alpha-weak" />
         <GalleryManager
           items={form.gallery}

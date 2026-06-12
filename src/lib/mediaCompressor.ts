@@ -30,6 +30,14 @@ export interface CompressionOptions {
   videoSizeThreshold?: number;
   /** Max resolusi video (lebar/tinggi). Default: 1280 */
   videoMaxDimension?: number;
+  /**
+   * Preset kualitas video — override videoBitrate + videoMaxDimension sekaligus.
+   * - "low"    : 400kbps, 720p  — file sangat kecil, cocok mobile/preview
+   * - "medium" : 800kbps, 1080p — default, balance kualitas & ukuran
+   * - "high"   : 2000kbps, 1440p — kualitas tinggi, file lebih besar
+   * Jika di-set, menimpa nilai videoBitrate dan videoMaxDimension.
+   */
+  videoQualityPreset?: "low" | "medium" | "high";
   /** Callback progress 0-100 */
   onProgress?: (pct: number) => void;
 }
@@ -315,11 +323,21 @@ export async function compressFile(
     imageQuality = 0.82,
     imageMaxDimension = 2560,
     imageFormat = "image/webp",
-    videoBitrate = 600_000,          // ↓ lebih agresif dari 800kbps
-    videoSizeThreshold = 2 * 1024 * 1024, // ↓ threshold 2MB (sebelumnya 5MB)
-    videoMaxDimension = 1280,
+    videoSizeThreshold = 2 * 1024 * 1024,
+    videoQualityPreset,
     onProgress = () => {},
   } = options;
+
+  // ── Resolve video preset → bitrate + maxDimension ──────────────────
+  const VIDEO_PRESETS = {
+    low:    { bitrate: 400_000,  maxDim: 720  },
+    medium: { bitrate: 800_000,  maxDim: 1080 },
+    high:   { bitrate: 2_000_000, maxDim: 1440 },
+  } as const;
+
+  const preset = videoQualityPreset ? VIDEO_PRESETS[videoQualityPreset] : null;
+  const videoBitrate     = preset?.bitrate  ?? options.videoBitrate     ?? 600_000;
+  const videoMaxDimension = preset?.maxDim  ?? options.videoMaxDimension ?? 1280;
 
   const category = detectCategory(file);
   onProgress(0);
@@ -335,7 +353,7 @@ export async function compressFile(
   }
 
   if (category === "video") {
-    // Video sangat kecil (<2MB) tidak perlu kompresi
+    // Video sangat kecil (<threshold) tidak perlu kompresi
     if (file.size < videoSizeThreshold) {
       onProgress(100);
       return {

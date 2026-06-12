@@ -1,13 +1,14 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import type { GalleryItem } from "@/lib/types";
+import type { GalleryItem, GalleryDisplayMode } from "@/lib/types";
 
 interface ProjectGalleryInlineProps {
   thumbnail: string;
   attachment: string;
   gallery: GalleryItem[];
   title: string;
+  displayMode?: GalleryDisplayMode;
 }
 
 type MediaType = "image" | "video";
@@ -34,7 +35,7 @@ function formatTime(s: number) {
 }
 
 /* ──────────────────────────────────────────────────────────────────── */
-/* VIDEO SLIDE — autoplay, aspect ratio aware                           */
+/* VIDEO SLIDE                                                          */
 /* ──────────────────────────────────────────────────────────────────── */
 function VideoSlide({
   src,
@@ -48,7 +49,7 @@ function VideoSlide({
   const videoRef = useRef<HTMLVideoElement>(null);
   const progressRef = useRef<HTMLDivElement>(null);
   const [playing, setPlaying] = useState(false);
-  const [muted, setMuted] = useState(true); // start muted for autoplay
+  const [muted, setMuted] = useState(true);
   const [progress, setProgress] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -62,12 +63,11 @@ function VideoSlide({
       ? `/api/video-proxy?url=${encodeURIComponent(src)}`
       : src;
 
-  // Autoplay when slide becomes active
   useEffect(() => {
     const v = videoRef.current;
     if (!v) return;
     if (active) {
-      v.muted = true; // must be muted for autoplay to work in most browsers
+      v.muted = true;
       setMuted(true);
       const tryPlay = () =>
         v.play().then(() => setPlaying(true)).catch(() => setPlaying(false));
@@ -80,9 +80,7 @@ function VideoSlide({
       setProgress(0);
       setCurrentTime(0);
     }
-    return () => {
-      v.pause();
-    };
+    return () => { v.pause(); };
   }, [active, proxySrc]);
 
   const resetHide = useCallback(() => {
@@ -132,7 +130,6 @@ function VideoSlide({
         background: "#000",
         overflow: "hidden",
         cursor: "pointer",
-        // Use detected ratio or default 16/9
         aspectRatio: videoRatio ? `${videoRatio}` : "16/9",
       }}
       onClick={togglePlay}
@@ -187,7 +184,6 @@ function VideoSlide({
         </div>
       )}
 
-      {/* Muted badge */}
       {playing && muted && (
         <div style={{ position: "absolute", top: 12, right: 12, display: "flex", alignItems: "center", gap: 5, padding: "4px 10px", borderRadius: 99, background: "rgba(0,0,0,0.6)", backdropFilter: "blur(8px)", fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.7)", letterSpacing: "0.04em" }}>
           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
@@ -195,7 +191,6 @@ function VideoSlide({
         </div>
       )}
 
-      {/* Controls bar */}
       <div style={{
         position: "absolute", bottom: 0, left: 0, right: 0,
         padding: "40px 16px 14px",
@@ -230,7 +225,7 @@ function VideoSlide({
 }
 
 /* ──────────────────────────────────────────────────────────────────── */
-/* IMAGE SLIDE — aspect ratio auto dari gambar asli                     */
+/* IMAGE SLIDE                                                          */
 /* ──────────────────────────────────────────────────────────────────── */
 function ImageSlide({
   src,
@@ -268,7 +263,6 @@ function ImageSlide({
         maxHeight: "80vh",
       }}
     >
-      {/* Shimmer while loading */}
       {!loaded && (
         <div style={{
           position: "absolute", inset: 0,
@@ -293,7 +287,6 @@ function ImageSlide({
         }}
         draggable={false}
       />
-      {/* Zoom hint */}
       <div style={{
         position: "absolute", inset: 0,
         background: "rgba(0,0,0,0)",
@@ -322,7 +315,7 @@ function ImageSlide({
 }
 
 /* ──────────────────────────────────────────────────────────────────── */
-/* FULLSCREEN MODAL LIGHTBOX                                            */
+/* FULLSCREEN LIGHTBOX MODAL                                            */
 /* ──────────────────────────────────────────────────────────────────── */
 function LightboxModal({
   items,
@@ -367,16 +360,6 @@ function LightboxModal({
         animation: "pgModalIn 0.22s ease",
       }}
     >
-      <style>{`
-        @keyframes pgModalIn { from{opacity:0;transform:scale(0.97)} to{opacity:1;transform:scale(1)} }
-        @keyframes pgShimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
-        .image-slide-overlay:hover { background: rgba(0,0,0,0.32) !important; }
-        .image-slide-overlay:hover .image-slide-zoom {
-          background: rgba(255,255,255,0.15) !important;
-          border-color: rgba(255,255,255,0.3) !important;
-        }
-      `}</style>
-
       {/* Top bar */}
       <div
         onClick={(e) => e.stopPropagation()}
@@ -452,7 +435,6 @@ function LightboxModal({
           )}
         </div>
 
-        {/* Arrows */}
         {total > 1 && (
           <>
             <button
@@ -495,7 +477,6 @@ function LightboxModal({
         )}
       </div>
 
-      {/* Caption */}
       {current.caption && (
         <div
           onClick={(e) => e.stopPropagation()}
@@ -513,7 +494,6 @@ function LightboxModal({
         </div>
       )}
 
-      {/* Thumbnail strip */}
       {total > 1 && (
         <div
           onClick={(e) => e.stopPropagation()}
@@ -557,62 +537,27 @@ function LightboxModal({
 }
 
 /* ──────────────────────────────────────────────────────────────────── */
-/* MAIN SLIDER COMPONENT                                                */
+/* MODE A: SLIDER (default)                                            */
 /* ──────────────────────────────────────────────────────────────────── */
-export function ProjectGalleryInline({
-  thumbnail,
-  attachment,
-  gallery,
+function SliderGallery({
+  mediaItems,
   title,
-}: ProjectGalleryInlineProps) {
+}: {
+  mediaItems: MediaItem[];
+  title: string;
+}) {
   const [activeIdx, setActiveIdx] = useState(0);
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
-  const sliderRef = useRef<HTMLDivElement>(null);
   const touchStartX = useRef<number | null>(null);
 
-  // Build ordered media list from gallery JSONB, fallback thumbnail + attachment
-  const mediaItems = useCallback((): MediaItem[] => {
-    const seen = new Set<string>();
-    const items: MediaItem[] = [];
-
-    // Gallery items (already sorted by sort_order from DB)
-    for (const g of gallery) {
-      const url = g.url?.split("?")[0];
-      if (!url || seen.has(url)) continue;
-      seen.add(url);
-      items.push({ url, type: detectType(url), caption: g.caption ?? "" });
-    }
-
-    // Fallback: thumbnail + attachment if gallery is empty
-    if (items.length === 0) {
-      const thumbClean = thumbnail?.split("?")[0];
-      const attachClean = attachment?.split("?")[0];
-      if (thumbClean && !seen.has(thumbClean)) {
-        seen.add(thumbClean);
-        items.push({ url: thumbClean, type: detectType(thumbClean), caption: "" });
-      }
-      if (attachClean && !seen.has(attachClean)) {
-        seen.add(attachClean);
-        items.push({ url: attachClean, type: detectType(attachClean), caption: "" });
-      }
-    }
-
-    return items;
-  }, [thumbnail, attachment, gallery])();
-
   const total = mediaItems.length;
-  if (total === 0) return null;
+  const current = mediaItems[activeIdx];
 
   const goTo = (i: number) => setActiveIdx(Math.max(0, Math.min(total - 1, i)));
   const prev = () => goTo(activeIdx - 1);
   const next = () => goTo(activeIdx + 1);
 
-  const current = mediaItems[activeIdx];
-
-  // Touch swipe
-  const handleTouchStart = (e: React.TouchEvent) => {
-    touchStartX.current = e.touches[0].clientX;
-  };
+  const handleTouchStart = (e: React.TouchEvent) => { touchStartX.current = e.touches[0].clientX; };
   const handleTouchEnd = (e: React.TouchEvent) => {
     if (touchStartX.current === null) return;
     const dx = e.changedTouches[0].clientX - touchStartX.current;
@@ -622,46 +567,18 @@ export function ProjectGalleryInline({
 
   return (
     <>
-      <style>{`
-        @keyframes pgShimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
-        .image-slide-overlay:hover { background: rgba(0,0,0,0.32) !important; }
-        .image-slide-overlay:hover .image-slide-zoom {
-          background: rgba(255,255,255,0.15) !important;
-          border-color: rgba(255,255,255,0.3) !important;
-        }
-        .pg-dot { transition: all 0.2s; cursor: pointer; border: none; padding: 0; }
-        .pg-dot:hover { transform: scale(1.2); }
-        .pg-thumb-btn { transition: all 0.18s; border: none; cursor: pointer; padding: 0; overflow: hidden; }
-        .pg-thumb-btn:hover { opacity: 1 !important; }
-        .pg-arrow { transition: all 0.18s; }
-        .pg-arrow:not(:disabled):hover { transform: translateY(-50%) scale(1.1); background: rgba(0,0,0,0.7) !important; }
-      `}</style>
-
       <div
-        ref={sliderRef}
         style={{ width: "100%", borderRadius: 16, overflow: "hidden", background: "var(--neutral-background-strong)", border: "1px solid var(--neutral-alpha-weak)", position: "relative" }}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
-        {/* ── Slide area ── */}
         <div style={{ position: "relative", width: "100%", background: "#0a0a0f" }}>
           {current.type === "video" ? (
-            <VideoSlide
-              key={current.url}
-              src={current.url}
-              title={title}
-              active={true}
-            />
+            <VideoSlide key={current.url} src={current.url} title={title} active={true} />
           ) : (
-            <ImageSlide
-              key={current.url}
-              src={current.url}
-              title={current.caption || title}
-              onClick={() => setLightboxIdx(activeIdx)}
-            />
+            <ImageSlide key={current.url} src={current.url} title={current.caption || title} onClick={() => setLightboxIdx(activeIdx)} />
           )}
 
-          {/* Index badge */}
           {total > 1 && (
             <div style={{
               position: "absolute", top: 12, right: 12,
@@ -678,7 +595,6 @@ export function ProjectGalleryInline({
             </div>
           )}
 
-          {/* Fullscreen button for images */}
           {current.type === "image" && (
             <button
               onClick={() => setLightboxIdx(activeIdx)}
@@ -689,8 +605,7 @@ export function ProjectGalleryInline({
                 border: "1px solid rgba(255,255,255,0.12)",
                 color: "rgba(255,255,255,0.8)",
                 cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
-                zIndex: 5,
-                transition: "all 0.18s",
+                zIndex: 5, transition: "all 0.18s",
               }}
               title="Fullscreen"
             >
@@ -700,7 +615,6 @@ export function ProjectGalleryInline({
             </button>
           )}
 
-          {/* Prev / Next arrow overlay */}
           {total > 1 && (
             <>
               <button
@@ -741,18 +655,13 @@ export function ProjectGalleryInline({
           )}
         </div>
 
-        {/* ── Caption ── */}
         {current.caption && (
           <div style={{
             padding: "12px 20px",
             background: "var(--neutral-background-medium)",
             borderTop: "1px solid var(--neutral-alpha-weak)",
-            fontSize: 13,
-            color: "var(--neutral-on-background-medium)",
-            lineHeight: 1.6,
-            display: "flex",
-            alignItems: "flex-start",
-            gap: 8,
+            fontSize: 13, color: "var(--neutral-on-background-medium)", lineHeight: 1.6,
+            display: "flex", alignItems: "flex-start", gap: 8,
           }}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--brand-on-background-strong)" strokeWidth="2" strokeLinecap="round" style={{ flexShrink: 0, marginTop: 2 }}>
               <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
@@ -761,17 +670,13 @@ export function ProjectGalleryInline({
           </div>
         )}
 
-        {/* ── Thumbnail strip ── */}
         {total > 1 && (
           <div style={{
             padding: "10px 14px",
             borderTop: "1px solid var(--neutral-alpha-weak)",
             background: "var(--neutral-background-strong)",
-            display: "flex",
-            gap: 8,
-            overflowX: "auto",
-            scrollbarWidth: "none",
-            alignItems: "center",
+            display: "flex", gap: 8, overflowX: "auto",
+            scrollbarWidth: "none", alignItems: "center",
           }}>
             {mediaItems.map((item, i) => (
               <button
@@ -779,27 +684,18 @@ export function ProjectGalleryInline({
                 onClick={() => goTo(i)}
                 className="pg-thumb-btn"
                 style={{
-                  flexShrink: 0,
-                  width: 56,
-                  height: 40,
-                  borderRadius: 7,
+                  flexShrink: 0, width: 56, height: 40, borderRadius: 7,
                   border: `2px solid ${i === activeIdx ? "var(--brand-background-strong)" : "rgba(255,255,255,0.08)"}`,
                   background: "var(--neutral-background-medium)",
                   opacity: i === activeIdx ? 1 : 0.55,
                   transform: i === activeIdx ? "scale(1.06)" : "scale(1)",
-                  position: "relative",
-                  overflow: "hidden",
+                  position: "relative", overflow: "hidden",
                 }}
                 title={item.caption || `Gambar ${i + 1}`}
               >
                 {item.type === "image" ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={item.url}
-                    alt=""
-                    loading="lazy"
-                    style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-                  />
+                  <img src={item.url} alt="" loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
                 ) : (
                   <div style={{ width: "100%", height: "100%", background: "linear-gradient(135deg, #0f0f1e 0%, #1a1a3e 100%)", display: "flex", alignItems: "center", justifyContent: "center" }}>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="rgba(129,140,248,0.9)"><polygon points="5 3 19 12 5 21"/></svg>
@@ -807,8 +703,6 @@ export function ProjectGalleryInline({
                 )}
               </button>
             ))}
-
-            {/* Dot indicators only if too many thumbs */}
             <div style={{ flex: 1 }} />
             <div style={{ display: "flex", gap: 5, alignItems: "center", flexShrink: 0 }}>
               {total <= 10 && mediaItems.map((_, i) => (
@@ -818,11 +712,9 @@ export function ProjectGalleryInline({
                   className="pg-dot"
                   style={{
                     width: i === activeIdx ? 18 : 6,
-                    height: 6,
-                    borderRadius: 99,
+                    height: 6, borderRadius: 99,
                     background: i === activeIdx ? "var(--brand-background-strong)" : "var(--neutral-alpha-medium)",
-                    border: "none",
-                    padding: 0,
+                    border: "none", padding: 0,
                   }}
                 />
               ))}
@@ -831,7 +723,6 @@ export function ProjectGalleryInline({
         )}
       </div>
 
-      {/* Lightbox modal */}
       {lightboxIdx !== null && (
         <LightboxModal
           items={mediaItems}
@@ -839,6 +730,484 @@ export function ProjectGalleryInline({
           title={title}
           onClose={() => setLightboxIdx(null)}
         />
+      )}
+    </>
+  );
+}
+
+/* ──────────────────────────────────────────────────────────────────── */
+/* MODE B: SCROLL HORIZONTAL                                           */
+/* ──────────────────────────────────────────────────────────────────── */
+function ScrollHorizontalGallery({
+  mediaItems,
+  title,
+}: {
+  mediaItems: MediaItem[];
+  title: string;
+}) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
+  const [activeIdx, setActiveIdx] = useState(0);
+  const isDragging = useRef(false);
+  const dragStartX = useRef(0);
+  const dragScrollLeft = useRef(0);
+
+  const total = mediaItems.length;
+
+  // Sync scroll position → active dot
+  const handleScroll = () => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const itemW = el.scrollWidth / total;
+    setActiveIdx(Math.round(el.scrollLeft / itemW));
+  };
+
+  // Mousewheel horizontal scroll
+  const handleWheel = (e: React.WheelEvent) => {
+    e.preventDefault();
+    if (scrollRef.current) {
+      scrollRef.current.scrollLeft += e.deltaY || e.deltaX;
+    }
+  };
+
+  // Click drag
+  const handleMouseDown = (e: React.MouseEvent) => {
+    isDragging.current = true;
+    dragStartX.current = e.clientX;
+    dragScrollLeft.current = scrollRef.current?.scrollLeft ?? 0;
+  };
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging.current || !scrollRef.current) return;
+    const dx = dragStartX.current - e.clientX;
+    scrollRef.current.scrollLeft = dragScrollLeft.current + dx;
+  };
+  const handleMouseUp = () => { isDragging.current = false; };
+
+  const scrollToIdx = (i: number) => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const itemW = el.scrollWidth / total;
+    el.scrollTo({ left: i * itemW, behavior: "smooth" });
+    setActiveIdx(i);
+  };
+
+  const goNext = () => scrollToIdx(Math.min(total - 1, activeIdx + 1));
+  const goPrev = () => scrollToIdx(Math.max(0, activeIdx - 1));
+
+  return (
+    <>
+      <div style={{
+        width: "100%", borderRadius: 16, overflow: "hidden",
+        background: "var(--neutral-background-strong)",
+        border: "1px solid var(--neutral-alpha-weak)",
+        position: "relative",
+      }}>
+        {/* Header bar */}
+        <div style={{
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+          padding: "10px 14px",
+          borderBottom: "1px solid var(--neutral-alpha-weak)",
+          background: "var(--neutral-background-medium)",
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <div style={{
+              display: "inline-flex", alignItems: "center", gap: 5,
+              padding: "3px 9px", borderRadius: 99,
+              background: "var(--brand-alpha-weak)", border: "1px solid var(--brand-alpha-medium)",
+              fontSize: 10, fontWeight: 700, letterSpacing: "0.07em",
+              color: "var(--brand-on-background-strong)",
+            }}>
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                <polyline points="9 18 15 12 9 6"/>
+              </svg>
+              SCROLL HORIZONTAL
+            </div>
+            <span style={{ fontSize: 11, color: "var(--neutral-on-background-weak)", fontWeight: 500 }}>
+              {total} item · geser atau drag
+            </span>
+          </div>
+          <div style={{ display: "flex", gap: 6 }}>
+            <button
+              onClick={goPrev}
+              disabled={activeIdx === 0}
+              style={{
+                width: 30, height: 30, borderRadius: "50%",
+                background: "var(--neutral-background-strong)",
+                border: "1px solid var(--neutral-alpha-medium)",
+                cursor: activeIdx === 0 ? "default" : "pointer",
+                opacity: activeIdx === 0 ? 0.25 : 1,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                color: "var(--neutral-on-background-medium)", transition: "opacity 0.2s",
+              }}
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+            <button
+              onClick={goNext}
+              disabled={activeIdx === total - 1}
+              style={{
+                width: 30, height: 30, borderRadius: "50%",
+                background: "var(--neutral-background-strong)",
+                border: "1px solid var(--neutral-alpha-medium)",
+                cursor: activeIdx === total - 1 ? "default" : "pointer",
+                opacity: activeIdx === total - 1 ? 0.25 : 1,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                color: "var(--neutral-on-background-medium)", transition: "opacity 0.2s",
+              }}
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+          </div>
+        </div>
+
+        {/* Scroll area */}
+        <div
+          ref={scrollRef}
+          onScroll={handleScroll}
+          onWheel={handleWheel}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseUp}
+          style={{
+            display: "flex",
+            gap: 12,
+            overflowX: "auto",
+            overflowY: "hidden",
+            scrollSnapType: "x mandatory",
+            scrollbarWidth: "none",
+            WebkitOverflowScrolling: "touch",
+            padding: "14px",
+            cursor: isDragging.current ? "grabbing" : "grab",
+            userSelect: "none",
+            background: "#0a0a0f",
+          }}
+        >
+          {mediaItems.map((item, i) => (
+            <div
+              key={i}
+              style={{
+                flexShrink: 0,
+                width: item.type === "video" ? "min(85vw, 640px)" : "min(75vw, 480px)",
+                scrollSnapAlign: "start",
+                borderRadius: 10,
+                overflow: "hidden",
+                border: "1px solid rgba(255,255,255,0.07)",
+                background: "#000",
+                position: "relative",
+              }}
+            >
+              {item.type === "video" ? (
+                <VideoSlide src={item.url} title={title} active={false} />
+              ) : (
+                <>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={item.url}
+                    alt={item.caption || title}
+                    loading="lazy"
+                    style={{
+                      width: "100%",
+                      height: "auto",
+                      display: "block",
+                      maxHeight: "60vh",
+                      objectFit: "contain",
+                      background: "#000",
+                    }}
+                    draggable={false}
+                  />
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setLightboxIdx(i); }}
+                    style={{
+                      position: "absolute", top: 8, left: 8,
+                      width: 30, height: 30, borderRadius: "50%",
+                      background: "rgba(0,0,0,0.6)", backdropFilter: "blur(8px)",
+                      border: "1px solid rgba(255,255,255,0.15)",
+                      color: "rgba(255,255,255,0.8)",
+                      cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+                    }}
+                    title="Buka fullscreen"
+                  >
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
+                      <path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"/>
+                    </svg>
+                  </button>
+                </>
+              )}
+              {item.caption && (
+                <div style={{
+                  padding: "8px 12px",
+                  fontSize: 12, fontStyle: "italic",
+                  color: "rgba(255,255,255,0.55)",
+                  background: "rgba(0,0,0,0.55)",
+                  borderTop: "1px solid rgba(255,255,255,0.06)",
+                }}>
+                  {item.caption}
+                </div>
+              )}
+              {/* Index badge */}
+              <div style={{
+                position: "absolute", bottom: item.caption ? "auto" : 8, top: 8, right: 8,
+                background: "rgba(0,0,0,0.6)", backdropFilter: "blur(6px)",
+                border: "1px solid rgba(255,255,255,0.08)",
+                borderRadius: 99, padding: "2px 7px",
+                fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.6)",
+              }}>
+                {i + 1}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Dot progress */}
+        {total > 1 && (
+          <div style={{
+            padding: "10px", display: "flex", justifyContent: "center", gap: 6,
+            borderTop: "1px solid var(--neutral-alpha-weak)",
+            background: "var(--neutral-background-strong)",
+          }}>
+            {mediaItems.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => scrollToIdx(i)}
+                style={{
+                  width: i === activeIdx ? 20 : 6,
+                  height: 6, borderRadius: 99, border: "none", padding: 0,
+                  cursor: "pointer",
+                  background: i === activeIdx ? "var(--brand-background-strong)" : "var(--neutral-alpha-medium)",
+                  transition: "all 0.2s",
+                }}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+
+      {lightboxIdx !== null && (
+        <LightboxModal
+          items={mediaItems}
+          startIdx={lightboxIdx}
+          title={title}
+          onClose={() => setLightboxIdx(null)}
+        />
+      )}
+    </>
+  );
+}
+
+/* ──────────────────────────────────────────────────────────────────── */
+/* MODE C: SCROLL VERTICAL                                             */
+/* ──────────────────────────────────────────────────────────────────── */
+function ScrollVerticalGallery({
+  mediaItems,
+  title,
+}: {
+  mediaItems: MediaItem[];
+  title: string;
+}) {
+  const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
+  const total = mediaItems.length;
+
+  return (
+    <>
+      <div style={{
+        width: "100%", borderRadius: 16, overflow: "hidden",
+        background: "var(--neutral-background-strong)",
+        border: "1px solid var(--neutral-alpha-weak)",
+      }}>
+        {/* Header bar */}
+        <div style={{
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+          padding: "10px 14px",
+          borderBottom: "1px solid var(--neutral-alpha-weak)",
+          background: "var(--neutral-background-medium)",
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <div style={{
+              display: "inline-flex", alignItems: "center", gap: 5,
+              padding: "3px 9px", borderRadius: 99,
+              background: "var(--brand-alpha-weak)", border: "1px solid var(--brand-alpha-medium)",
+              fontSize: 10, fontWeight: 700, letterSpacing: "0.07em",
+              color: "var(--brand-on-background-strong)",
+            }}>
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                <polyline points="6 9 12 15 18 9"/>
+              </svg>
+              SCROLL VERTIKAL
+            </div>
+            <span style={{ fontSize: 11, color: "var(--neutral-on-background-weak)", fontWeight: 500 }}>
+              {total} item · scroll ke bawah
+            </span>
+          </div>
+        </div>
+
+        {/* Vertical stacked items */}
+        <div style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 2,
+          background: "#0a0a0f",
+          padding: "14px",
+          gap: 14,
+        }}>
+          {mediaItems.map((item, i) => (
+            <div
+              key={i}
+              style={{
+                width: "100%",
+                borderRadius: 10,
+                overflow: "hidden",
+                border: "1px solid rgba(255,255,255,0.07)",
+                background: "#000",
+                position: "relative",
+              }}
+            >
+              {item.type === "video" ? (
+                <VideoSlide src={item.url} title={title} active={false} />
+              ) : (
+                <>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={item.url}
+                    alt={item.caption || title}
+                    loading="lazy"
+                    style={{
+                      width: "100%",
+                      height: "auto",
+                      display: "block",
+                      objectFit: "contain",
+                      background: "#000",
+                    }}
+                  />
+                  <button
+                    onClick={() => setLightboxIdx(i)}
+                    style={{
+                      position: "absolute", top: 10, left: 10,
+                      width: 32, height: 32, borderRadius: "50%",
+                      background: "rgba(0,0,0,0.6)", backdropFilter: "blur(8px)",
+                      border: "1px solid rgba(255,255,255,0.15)",
+                      color: "rgba(255,255,255,0.85)",
+                      cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+                    }}
+                    title="Buka fullscreen"
+                  >
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
+                      <path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"/>
+                    </svg>
+                  </button>
+                </>
+              )}
+
+              {/* Caption + counter footer */}
+              <div style={{
+                display: "flex", alignItems: "flex-start", gap: 10,
+                padding: "8px 12px",
+                background: "rgba(0,0,0,0.6)",
+                borderTop: "1px solid rgba(255,255,255,0.06)",
+              }}>
+                <span style={{
+                  flexShrink: 0,
+                  width: 22, height: 22, borderRadius: "50%",
+                  background: "var(--brand-alpha-medium)",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: 10, fontWeight: 800,
+                  color: "var(--brand-on-background-strong)",
+                }}>
+                  {i + 1}
+                </span>
+                {item.caption ? (
+                  <span style={{ fontSize: 12, fontStyle: "italic", color: "rgba(255,255,255,0.55)", lineHeight: 1.5 }}>
+                    {item.caption}
+                  </span>
+                ) : (
+                  <span style={{ fontSize: 11, color: "rgba(255,255,255,0.25)" }}>
+                    {item.type === "video" ? "Video" : "Gambar"} {i + 1} dari {total}
+                  </span>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {lightboxIdx !== null && (
+        <LightboxModal
+          items={mediaItems}
+          startIdx={lightboxIdx}
+          title={title}
+          onClose={() => setLightboxIdx(null)}
+        />
+      )}
+    </>
+  );
+}
+
+/* ──────────────────────────────────────────────────────────────────── */
+/* MAIN EXPORT                                                          */
+/* ──────────────────────────────────────────────────────────────────── */
+export function ProjectGalleryInline({
+  thumbnail,
+  attachment,
+  gallery,
+  title,
+  displayMode = "slider",
+}: ProjectGalleryInlineProps) {
+  // Build ordered media list from gallery JSONB, fallback thumbnail + attachment
+  const mediaItems = useCallback((): MediaItem[] => {
+    const seen = new Set<string>();
+    const items: MediaItem[] = [];
+
+    for (const g of gallery) {
+      const url = g.url?.split("?")[0];
+      if (!url || seen.has(url)) continue;
+      seen.add(url);
+      items.push({ url, type: detectType(url), caption: g.caption ?? "" });
+    }
+
+    if (items.length === 0) {
+      const thumbClean = thumbnail?.split("?")[0];
+      const attachClean = attachment?.split("?")[0];
+      if (thumbClean && !seen.has(thumbClean)) {
+        seen.add(thumbClean);
+        items.push({ url: thumbClean, type: detectType(thumbClean), caption: "" });
+      }
+      if (attachClean && !seen.has(attachClean)) {
+        seen.add(attachClean);
+        items.push({ url: attachClean, type: detectType(attachClean), caption: "" });
+      }
+    }
+
+    return items;
+  }, [thumbnail, attachment, gallery])();
+
+  if (mediaItems.length === 0) return null;
+
+  return (
+    <>
+      <style>{`
+        @keyframes pgModalIn { from{opacity:0;transform:scale(0.97)} to{opacity:1;transform:scale(1)} }
+        @keyframes pgShimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+        .image-slide-overlay:hover { background: rgba(0,0,0,0.32) !important; }
+        .image-slide-overlay:hover .image-slide-zoom {
+          background: rgba(255,255,255,0.15) !important;
+          border-color: rgba(255,255,255,0.3) !important;
+        }
+        .pg-dot { transition: all 0.2s; cursor: pointer; border: none; padding: 0; }
+        .pg-dot:hover { transform: scale(1.2); }
+        .pg-thumb-btn { transition: all 0.18s; border: none; cursor: pointer; padding: 0; overflow: hidden; }
+        .pg-thumb-btn:hover { opacity: 1 !important; }
+        .pg-arrow { transition: all 0.18s; }
+        .pg-arrow:not(:disabled):hover { transform: translateY(-50%) scale(1.1); background: rgba(0,0,0,0.7) !important; }
+      `}</style>
+
+      {displayMode === "scroll-horizontal" && (
+        <ScrollHorizontalGallery mediaItems={mediaItems} title={title} />
+      )}
+      {displayMode === "scroll-vertical" && (
+        <ScrollVerticalGallery mediaItems={mediaItems} title={title} />
+      )}
+      {(displayMode === "slider" || !displayMode) && (
+        <SliderGallery mediaItems={mediaItems} title={title} />
       )}
     </>
   );

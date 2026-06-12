@@ -95,6 +95,7 @@ export function ImageUpload({
   const [error, setError] = useState("");
   const [saved, setSaved] = useState(false);
   const [dragOver, setDragOver] = useState(false);
+  const [videoQualityPreset, setVideoQualityPreset] = useState<"low" | "medium" | "high">("medium");
   const inputRef = useRef<HTMLInputElement>(null);
 
   const displayUrl = value ? value.split("?")[0] : "";
@@ -130,7 +131,7 @@ export function ImageUpload({
           imageQuality: 0.82,
           imageMaxDimension: 2560,
           imageFormat: "image/webp",
-          videoBitrate: 800_000,
+          videoQualityPreset,
           onProgress: (pct) => {
             setPhase(
               originalFile.name,
@@ -347,6 +348,64 @@ export function ImageUpload({
           }}
         />
       </div>
+
+      {/* ── Pilihan Kualitas Video ── */}
+      {enableCompression && (
+        <div style={{
+          padding: "10px 12px",
+          borderRadius: 10,
+          background: "var(--neutral-background-medium)",
+          border: "1px solid var(--neutral-alpha-weak)",
+          display: "flex",
+          flexDirection: "column",
+          gap: 8,
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--brand-on-background-strong)" strokeWidth="2.2" strokeLinecap="round">
+              <polygon points="5 3 19 12 5 21 5 3"/>
+            </svg>
+            <span style={{ fontSize: 12, fontWeight: 700, color: "var(--neutral-on-background-strong)" }}>
+              Kualitas Kompresi Video
+            </span>
+          </div>
+          <div style={{ display: "flex", gap: 6 }}>
+            {(["low", "medium", "high"] as const).map((preset) => {
+              const META = {
+                low:    { label: "Ringan",  desc: "400kbps · 720p", color: "#34d399" },
+                medium: { label: "Seimbang", desc: "800kbps · 1080p", color: "#818cf8" },
+                high:   { label: "Tajam",   desc: "2Mbps · 1440p", color: "#f59e0b" },
+              };
+              const m = META[preset];
+              const active = videoQualityPreset === preset;
+              return (
+                <button
+                  key={preset}
+                  type="button"
+                  onClick={() => setVideoQualityPreset(preset)}
+                  style={{
+                    flex: 1, padding: "8px 6px", borderRadius: 8,
+                    border: active ? `1.5px solid ${m.color}` : "1.5px solid var(--neutral-alpha-medium)",
+                    background: active ? `${m.color}18` : "var(--neutral-background-strong)",
+                    cursor: "pointer",
+                    display: "flex", flexDirection: "column", alignItems: "center", gap: 3,
+                    transition: "all 0.18s",
+                  }}
+                >
+                  <span style={{ fontSize: 12, fontWeight: 700, color: active ? m.color : "var(--neutral-on-background-medium)" }}>
+                    {m.label}
+                  </span>
+                  <span style={{ fontSize: 10, color: "var(--neutral-on-background-weak)" }}>
+                    {m.desc}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+          <span style={{ fontSize: 11, color: "var(--neutral-on-background-weak)", lineHeight: 1.4 }}>
+            Berlaku hanya untuk file video. Gambar selalu dikompresi ke WebP otomatis.
+          </span>
+        </div>
+      )}
 
       {/* Progress per file */}
       {hasActiveProgress && (

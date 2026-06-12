@@ -302,6 +302,7 @@ export default async function ProjectPage({
             attachment={attachClean}
             gallery={project.gallery?.filter(Boolean) ?? []}
             title={project.title_id}
+            displayMode={project.gallery_display_mode ?? "slider"}
           />
         </div>
 
