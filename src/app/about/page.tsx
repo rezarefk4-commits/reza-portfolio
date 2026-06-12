@@ -287,6 +287,7 @@ export default async function About() {
           align-items: flex-start;
           gap: 14px;
           padding: 16px 18px 14px;
+          flex-wrap: nowrap;
         }
         /* Logo — ukuran lebih besar agar jelas terlihat */
         .edu-logo {
@@ -318,6 +319,7 @@ export default async function About() {
           color: var(--neutral-on-background-strong);
           margin: 0 0 3px;
           word-break: break-word;
+          white-space: normal;
         }
         .edu-sub {
           font-size: 12px;
@@ -326,7 +328,7 @@ export default async function About() {
           margin: 0 0 8px;
           word-break: break-word;
         }
-        .edu-chips { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
+        .edu-chips { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; margin-top: 7px; }
         .edu-chip {
           display: inline-flex; align-items: center; gap: 3px;
           padding: 3px 9px; border-radius: 99px;
@@ -676,16 +678,16 @@ export default async function About() {
                           {[edu.faculty, edu.major].filter(Boolean).join(" · ")}
                         </p>
                       )}
-                    </div>
-                    <div className="edu-chips">
-                      <span className="edu-chip chip-degree">{edu.degree}</span>
-                      <span className="edu-chip chip-year">
-                        <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-                        {edu.year_start}–{edu.year_end || "kini"}
-                      </span>
-                      {edu.gpa && (
-                        <span className="edu-chip chip-gpa">IPK {edu.gpa}</span>
-                      )}
+                      <div className="edu-chips">
+                        <span className="edu-chip chip-degree">{edu.degree}</span>
+                        <span className="edu-chip chip-year">
+                          <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                          {edu.year_start}–{edu.year_end || "kini"}
+                        </span>
+                        {edu.gpa && (
+                          <span className="edu-chip chip-gpa">IPK {edu.gpa}</span>
+                        )}
+                      </div>
                     </div>
                   </div>
                   {/* ── Details ── */}

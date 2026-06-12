@@ -31,7 +31,7 @@ export function EduJournalModal({ title, subtitle, description, pdfUrl, external
   const cleanPdfUrl = pdfUrl ? pdfUrl.split("?")[0] : null;
   const openSrc = cleanPdfUrl ?? externalUrl!;
   const embedSrc = cleanPdfUrl
-    ? `${cleanPdfUrl}#page=1&view=FitH&toolbar=0&navpanes=0&scrollbar=0`
+    ? `${cleanPdfUrl}#page=1&view=FitH&toolbar=0&navpanes=0`
     : `https://docs.google.com/viewer?url=${encodeURIComponent(externalUrl!)}&embedded=true`;
 
   return (
@@ -128,7 +128,7 @@ export function EduJournalModal({ title, subtitle, description, pdfUrl, external
             </div>
 
             {/* PDF viewer */}
-            <div style={{ flex:1, overflow:"hidden", position:"relative", background:"#404040" }}>
+            <div style={{ flex:1, overflow:"auto", position:"relative", background:"#404040" }}>
               <iframe src={embedSrc} title={title} style={{ width:"100%", height:"100%", border:"none", display:"block" }} allow="fullscreen" />
             </div>
 
