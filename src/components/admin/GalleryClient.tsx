@@ -88,7 +88,8 @@ export function GalleryClient({ initialPhotos }: GalleryClientProps) {
   };
 
   return (
-    <Column fillWidth gap="l">
+    <>
+        <Column fillWidth gap="l">
       {/* Upload area */}
       <div
         onClick={() => inputRef.current?.click()}
@@ -239,7 +240,6 @@ export function GalleryClient({ initialPhotos }: GalleryClientProps) {
         </div>
       )}
     </Column>
-
       <ConfirmModal
         open={!!confirmPhoto}
         title="Hapus Foto?"
@@ -248,5 +248,6 @@ export function GalleryClient({ initialPhotos }: GalleryClientProps) {
         onConfirm={() => confirmPhoto && doDelete(confirmPhoto)}
         onCancel={() => setConfirmPhoto(null)}
       />
+    </>
   );
 }

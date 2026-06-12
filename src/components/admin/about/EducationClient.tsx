@@ -243,7 +243,8 @@ export function EducationClient({ initialData }: Props) {
 
   // ── LIST ──────────────────────────────────────────────────────────
   return (
-    <Column fillWidth gap="m">
+    <>
+        <Column fillWidth gap="m">
       <Button onClick={() => { setEditing(empty()); setIsNew(true); }}
         variant="primary" size="m" prefixIcon="plus">
         Tambah Pendidikan
@@ -311,7 +312,6 @@ export function EducationClient({ initialData }: Props) {
         </div>
       ))}
     </Column>
-
       <ConfirmModal
         open={!!confirmDeleteId}
         title="Hapus Data Pendidikan?"
@@ -320,5 +320,6 @@ export function EducationClient({ initialData }: Props) {
         onConfirm={() => confirmDeleteId && doDeleteEdu(confirmDeleteId)}
         onCancel={() => setConfirmDeleteId(null)}
       />
+    </>
   );
 }

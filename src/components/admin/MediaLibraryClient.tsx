@@ -84,7 +84,8 @@ export function MediaLibraryClient({ initialMedia }: MediaLibraryClientProps) {
   const isImage = (type: string) => type.startsWith("image/");
 
   return (
-    <Column fillWidth gap="l">
+    <>
+        <Column fillWidth gap="l">
       {/* Toolbar */}
       <Row fillWidth gap="m" wrap>
         <Input
@@ -236,7 +237,6 @@ export function MediaLibraryClient({ initialMedia }: MediaLibraryClientProps) {
         </Text>
       )}
     </Column>
-
       <ConfirmModal
         open={!!confirmItem}
         title="Hapus File?"
@@ -245,5 +245,6 @@ export function MediaLibraryClient({ initialMedia }: MediaLibraryClientProps) {
         onConfirm={() => confirmItem && doDelete(confirmItem)}
         onCancel={() => setConfirmItem(null)}
       />
+    </>
   );
 }

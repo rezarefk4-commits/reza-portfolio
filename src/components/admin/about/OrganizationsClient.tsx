@@ -84,7 +84,8 @@ export function OrganizationsClient({ initialData }: Props) {
   );
 
   return (
-    <Column fillWidth gap="m">
+    <>
+        <Column fillWidth gap="m">
       <Button onClick={()=>{setEditing(empty());setIsNew(true);}} variant="primary" size="m" prefixIcon="plus">Tambah Organisasi</Button>
       {items.length===0 && (
         <Card border="neutral-alpha-weak" background="surface" padding="xl" radius="l">
@@ -111,7 +112,6 @@ export function OrganizationsClient({ initialData }: Props) {
         </Card>
       ))}
     </Column>
-
       <ConfirmModal
         open={!!confirmDeleteId}
         title="Hapus Organisasi?"
@@ -120,5 +120,6 @@ export function OrganizationsClient({ initialData }: Props) {
         onConfirm={() => confirmDeleteId && doDeleteOrg(confirmDeleteId)}
         onCancel={() => setConfirmDeleteId(null)}
       />
+    </>
   );
 }

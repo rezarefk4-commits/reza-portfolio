@@ -87,7 +87,8 @@ export function SkillsClient({ initialData }: Props) {
   );
 
   return (
-    <Column fillWidth gap="m">
+    <>
+        <Column fillWidth gap="m">
       <Column gap="8">
         <Button onClick={()=>{setEditing(empty());setIsNew(true);}} variant="primary" size="m" prefixIcon="plus">
           Tambah Skill / Teknologi
@@ -135,7 +136,6 @@ export function SkillsClient({ initialData }: Props) {
         </Row>
       )}
     </Column>
-
       <ConfirmModal
         open={!!confirmDeleteId}
         title="Hapus Skill?"
@@ -144,5 +144,6 @@ export function SkillsClient({ initialData }: Props) {
         onConfirm={() => confirmDeleteId && doDeleteSkill(confirmDeleteId)}
         onCancel={() => setConfirmDeleteId(null)}
       />
+    </>
   );
 }
