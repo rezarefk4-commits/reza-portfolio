@@ -425,13 +425,10 @@ export default async function About() {
           display: flex;
           align-items: center;
           justify-content: center;
-          /* Batas atas agar portrait tidak terlalu panjang di grid */
-          max-height: 220px;
         }
         .cert-thumb {
           width: 100%;
           height: auto;
-          max-height: 220px;
           display: block;
           object-fit: contain;
         }
