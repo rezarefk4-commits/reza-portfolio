@@ -61,167 +61,238 @@ function EduCard({ edu }: { edu: AboutEducation }) {
   return (
     <>
       <style>{`
-        @keyframes eduShine {
-          0%   { transform: translateX(-100%) skewX(-15deg); opacity: 0; }
-          50%  { opacity: 1; }
-          100% { transform: translateX(220%) skewX(-15deg); opacity: 0; }
+        /* ── Ambient glow — permanent, not hover-only ── */
+        @keyframes eduPulse {
+          0%, 100% { opacity: 0.35; transform: scale(1); }
+          50%       { opacity: 0.6;  transform: scale(1.08); }
         }
-        .edu-card-v2 {
+        @keyframes eduScanline {
+          0%   { transform: translateY(-100%); }
+          100% { transform: translateY(400%); }
+        }
+        @keyframes eduLogoSpin {
+          0%   { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+
+        .edu-v4 {
           position: relative;
-          border-radius: 14px;
+          border-radius: 18px;
           border: 1px solid var(--neutral-alpha-weak);
           background: var(--neutral-background-medium);
           overflow: hidden;
           width: 100%;
           box-sizing: border-box;
-          transition: border-color 0.2s, box-shadow 0.2s;
+          isolation: isolate;
         }
-        .edu-card-v2:hover {
-          border-color: var(--neutral-alpha-medium);
-          box-shadow: 0 4px 24px color-mix(in srgb, var(--neutral-on-background-strong) 6%, transparent);
-        }
-        .edu-card-v2:hover .edu-shine {
-          animation: eduShine 0.65s ease forwards;
-        }
-        .edu-shine {
+
+        /* Permanent ambient glow blob */
+        .edu-v4-glow {
+          position: absolute;
+          width: 120px; height: 120px;
+          border-radius: 50%;
+          background: var(--brand-background-strong);
+          filter: blur(55px);
+          opacity: 0.18;
+          top: -30px; left: -20px;
+          animation: eduPulse 4s ease-in-out infinite;
           pointer-events: none;
+          z-index: 0;
+        }
+        .edu-v4-glow2 {
+          position: absolute;
+          width: 80px; height: 80px;
+          border-radius: 50%;
+          background: var(--accent-background-strong);
+          filter: blur(40px);
+          opacity: 0.12;
+          bottom: -20px; right: 20px;
+          animation: eduPulse 5.5s ease-in-out infinite reverse;
+          pointer-events: none;
+          z-index: 0;
+        }
+
+        /* Scanline shimmer — permanent slow sweep */
+        .edu-v4-scan {
           position: absolute;
           inset: 0;
-          z-index: 10;
+          pointer-events: none;
+          z-index: 1;
           overflow: hidden;
-          border-radius: 14px;
+          border-radius: 18px;
         }
-        .edu-shine::after {
+        .edu-v4-scan::after {
           content: '';
           position: absolute;
-          top: -50%; left: -50%;
-          width: 40%; height: 200%;
+          left: 0; right: 0;
+          height: 30%;
           background: linear-gradient(
-            105deg,
-            transparent 30%,
-            rgba(255,255,255,0.12) 50%,
-            transparent 70%
+            to bottom,
+            transparent,
+            color-mix(in srgb, var(--neutral-on-background-strong) 3%, transparent) 50%,
+            transparent
           );
-          transform: translateX(-100%) skewX(-15deg);
+          animation: eduScanline 3.5s linear infinite;
         }
-        .edu-card-v2:hover .edu-shine::after {
-          animation: eduShine 0.65s ease forwards;
+
+        .edu-v4-inner { position: relative; z-index: 2; }
+
+        /* Logo ring */
+        .edu-v4-logo-ring {
+          position: relative;
+          width: 52px; height: 52px;
+          flex-shrink: 0;
+        }
+        .edu-v4-logo-ring-border {
+          position: absolute; inset: -2px;
+          border-radius: 50%;
+          background: conic-gradient(
+            from 0deg,
+            var(--brand-background-strong) 0%,
+            var(--accent-background-strong) 40%,
+            transparent 60%,
+            var(--brand-background-strong) 100%
+          );
+          animation: eduLogoSpin 6s linear infinite;
+        }
+        .edu-v4-logo-img {
+          position: relative;
+          width: 52px; height: 52px;
+          border-radius: 50%;
+          overflow: hidden;
+          background: var(--neutral-background-strong);
+          display: flex; align-items: center; justify-content: center;
+          z-index: 1;
+          margin: 2px;
+          width: 48px; height: 48px;
+        }
+        .edu-v4-logo-img img {
+          width: 100%; height: 100%;
+          object-fit: contain;
+          display: block;
+        }
+
+        /* Accent left bar */
+        .edu-v4-bar {
+          position: absolute;
+          left: 0; top: 16px; bottom: 16px;
+          width: 3px;
+          background: linear-gradient(to bottom, var(--brand-background-strong), var(--accent-background-strong));
+          border-radius: 0 2px 2px 0;
+        }
+
+        /* Detail rows */
+        .edu-v4-detail {
+          display: flex;
+          flex-direction: row;
+          align-items: flex-start;
+          gap: 10px;
+          padding: 9px 16px 9px 20px;
+          border-top: 1px solid var(--neutral-alpha-weak);
+        }
+        .edu-v4-detail-icon {
+          flex-shrink: 0; margin-top: 1px;
+          width: 20px; height: 20px; border-radius: 5px;
+          background: var(--neutral-alpha-weak);
+          display: flex; align-items: center; justify-content: center;
+          color: var(--neutral-on-background-weak);
+        }
+
+        @media (max-width: 480px) {
+          .edu-v4-logo-ring { width: 44px; height: 44px; }
+          .edu-v4-logo-img { width: 40px !important; height: 40px !important; }
         }
       `}</style>
 
-      <div className="edu-card-v2">
-        {/* Shine overlay */}
-        <div className="edu-shine" />
+      <div className="edu-v4">
+        {/* Glows — permanent ambient */}
+        <div className="edu-v4-glow" />
+        <div className="edu-v4-glow2" />
+        {/* Scanline shimmer */}
+        <div className="edu-v4-scan" />
+        {/* Left accent bar */}
+        <div className="edu-v4-bar" />
 
-        {/* Top gradient bar */}
-        <div style={{ height: 2, background: "linear-gradient(90deg, var(--brand-background-strong), var(--accent-background-strong))" }} />
+        <div className="edu-v4-inner">
+          {/* ── Header ── */}
+          <div style={{ display:"flex", flexDirection:"row", alignItems:"center", gap:14, padding:"16px 16px 12px 20px" }}>
 
-        {/* Main row: logo left, all info right */}
-        <div style={{ display:"flex", flexDirection:"row", alignItems:"stretch", gap: 0 }}>
+            {/* Logo — circular, spinning ring, no bg */}
+            <div className="edu-v4-logo-ring">
+              <div className="edu-v4-logo-ring-border" />
+              <div className="edu-v4-logo-img">
+                {edu.logo ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={edu.logo} alt={edu.university_name} />
+                ) : (
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--brand-on-background-weak)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>
+                  </svg>
+                )}
+              </div>
+            </div>
 
-          {/* Logo column */}
-          <div style={{
-            flexShrink: 0, width: 72,
-            display:"flex", alignItems:"center", justifyContent:"center",
-            padding: "14px 0 14px 14px",
-          }}>
-            <div style={{
-              width: 52, height: 52,
-              borderRadius: 10,
-              background: "rgba(255,255,255,0.97)",
-              border: "1px solid rgba(0,0,0,0.08)",
-              display:"flex", alignItems:"center", justifyContent:"center",
-              overflow:"hidden", flexShrink: 0,
-              boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
-            }}>
-              {edu.logo ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={edu.logo}
-                  alt={edu.university_name}
-                  style={{ width:"100%", height:"100%", objectFit:"contain", display:"block", padding: 4 }}
-                />
-              ) : (
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#888" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>
-                </svg>
+            {/* Text */}
+            <div style={{ flex:1, minWidth:0 }}>
+              <div style={{ fontSize:14, fontWeight:700, lineHeight:1.3, color:"var(--neutral-on-background-strong)", marginBottom:3, wordBreak:"break-word" }}>
+                {edu.university_name}
+              </div>
+              {(edu.faculty || edu.major) && (
+                <div style={{ fontSize:11.5, color:"var(--neutral-on-background-weak)", lineHeight:1.4, wordBreak:"break-word" }}>
+                  {[edu.faculty, edu.major].filter(Boolean).join(" · ")}
+                </div>
               )}
             </div>
           </div>
 
-          {/* Divider */}
-          <div style={{ width: 1, background: "var(--neutral-alpha-weak)", margin: "10px 14px 10px 14px", flexShrink: 0 }} />
-
-          {/* Info column */}
-          <div style={{ flex: 1, minWidth: 0, padding: "13px 16px 13px 0" }}>
-
-            {/* University name */}
-            <div style={{ fontSize: 14, fontWeight: 700, lineHeight: 1.3, color: "var(--neutral-on-background-strong)", marginBottom: 2, wordBreak:"break-word" }}>
-              {edu.university_name}
-            </div>
-
-            {/* Faculty / Major */}
-            {(edu.faculty || edu.major) && (
-              <div style={{ fontSize: 11.5, color: "var(--neutral-on-background-weak)", lineHeight: 1.4, marginBottom: 8, wordBreak:"break-word" }}>
-                {[edu.faculty, edu.major].filter(Boolean).join(" · ")}
-              </div>
-            )}
-
-            {/* Chips */}
-            <div style={{ display:"flex", flexDirection:"row", flexWrap:"wrap", gap: 5 }}>
-              <span style={{ display:"inline-flex", flexDirection:"row", alignItems:"center", padding:"3px 9px", borderRadius:99, fontSize:10.5, fontWeight:600, whiteSpace:"nowrap", background:"var(--brand-alpha-weak)", color:"var(--brand-on-background-strong)", border:"1px solid var(--brand-alpha-medium)" }}>
-                {edu.degree}
+          {/* ── Chips ── */}
+          <div style={{ display:"flex", flexDirection:"row", flexWrap:"wrap", gap:5, padding:"0 16px 14px 20px" }}>
+            <span style={{ display:"inline-flex", flexDirection:"row", alignItems:"center", padding:"4px 10px", borderRadius:99, fontSize:10.5, fontWeight:600, whiteSpace:"nowrap", background:"var(--brand-alpha-weak)", color:"var(--brand-on-background-strong)", border:"1px solid var(--brand-alpha-medium)" }}>
+              {edu.degree}
+            </span>
+            <span style={{ display:"inline-flex", flexDirection:"row", alignItems:"center", gap:4, padding:"4px 10px", borderRadius:99, fontSize:10.5, fontWeight:600, whiteSpace:"nowrap", background:"var(--neutral-alpha-weak)", color:"var(--neutral-on-background-weak)", border:"1px solid var(--neutral-alpha-weak)" }}>
+              <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" style={{ flexShrink:0 }}><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+              {edu.year_start}–{edu.year_end || "kini"}
+            </span>
+            {edu.gpa && (
+              <span style={{ display:"inline-flex", flexDirection:"row", alignItems:"center", padding:"4px 10px", borderRadius:99, fontSize:10.5, fontWeight:600, whiteSpace:"nowrap", background:"var(--accent-alpha-weak)", color:"var(--accent-on-background-strong)", border:"1px solid var(--accent-alpha-medium)" }}>
+                ★ IPK {edu.gpa}
               </span>
-              <span style={{ display:"inline-flex", flexDirection:"row", alignItems:"center", gap:4, padding:"3px 9px", borderRadius:99, fontSize:10.5, fontWeight:600, whiteSpace:"nowrap", background:"var(--neutral-alpha-weak)", color:"var(--neutral-on-background-weak)", border:"1px solid var(--neutral-alpha-weak)" }}>
-                <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" style={{ flexShrink:0 }}><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-                {edu.year_start}–{edu.year_end || "kini"}
-              </span>
-              {edu.gpa && (
-                <span style={{ display:"inline-flex", flexDirection:"row", alignItems:"center", padding:"3px 9px", borderRadius:99, fontSize:10.5, fontWeight:600, whiteSpace:"nowrap", background:"var(--accent-alpha-weak)", color:"var(--accent-on-background-strong)", border:"1px solid var(--accent-alpha-medium)" }}>
-                  IPK {edu.gpa}
-                </span>
-              )}
+            )}
+          </div>
+
+          {/* ── Detail rows ── */}
+          {edu.field_of_study && (
+            <div className="edu-v4-detail">
+              <div className="edu-v4-detail-icon">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+              </div>
+              <div>
+                <div style={{ fontSize:9, fontWeight:700, textTransform:"uppercase" as const, letterSpacing:"0.1em", color:"var(--neutral-on-background-weak)", marginBottom:2 }}>Rumpun Ilmu</div>
+                <div style={{ fontSize:12.5, color:"var(--neutral-on-background-strong)", lineHeight:1.5 }}>{edu.field_of_study}</div>
+              </div>
             </div>
+          )}
 
-          </div>
-        </div>
-
-        {/* Details section */}
-        {(edu.field_of_study || edu.thesis_title) && (
-          <div style={{ borderTop:"1px solid var(--neutral-alpha-weak)" }}>
-
-            {edu.field_of_study && (
-              <div style={{ display:"flex", flexDirection:"row", alignItems:"flex-start", gap:10, padding:"10px 16px", borderBottom: edu.thesis_title ? "1px solid var(--neutral-alpha-weak)" : "none" }}>
-                <div style={{ flexShrink:0, width:22, height:22, borderRadius:6, background:"var(--neutral-alpha-weak)", display:"flex", alignItems:"center", justifyContent:"center", marginTop:1 }}>
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--neutral-on-background-weak)" strokeWidth="1.8" strokeLinecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
-                </div>
-                <div>
-                  <span style={{ fontSize:9, fontWeight:700, textTransform:"uppercase" as const, letterSpacing:"0.1em", color:"var(--neutral-on-background-weak)", display:"block", marginBottom:2 }}>Rumpun Ilmu</span>
-                  <span style={{ fontSize:12.5, color:"var(--neutral-on-background-strong)", lineHeight:1.5, display:"block" }}>{edu.field_of_study}</span>
-                </div>
+          {edu.thesis_title && (
+            <div className="edu-v4-detail">
+              <div className="edu-v4-detail-icon">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
               </div>
-            )}
-
-            {edu.thesis_title && (
-              <div style={{ display:"flex", flexDirection:"row", alignItems:"flex-start", gap:10, padding:"10px 16px" }}>
-                <div style={{ flexShrink:0, width:22, height:22, borderRadius:6, background:"var(--neutral-alpha-weak)", display:"flex", alignItems:"center", justifyContent:"center", marginTop:1 }}>
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--neutral-on-background-weak)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                </div>
-                <div style={{ flex:1, minWidth:0 }}>
-                  <span style={{ fontSize:9, fontWeight:700, textTransform:"uppercase" as const, letterSpacing:"0.1em", color:"var(--neutral-on-background-weak)", display:"block", marginBottom:2 }}>Skripsi / Tugas Akhir</span>
-                  <span style={{ fontSize:12.5, color:"var(--neutral-on-background-strong)", lineHeight:1.55, fontStyle:"italic", display:"block" }}>&ldquo;{edu.thesis_title}&rdquo;</span>
-                  {edu.thesis_goal && (
-                    <span style={{ fontSize:11.5, color:"var(--neutral-on-background-weak)", lineHeight:1.65, marginTop:5, display:"block", textAlign:"justify" as const }}>{edu.thesis_goal}</span>
-                  )}
-                  {(edu.journal_pdf || edu.journal_url) && (
-                    <EduJournalModal title={edu.thesis_title} pdfUrl={edu.journal_pdf} externalUrl={edu.journal_url} />
-                  )}
-                </div>
+              <div style={{ flex:1, minWidth:0 }}>
+                <div style={{ fontSize:9, fontWeight:700, textTransform:"uppercase" as const, letterSpacing:"0.1em", color:"var(--neutral-on-background-weak)", marginBottom:2 }}>Skripsi / Tugas Akhir</div>
+                <div style={{ fontSize:12.5, color:"var(--neutral-on-background-strong)", lineHeight:1.55, fontStyle:"italic" }}>&ldquo;{edu.thesis_title}&rdquo;</div>
+                {edu.thesis_goal && (
+                  <div style={{ fontSize:11.5, color:"var(--neutral-on-background-weak)", lineHeight:1.65, marginTop:5, textAlign:"justify" as const }}>{edu.thesis_goal}</div>
+                )}
+                {(edu.journal_pdf || edu.journal_url) && (
+                  <EduJournalModal title={edu.thesis_title} pdfUrl={edu.journal_pdf} externalUrl={edu.journal_url} />
+                )}
               </div>
-            )}
+            </div>
+          )}
 
-          </div>
-        )}
+        </div>{/* /inner */}
       </div>
     </>
   );
