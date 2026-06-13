@@ -183,97 +183,100 @@ export default async function About() {
           .tl-row { gap: 0; }
         }
 
-        /* ══ Education list & cards ══════════════════════════════ */
-        .edu-list {
-          display: flex;
-          flex-direction: column;
-          gap: 16px;
+        /* ══ Education roadmap (timeline) ═════════════════════════ */
+        .edu-roadmap {
+          position: relative;
           width: 100%;
           margin-bottom: 48px;
+          padding-left: 38px;
+          box-sizing: border-box;
         }
-        .edu-reveal-wrap { display: block; width: 100%; }
+        /* garis vertikal utama */
+        .edu-roadmap::before {
+          content: "";
+          position: absolute;
+          left: 13px;
+          top: 6px;
+          bottom: 6px;
+          width: 1.5px;
+          background: linear-gradient(to bottom,
+            var(--accent-alpha-medium) 0%,
+            var(--neutral-alpha-weak) 85%,
+            transparent 100%);
+        }
+        .edu-reveal-wrap { display: block; width: 100%; position: relative; }
+        .edu-reveal-wrap:not(:last-child) { margin-bottom: 28px; }
 
+        /* Node bulat di garis */
+        .edu-node {
+          position: absolute;
+          left: -38px;
+          top: 6px;
+          width: 28px;
+          height: 28px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: var(--page-background);
+          border: 1.5px solid var(--accent-alpha-medium);
+          color: var(--accent-on-background-medium);
+          z-index: 1;
+          flex-shrink: 0;
+        }
+        .edu-node.is-current {
+          border-color: var(--accent-background-strong);
+          background: var(--accent-alpha-weak);
+          color: var(--accent-on-background-strong);
+          box-shadow: 0 0 0 4px var(--accent-alpha-weak);
+        }
+
+        /* Kartu konten — minimalis, datar */
         .edu-card {
           display: block;
           width: 100%;
-          border-radius: 16px;
+          border-radius: 12px;
           border: 1px solid var(--neutral-alpha-weak);
           background: var(--neutral-background-medium);
           overflow: hidden;
           box-sizing: border-box;
-          transition: border-color 0.25s, box-shadow 0.25s, transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
+          transition: border-color 0.2s, background 0.2s;
         }
         .edu-card:hover {
           border-color: var(--neutral-alpha-medium);
-          box-shadow: 0 8px 32px color-mix(in srgb, var(--neutral-on-background-strong) 6%, transparent);
-          transform: translateY(-2px);
-        }
-        .edu-strip {
-          height: 3px;
-          width: 100%;
-          background: linear-gradient(90deg, var(--brand-background-strong) 0%, var(--accent-background-strong) 100%);
+          background: var(--neutral-background-weak);
         }
 
-        /* ── Logo kilau looping animation ── */
-        @keyframes logoShimmer {
-          0%   { box-shadow: 0 0 0 0 transparent, inset 0 0 0 0 transparent; }
-          30%  { box-shadow: 0 0 16px 3px color-mix(in srgb, var(--brand-background-strong) 35%, transparent),
-                             inset 0 0 8px 0 color-mix(in srgb, var(--brand-background-strong) 15%, transparent); }
-          60%  { box-shadow: 0 0 22px 5px color-mix(in srgb, var(--accent-background-strong) 30%, transparent),
-                             inset 0 0 10px 0 color-mix(in srgb, var(--accent-background-strong) 12%, transparent); }
-          100% { box-shadow: 0 0 0 0 transparent, inset 0 0 0 0 transparent; }
-        }
-        @keyframes logoShimmerRing {
-          0%   { opacity: 0; transform: scale(0.88); }
-          20%  { opacity: 1; }
-          70%  { opacity: 0.6; transform: scale(1.08); }
-          100% { opacity: 0; transform: scale(1.18); }
-        }
-
-        /* ── Header area: logo + nama (no rumpun ilmu) ── */
+        /* ── Header area: logo kecil + nama ── */
         .edu-header {
           display: flex;
           flex-direction: row;
           align-items: flex-start;
-          gap: 16px;
-          padding: 20px 22px 16px;
+          gap: 14px;
+          padding: 16px 18px;
           box-sizing: border-box;
         }
-        /* Logo container — lebih besar, dengan kilau */
         .edu-logo-wrap {
-          flex: 0 0 64px;
-          width: 64px;
-          height: 64px;
+          flex: 0 0 40px;
+          width: 40px;
+          height: 40px;
           position: relative;
-          margin-top: 2px;
           flex-shrink: 0;
         }
         .edu-logo {
-          width: 64px;
-          height: 64px;
-          border-radius: 50%;
-          background: color-mix(in srgb, var(--neutral-on-background-strong) 6%, transparent);
-          border: 1.5px solid color-mix(in srgb, var(--neutral-on-background-strong) 10%, transparent);
+          width: 40px;
+          height: 40px;
+          border-radius: 10px;
+          background: var(--neutral-alpha-weak);
+          border: 1px solid var(--neutral-alpha-weak);
           display: flex;
           align-items: center;
           justify-content: center;
           overflow: hidden;
-          animation: logoShimmer 3.6s ease-in-out infinite;
-          position: relative;
-          z-index: 1;
         }
-        /* Shimmer ring – outer glow pulse */
-        .edu-logo-ring {
-          position: absolute;
-          inset: -6px;
-          border-radius: 50%;
-          border: 2px solid color-mix(in srgb, var(--brand-background-strong) 40%, transparent);
-          animation: logoShimmerRing 3.6s ease-in-out infinite;
-          pointer-events: none;
-        }
-        .edu-logo img { width: 100%; height: 100%; object-fit: contain; border-radius: 50%; padding: 7px; display: block; }
+        .edu-logo img { width: 100%; height: 100%; object-fit: contain; padding: 5px; display: block; }
 
-        /* nama area: full width, tahun di pojok kanan atas */
+        /* nama area */
         .edu-name {
           flex: 1 1 0;
           min-width: 0;
@@ -287,11 +290,11 @@ export default async function About() {
           align-items: flex-start;
           justify-content: space-between;
           gap: 8px;
-          margin-bottom: 3px;
+          margin-bottom: 2px;
         }
         .edu-univ {
-          font-size: 15px;
-          font-weight: 700;
+          font-size: 14.5px;
+          font-weight: 600;
           line-height: 1.4;
           color: var(--neutral-on-background-strong);
           margin: 0;
@@ -299,46 +302,39 @@ export default async function About() {
           flex: 1 1 0;
           min-width: 0;
         }
-        /* Tahun lulus badge — pojok kanan atas */
         .edu-year-badge {
           flex-shrink: 0;
-          display: inline-flex;
-          align-items: center;
-          gap: 4px;
-          padding: 3px 9px;
-          border-radius: 99px;
-          background: var(--neutral-alpha-weak);
-          border: 1px solid var(--neutral-alpha-weak);
           font-size: 11px;
-          font-weight: 600;
+          font-weight: 500;
           color: var(--neutral-on-background-weak);
           white-space: nowrap;
           margin-top: 2px;
+          font-variant-numeric: tabular-nums;
         }
         .edu-major {
           font-size: 12px;
           color: var(--neutral-on-background-weak);
           line-height: 1.4;
-          margin: 0 0 8px;
+          margin: 0;
           word-break: break-word;
         }
 
-        /* ── Chips: hanya IPK (no degree, no year) ── */
+        /* ── Chips ── */
         .edu-chips {
           display: flex;
           flex-direction: row;
           flex-wrap: wrap;
           gap: 6px;
-          padding: 0 22px 18px;
+          padding: 0 18px 16px;
         }
         .edu-chip {
           display: inline-flex;
           flex-direction: row;
           align-items: center;
           gap: 4px;
-          padding: 4px 10px;
+          padding: 3px 9px;
           border-radius: 99px;
-          font-size: 11px;
+          font-size: 10.5px;
           font-weight: 600;
           white-space: nowrap;
           line-height: 1;
@@ -349,7 +345,7 @@ export default async function About() {
         /* ── Thesis section ── */
         .edu-thesis {
           border-top: 1px solid var(--neutral-alpha-weak);
-          padding: 18px 22px 20px;
+          padding: 14px 18px 16px;
           box-sizing: border-box;
         }
         .edu-thesis-label {
@@ -362,12 +358,12 @@ export default async function About() {
           margin-bottom: 8px;
         }
         .edu-thesis-title {
-          font-size: 13.5px;
+          font-size: 13px;
           font-style: italic;
           font-weight: 600;
           color: var(--neutral-on-background-strong);
           line-height: 1.55;
-          margin: 0 0 14px;
+          margin: 0 0 12px;
           word-break: break-word;
         }
         .edu-thesis-boxes {
@@ -408,6 +404,11 @@ export default async function About() {
           line-height: 1.65;
           margin: 0 0 14px;
           word-break: break-word;
+        }
+        @media (max-width: 480px) {
+          .edu-roadmap { padding-left: 30px; }
+          .edu-roadmap::before { left: 9px; }
+          .edu-node { left: -30px; width: 22px; height: 22px; }
         }
 
         /* ── Akses Jurnal CTA button ── */
@@ -871,24 +872,27 @@ export default async function About() {
             </div>
           </ScrollReveal>
 
-          <div className="edu-list">
-            {educations.length > 0 ? educations.map((edu, i) => (
+          <div className="edu-roadmap">
+            {educations.length > 0 ? educations.map((edu, i) => {
+              const isCurrent = !edu.year_end;
+              return (
               <div key={edu.id} className="edu-reveal-wrap">
                 <ScrollReveal delay={i * 80}>
+                  <div className={`edu-node ${isCurrent ? "is-current" : ""}`}>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>
+                    </svg>
+                  </div>
                   <div className="edu-card">
-                    <div className="edu-strip" />
-
-                    {/* ── Header: logo + nama + tahun di kanan atas ── */}
+                    {/* ── Header: logo + nama + tahun ── */}
                     <div className="edu-header">
-                      {/* Logo dengan kilau */}
                       <div className="edu-logo-wrap">
-                        <div className="edu-logo-ring" />
                         <div className="edu-logo">
                           {edu.logo ? (
                             // eslint-disable-next-line @next/next/no-img-element
                             <img src={edu.logo} alt={edu.university_name} />
                           ) : (
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--brand-on-background-weak)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--brand-on-background-weak)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                               <path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>
                             </svg>
                           )}
@@ -896,7 +900,6 @@ export default async function About() {
                       </div>
 
                       <div className="edu-name">
-                        {/* Baris atas: nama + badge jenjang + tahun */}
                         <div className="edu-name-top">
                           <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" as const }}>
                             <p className="edu-univ" style={{ margin: 0 }}>{edu.university_name}</p>
@@ -919,25 +922,26 @@ export default async function About() {
                             )}
                           </div>
                           <span className="edu-year-badge">
-                            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
                             {edu.year_start} – {edu.year_end || "Sekarang"}
                           </span>
                         </div>
-                        {/* Fakultas · Jurusan */}
                         {(edu.faculty || edu.major) && (
                           <p className="edu-major">
                             {edu.faculty && <>{edu.faculty}{edu.major ? " · " : ""}</>}{edu.major}
                           </p>
                         )}
-                        {/* IPK / Nilai chip */}
-                        {edu.gpa && (
-                          <span className="edu-chip chip-gpa" style={{ alignSelf: "flex-start" }}>
-                            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                            {edu.education_level === "SMA/SMK" ? "Nilai" : "IPK"} {edu.gpa}
-                          </span>
-                        )}
                       </div>
                     </div>
+
+                    {/* IPK / Nilai chip */}
+                    {edu.gpa && (
+                      <div className="edu-chips">
+                        <span className="edu-chip chip-gpa">
+                          <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                          {edu.education_level === "SMA/SMK" ? "Nilai" : "IPK"} {edu.gpa}
+                        </span>
+                      </div>
+                    )}
 
                     {/* ── Thesis (hanya untuk jenjang universitas) ── */}
                     {edu.education_level !== "SMA/SMK" && edu.thesis_title && (
@@ -1007,16 +1011,20 @@ export default async function About() {
                   </div>
                 </ScrollReveal>
               </div>
-            )) : about.studies.institutions.map((inst, i) => (
+              );
+            }) : about.studies.institutions.map((inst, i) => (
               <div key={i} className="edu-reveal-wrap">
                 <ScrollReveal delay={i * 80}>
+                  <div className="edu-node">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>
+                    </svg>
+                  </div>
                   <div className="edu-card">
-                    <div className="edu-strip" />
                     <div className="edu-header">
                       <div className="edu-logo-wrap">
-                        <div className="edu-logo-ring" />
                         <div className="edu-logo">
-                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--brand-on-background-weak)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--brand-on-background-weak)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>
                           </svg>
                         </div>
