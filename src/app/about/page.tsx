@@ -26,6 +26,7 @@ import {
   getAboutOrganizations,
   getAboutIntro,
 } from "@/lib/db";
+import type { AboutEducation } from "@/lib/types";
 import { format } from "date-fns";
 function safeDate(d: string | null | undefined, fmt: string, opts?: Parameters<typeof format>[2]): string {
   if (!d) return "—";
@@ -53,6 +54,234 @@ export async function generateMetadata() {
 
 /** Parse deskripsi: jika mengandung baris bullet (- / • / *), render sebagai <ul><li>.
  *  Jika tidak, render sebagai <p> biasa dengan justify. */
+/* ─────────────────────────────────────────────────────────────
+   EduCard — 100% inline style, immune to Once UI overrides
+   ───────────────────────────────────────────────────────────── */
+function EduCard({ edu }: { edu: AboutEducation }) {
+  const S = {
+    card: {
+      borderRadius: 16,
+      border: "1px solid var(--neutral-alpha-weak)",
+      background: "var(--neutral-background-medium)",
+      overflow: "hidden" as const,
+      width: "100%",
+      boxSizing: "border-box" as const,
+    },
+    topBar: {
+      height: 2,
+      background: "linear-gradient(90deg, var(--brand-background-strong), var(--accent-background-strong))",
+    },
+    header: {
+      display: "flex" as const,
+      flexDirection: "row" as const,
+      alignItems: "center" as const,
+      gap: 14,
+      padding: "16px 18px 12px",
+    },
+    logo: {
+      flexShrink: 0,
+      width: 52,
+      height: 52,
+      borderRadius: 12,
+      background: "#ffffff",
+      border: "1px solid rgba(0,0,0,0.1)",
+      display: "flex" as const,
+      alignItems: "center" as const,
+      justifyContent: "center" as const,
+      overflow: "hidden" as const,
+    },
+    logoImg: {
+      width: "100%",
+      height: "100%",
+      objectFit: "contain" as const,
+      display: "block",
+      padding: 5,
+    },
+    identity: {
+      flex: 1,
+      minWidth: 0,
+    },
+    univName: {
+      fontSize: 15,
+      fontWeight: 700,
+      lineHeight: 1.3,
+      color: "var(--neutral-on-background-strong)",
+      margin: "0 0 3px",
+      wordBreak: "break-word" as const,
+      display: "block",
+    },
+    subText: {
+      fontSize: 12,
+      color: "var(--neutral-on-background-weak)",
+      lineHeight: 1.4,
+      margin: 0,
+      wordBreak: "break-word" as const,
+      display: "block",
+    },
+    chipsRow: {
+      display: "flex" as const,
+      flexDirection: "row" as const,
+      flexWrap: "wrap" as const,
+      gap: 6,
+      padding: "0 18px 14px",
+    },
+    chip: (color: "brand" | "neutral" | "accent") => ({
+      display: "inline-flex" as const,
+      flexDirection: "row" as const,
+      alignItems: "center" as const,
+      gap: 4,
+      padding: "4px 10px",
+      borderRadius: 99,
+      fontSize: 11,
+      fontWeight: 600,
+      letterSpacing: "0.02em",
+      whiteSpace: "nowrap" as const,
+      lineHeight: 1,
+      flexShrink: 0,
+      ...(color === "brand"    ? { background: "var(--brand-alpha-weak)",   color: "var(--brand-on-background-strong)",   border: "1px solid var(--brand-alpha-medium)"   } : {}),
+      ...(color === "neutral"  ? { background: "var(--neutral-alpha-weak)", color: "var(--neutral-on-background-weak)",   border: "1px solid var(--neutral-alpha-weak)"  } : {}),
+      ...(color === "accent"   ? { background: "var(--accent-alpha-weak)",  color: "var(--accent-on-background-strong)",  border: "1px solid var(--accent-alpha-medium)"  } : {}),
+    }),
+    divider: {
+      height: 1,
+      background: "var(--neutral-alpha-weak)",
+      margin: 0,
+    },
+    detailRow: {
+      display: "flex" as const,
+      flexDirection: "row" as const,
+      alignItems: "flex-start" as const,
+      gap: 10,
+      padding: "12px 18px",
+      borderBottom: "1px solid var(--neutral-alpha-weak)",
+    },
+    detailRowLast: {
+      display: "flex" as const,
+      flexDirection: "row" as const,
+      alignItems: "flex-start" as const,
+      gap: 10,
+      padding: "12px 18px",
+    },
+    iconBox: {
+      flexShrink: 0,
+      width: 24,
+      height: 24,
+      borderRadius: 6,
+      background: "var(--neutral-alpha-weak)",
+      display: "flex" as const,
+      alignItems: "center" as const,
+      justifyContent: "center" as const,
+      color: "var(--neutral-on-background-weak)",
+      marginTop: 1,
+    },
+    label: {
+      fontSize: 9,
+      fontWeight: 700,
+      textTransform: "uppercase" as const,
+      letterSpacing: "0.1em",
+      color: "var(--neutral-on-background-weak)",
+      display: "block",
+      marginBottom: 3,
+    },
+    value: {
+      fontSize: 13,
+      color: "var(--neutral-on-background-strong)",
+      lineHeight: 1.55,
+      display: "block",
+    },
+    goal: {
+      fontSize: 12,
+      color: "var(--neutral-on-background-weak)",
+      lineHeight: 1.65,
+      marginTop: 6,
+      display: "block",
+      textAlign: "justify" as const,
+    },
+  };
+
+  const hasDetails = !!(edu.field_of_study || edu.thesis_title);
+
+  return (
+    <div style={S.card}>
+      <div style={S.topBar} />
+
+      {/* Header */}
+      <div style={S.header}>
+        <div style={S.logo}>
+          {edu.logo ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={edu.logo} alt={edu.university_name} style={S.logoImg} />
+          ) : (
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--brand-on-background-weak)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>
+            </svg>
+          )}
+        </div>
+        <div style={S.identity}>
+          <span style={S.univName}>{edu.university_name}</span>
+          {(edu.faculty || edu.major) && (
+            <span style={S.subText}>{[edu.faculty, edu.major].filter(Boolean).join(" · ")}</span>
+          )}
+        </div>
+      </div>
+
+      {/* Chips */}
+      <div style={S.chipsRow}>
+        <span style={S.chip("brand")}>{edu.degree}</span>
+        <span style={S.chip("neutral")}>
+          <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" style={{ flexShrink: 0 }}>
+            <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
+          </svg>
+          {edu.year_start} – {edu.year_end || "Sekarang"}
+        </span>
+        {edu.gpa && <span style={S.chip("accent")}>IPK {edu.gpa}</span>}
+      </div>
+
+      {/* Details */}
+      {hasDetails && (
+        <>
+          <div style={S.divider} />
+          {edu.field_of_study && (
+            <div style={edu.thesis_title ? S.detailRow : S.detailRowLast}>
+              <div style={S.iconBox}>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+                  <rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>
+                </svg>
+              </div>
+              <div>
+                <span style={S.label}>Rumpun Ilmu</span>
+                <span style={S.value}>{edu.field_of_study}</span>
+              </div>
+            </div>
+          )}
+          {edu.thesis_title && (
+            <div style={S.detailRowLast}>
+              <div style={S.iconBox}>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                </svg>
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <span style={S.label}>Skripsi / Tugas Akhir</span>
+                <span style={{ ...S.value, fontStyle: "italic" }}>&ldquo;{edu.thesis_title}&rdquo;</span>
+                {edu.thesis_goal && <span style={S.goal}>{edu.thesis_goal}</span>}
+                {(edu.journal_pdf || edu.journal_url) && (
+                  <EduJournalModal
+                    title={edu.thesis_title}
+                    pdfUrl={edu.journal_pdf}
+                    externalUrl={edu.journal_url}
+                  />
+                )}
+              </div>
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
 function renderDescription(text: string) {
   const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
   const bulletLines = lines.filter(l => /^[-•*]\s/.test(l));
@@ -608,96 +837,27 @@ export default async function About() {
             </div>
           </ScrollReveal>
 
-          <Column fillWidth gap="12" marginBottom="48">
+          <div style={{ display:"flex", flexDirection:"column", gap:12, marginBottom:48, width:"100%" }}>
             {educations.length > 0 ? educations.map((edu, i) => (
               <ScrollReveal key={edu.id} delay={i * 80}>
-                <div className="edu-card">
-                  {/* ── Logo + Identity ── */}
-                  <div className="edu-top">
-                    <div className="edu-logo">
-                      {edu.logo ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={edu.logo} alt={edu.university_name} />
-                      ) : (
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--brand-on-background-weak)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>
-                        </svg>
-                      )}
-                    </div>
-                    <div className="edu-identity">
-                      <p className="edu-univ">{edu.university_name}</p>
-                      {(edu.faculty || edu.major) && (
-                        <p className="edu-sub">{[edu.faculty, edu.major].filter(Boolean).join(" · ")}</p>
-                      )}
-                    </div>
-                  </div>
-                  {/* ── Chips ── */}
-                  <div className="edu-chips-row">
-                    <span className="edu-chip chip-degree">{edu.degree}</span>
-                    <span className="edu-chip chip-year">
-                      <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-                      {edu.year_start} – {edu.year_end || "Sekarang"}
-                    </span>
-                    {edu.gpa && <span className="edu-chip chip-gpa">IPK {edu.gpa}</span>}
-                  </div>
-                  {/* ── Details ── */}
-                  {(edu.field_of_study || edu.thesis_title) && (
-                    <div className="edu-details">
-                      {edu.field_of_study && (
-                        <div className="edu-drow">
-                          <div className="edu-dicon">
-                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
-                          </div>
-                          <div>
-                            <span className="edu-dlabel">Rumpun Ilmu</span>
-                            <div className="edu-dvalue">{edu.field_of_study}</div>
-                          </div>
-                        </div>
-                      )}
-                      {edu.thesis_title && (
-                        <div className="edu-drow">
-                          <div className="edu-dicon">
-                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                          </div>
-                          <div style={{ flex: 1, minWidth: 0 }}>
-                            <span className="edu-dlabel">Skripsi / Tugas Akhir</span>
-                            <div className="edu-dvalue"><em>&ldquo;{edu.thesis_title}&rdquo;</em></div>
-                            {edu.thesis_goal && <div className="edu-dgoal">{edu.thesis_goal}</div>}
-                            {(edu.journal_pdf || edu.journal_url) && (
-                              <EduJournalModal
-                                title={edu.thesis_title}
-                                pdfUrl={edu.journal_pdf}
-                                externalUrl={edu.journal_url}
-                              />
-                            )}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
+                <EduCard edu={edu} />
               </ScrollReveal>
             )) : about.studies.institutions.map((inst, i) => (
               <ScrollReveal key={i} delay={i * 80}>
-                <div className="edu-card">
-                  <div className="edu-strip" />
-                  <div className="edu-body">
-                    <div className="edu-identity">
-                      <div className="edu-logo">
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--brand-on-background-weak)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>
-                        </svg>
-                      </div>
-                      <div className="edu-name">
-                        <p className="edu-univ">{inst.name}</p>
-                        {inst.description && <p className="edu-major">{inst.description}</p>}
-                      </div>
+                <div style={{ borderRadius:14, border:"1px solid var(--neutral-alpha-weak)", background:"var(--neutral-background-medium)", overflow:"hidden" }}>
+                  <div style={{ display:"flex", alignItems:"center", gap:14, padding:"16px 18px" }}>
+                    <div style={{ flexShrink:0, width:48, height:48, borderRadius:10, background:"#fff", border:"1px solid rgba(0,0,0,0.08)", display:"flex", alignItems:"center", justifyContent:"center" }}>
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#888" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+                    </div>
+                    <div style={{ flex:1, minWidth:0 }}>
+                      <div style={{ fontSize:14, fontWeight:700, color:"var(--neutral-on-background-strong)", marginBottom:2, wordBreak:"break-word" }}>{inst.name}</div>
+                      {inst.description && <div style={{ fontSize:12, color:"var(--neutral-on-background-weak)" }}>{inst.description}</div>}
                     </div>
                   </div>
                 </div>
               </ScrollReveal>
             ))}
-          </Column>
+          </div>
 
           {/* ══ KEAHLIAN ════════════════════════════════════════════ */}
           <ScrollReveal delay={120}>
