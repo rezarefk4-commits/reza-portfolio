@@ -8,7 +8,6 @@ import { generateSlug } from "@/lib/slug";
 import { TiptapEditor } from "@/components/admin/TiptapEditor";
 import { ImageUpload } from "@/components/admin/ImageUpload";
 import { ToolsInput } from "@/components/admin/ToolsInput";
-import { pdfToImages } from "@/lib/pdfToImages";
 import type { Project, ProjectCategory, GalleryItem, GalleryDisplayMode } from "@/lib/types";
 
 const CATEGORIES: ProjectCategory[] = [
@@ -261,6 +260,9 @@ function GalleryManager({
   const [dragOver, setDragOver] = useState(false);
   const [dragIdx, setDragIdx] = useState<number | null>(null);
   const [dragOverIdx, setDragOverIdx] = useState<number | null>(null);
+  const [videoQualityPreset, setVideoQualityPreset] = useState<"low" | "medium" | "high">("medium");
+  const [pendingFiles, setPendingFiles] = useState<File[]>([]);
+  const [hasVideoSelected, setHasVideoSelected] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const reorder = (from: number, to: number) => {
@@ -281,49 +283,32 @@ function GalleryManager({
     onChange(items.map((item, i) => i === idx ? { ...item, caption } : item));
   };
 
-  const uploadFiles = useCallback(async (files: FileList | File[]) => {
+  // Saat file dipilih/di-drop: cek apakah ada video → simpan ke pending, tampilkan pilihan kualitas
+  const handleFilesPicked = useCallback((files: FileList | File[]) => {
+    const arr = Array.from(files);
+    const containsVideo = arr.some((f) => f.type.startsWith("video/"));
+    setPendingFiles(arr);
+    setHasVideoSelected(containsVideo);
+    setUploadError("");
+    if (!containsVideo) {
+      // Tidak ada video → langsung proses upload tanpa menunggu pilihan kualitas
+      doUpload(arr, "medium");
+    }
+    // Kalau ada video → tunggu user klik tombol "Upload" di bawah pilihan kualitas
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const doUpload = useCallback(async (files: File[], preset: "low" | "medium" | "high") => {
     const supabase = createClient();
     setUploading(true);
-    setUploadStatus("Memproses file...");
     setUploadError("");
 
-    // ── Expand PDF → JPG pages, compress gambar ──────────────────────
-    const expandedFiles: File[] = [];
+    const processedFiles: File[] = [];
 
-    for (const file of Array.from(files)) {
-      const isPdf = file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
-
-      if (isPdf) {
-        try {
-          setUploadStatus(`Mengonversi PDF "${file.name}"...`);
-          const result = await pdfToImages(file, {
-            scale: 2.0,
-            quality: 0.88,
-            onProgress: ({ page, total }) => {
-              setUploadStatus(
-                total > 1
-                  ? `Render halaman ${page}/${total} dari "${file.name}"...`
-                  : `Merender PDF "${file.name}"...`
-              );
-            },
-          });
-          if (result.pages.length > 0) {
-            expandedFiles.push(...result.pages);
-          } else {
-            throw new Error("Tidak ada halaman yang berhasil dirender");
-          }
-        } catch (err) {
-          const msg = err instanceof Error ? err.message : String(err);
-          setUploadError(`PDF "${file.name}": ${msg}. Mengunggah PDF asli sebagai fallback.`);
-          // Fallback: upload PDF aslinya langsung
-          expandedFiles.push(file);
-        }
-        continue;
-      }
-
-      // Gambar: compress via Canvas → WebP
+    for (const file of files) {
+      // Gambar → compress ke WebP
       if (file.type.startsWith("image/")) {
         try {
+          setUploadStatus(`Mengompresi "${file.name}"...`);
           const { compressFile } = await import("@/lib/mediaCompressor");
           const compressed = await compressFile(file, {
             imageMaxBytes: 800 * 1024,
@@ -331,34 +316,37 @@ function GalleryManager({
             imageMaxDimension: 2560,
             imageFormat: "image/webp",
           });
-          expandedFiles.push(compressed.file);
+          processedFiles.push(compressed.file);
         } catch {
-          expandedFiles.push(file);
+          processedFiles.push(file);
         }
         continue;
       }
 
-      // Video
+      // Video → compress sesuai preset
       if (file.type.startsWith("video/")) {
-        expandedFiles.push(file);
+        try {
+          setUploadStatus(`Mengompresi video "${file.name}"...`);
+          const { compressFile } = await import("@/lib/mediaCompressor");
+          const compressed = await compressFile(file, {
+            videoQualityPreset: preset,
+            onProgress: (pct) => setUploadStatus(`Kompresi video "${file.name}" ${pct}%...`),
+          });
+          processedFiles.push(compressed.file);
+        } catch {
+          processedFiles.push(file);
+        }
         continue;
       }
 
-      // Tipe lain: tetap upload (doc, zip, dll)
-      expandedFiles.push(file);
+      // PDF & file lain → upload langsung
+      processedFiles.push(file);
     }
 
-    if (expandedFiles.length === 0) {
-      setUploadError("Tidak ada file yang bisa diproses.");
-      setUploading(false);
-      return;
-    }
-
-    // ── Upload ke Supabase ────────────────────────────────────────────
-    setUploadStatus(`Mengunggah ${expandedFiles.length} file...`);
+    setUploadStatus(`Mengunggah ${processedFiles.length} file...`);
     const newItems: GalleryItem[] = [];
 
-    for (const file of expandedFiles) {
+    for (const file of processedFiles) {
       const ext = file.name.split(".").pop() ?? "bin";
       const filename = `gallery/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
       const { data, error } = await supabase.storage
@@ -371,20 +359,18 @@ function GalleryManager({
       }
 
       const { data: { publicUrl } } = supabase.storage.from("projects").getPublicUrl(data.path);
-      newItems.push({
-        url: publicUrl,
-        caption: "",
-        sort_order: items.length + newItems.length,
-      });
+      newItems.push({ url: publicUrl, caption: "", sort_order: items.length + newItems.length });
     }
 
     onChange([...items, ...newItems]);
     setUploading(false);
+    setHasVideoSelected(false);
+    setPendingFiles([]);
   }, [items, onChange]);
 
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      uploadFiles(e.target.files);
+      handleFilesPicked(e.target.files);
       e.target.value = "";
     }
   };
@@ -392,7 +378,7 @@ function GalleryManager({
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     setDragOver(false);
-    if (e.dataTransfer.files.length > 0) uploadFiles(e.dataTransfer.files);
+    if (e.dataTransfer.files.length > 0) handleFilesPicked(e.dataTransfer.files);
   };
 
   // Drag-and-drop reorder
@@ -461,7 +447,7 @@ function GalleryManager({
               </svg>
             </div>
             <div>
-              <Text variant="label-strong-s">Drag & drop gambar, video, atau PDF</Text>
+              <Text variant="label-strong-s">Drag & drop gambar, video, atau file</Text>
               <Text variant="body-default-xs" onBackground="neutral-weak">
                 atau klik untuk pilih file • Bisa pilih beberapa sekaligus
               </Text>
@@ -471,7 +457,7 @@ function GalleryManager({
               background: "var(--neutral-alpha-weak)",
               borderRadius: 99, padding: "3px 12px",
             }}>
-              JPG, PNG, WEBP, GIF, MP4, WEBM, MOV · PDF (→ JPG per halaman otomatis)
+              JPG, PNG, WEBP, GIF, MP4, WEBM, MOV, PDF
             </div>
           </>
         )}
@@ -487,6 +473,71 @@ function GalleryManager({
 
       {uploadError && (
         <Text variant="body-default-s" onBackground="danger-strong">{uploadError}</Text>
+      )}
+
+      {/* ── Pilihan kualitas video — hanya muncul kalau ada file video dipilih ── */}
+      {hasVideoSelected && !uploading && (
+        <div style={{
+          padding: "14px 16px",
+          borderRadius: 12,
+          background: "var(--neutral-background-medium)",
+          border: "1px solid var(--brand-alpha-medium)",
+          display: "flex", flexDirection: "column", gap: 12,
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--brand-on-background-strong)" strokeWidth="2.2" strokeLinecap="round">
+              <polygon points="5 3 19 12 5 21 5 3"/>
+            </svg>
+            <Text variant="label-strong-s">Kualitas Kompresi Video</Text>
+            <span style={{ fontSize: 11, color: "var(--neutral-on-background-weak)" }}>
+              — {pendingFiles.filter(f => f.type.startsWith("video/")).length} video terdeteksi
+            </span>
+          </div>
+          <div style={{ display: "flex", gap: 8 }}>
+            {(["low", "medium", "high"] as const).map((preset) => {
+              const META = {
+                low:    { label: "Ringan",   desc: "400kbps · 720p",  color: "#34d399" },
+                medium: { label: "Seimbang", desc: "800kbps · 1080p", color: "#818cf8" },
+                high:   { label: "Tajam",    desc: "2Mbps · 1440p",   color: "#f59e0b" },
+              };
+              const m = META[preset];
+              const active = videoQualityPreset === preset;
+              return (
+                <button
+                  key={preset}
+                  type="button"
+                  onClick={() => setVideoQualityPreset(preset)}
+                  style={{
+                    flex: 1, padding: "10px 8px", borderRadius: 10, cursor: "pointer",
+                    border: active ? `1.5px solid ${m.color}` : "1.5px solid var(--neutral-alpha-medium)",
+                    background: active ? `${m.color}18` : "var(--neutral-background-strong)",
+                    display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
+                    transition: "all 0.15s",
+                  }}
+                >
+                  <span style={{ fontSize: 13, fontWeight: 700, color: active ? m.color : "var(--neutral-on-background-medium)" }}>
+                    {m.label}
+                  </span>
+                  <span style={{ fontSize: 10, color: "var(--neutral-on-background-weak)" }}>
+                    {m.desc}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+          <button
+            type="button"
+            onClick={() => doUpload(pendingFiles, videoQualityPreset)}
+            style={{
+              padding: "10px 0", borderRadius: 10, cursor: "pointer",
+              background: "var(--brand-background-strong)",
+              border: "none", color: "var(--brand-on-background-strong)",
+              fontWeight: 700, fontSize: 13, transition: "opacity 0.15s",
+            }}
+          >
+            Upload {pendingFiles.length} File
+          </button>
+        </div>
       )}
 
       {/* Item list */}
@@ -554,7 +605,7 @@ function GalleryManager({
           fontStyle: "italic",
           opacity: 0.6,
         }}>
-          Belum ada gambar/video. Upload di atas untuk menambahkan. PDF akan dikonversi ke JPG otomatis.
+          Belum ada file. Upload gambar, video, atau PDF di atas untuk menambahkan.
         </div>
       )}
     </div>
