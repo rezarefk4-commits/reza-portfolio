@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
 
+import Link from "next/link";
 import {
   Button,
   Column,
@@ -428,6 +429,7 @@ export default async function About() {
           padding: 10px 20px;
           border-radius: 10px;
           border: none;
+          text-decoration: none;
           background: linear-gradient(
             105deg,
             var(--brand-background-strong) 0%,
@@ -451,116 +453,6 @@ export default async function About() {
           animation: ctaShimmer 1.2s linear infinite;
         }
         .edu-journal-cta:active { transform: scale(0.97); }
-
-        /* ── Journal modal (preview jurnal) ── */
-        .journal-modal-overlay {
-          position: fixed;
-          inset: 0;
-          z-index: 9999;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          padding: 24px;
-          backdrop-filter: blur(16px) saturate(1.4);
-          -webkit-backdrop-filter: blur(16px) saturate(1.4);
-          background: rgba(0,0,0,0.55);
-          animation: modalFadeIn 0.22s ease;
-          box-sizing: border-box;
-        }
-        @keyframes modalFadeIn {
-          from { opacity: 0; backdrop-filter: blur(0px); }
-          to   { opacity: 1; backdrop-filter: blur(16px); }
-        }
-        .journal-modal {
-          width: 100%;
-          max-width: 860px;
-          max-height: calc(100vh - 48px);
-          border-radius: 20px;
-          border: 1px solid rgba(255,255,255,0.10);
-          background: var(--neutral-background-strong);
-          box-shadow: 0 32px 80px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.04);
-          display: flex;
-          flex-direction: column;
-          overflow: hidden;
-          animation: modalSlideUp 0.25s cubic-bezier(0.34,1.56,0.64,1);
-        }
-        @keyframes modalSlideUp {
-          from { transform: translateY(32px) scale(0.97); opacity: 0; }
-          to   { transform: translateY(0) scale(1); opacity: 1; }
-        }
-        .journal-modal-header {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 16px 20px;
-          border-bottom: 1px solid var(--neutral-alpha-weak);
-          flex-shrink: 0;
-          gap: 12px;
-        }
-        .journal-modal-title {
-          font-size: 14px;
-          font-weight: 700;
-          color: var(--neutral-on-background-strong);
-          flex: 1;
-          min-width: 0;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-        }
-        .journal-modal-close {
-          flex-shrink: 0;
-          width: 32px; height: 32px;
-          border-radius: 50%;
-          border: 1px solid var(--neutral-alpha-medium);
-          background: var(--neutral-alpha-weak);
-          color: var(--neutral-on-background-strong);
-          display: flex; align-items: center; justify-content: center;
-          cursor: pointer;
-          font-size: 18px;
-          transition: background 0.15s, transform 0.15s;
-          line-height: 1;
-        }
-        .journal-modal-close:hover { background: var(--neutral-alpha-medium); transform: scale(1.1); }
-        .journal-modal-body {
-          flex: 1;
-          overflow: hidden;
-          min-height: 0;
-          display: flex;
-          flex-direction: column;
-        }
-        .journal-modal-body iframe {
-          width: 100%;
-          flex: 1;
-          border: none;
-          display: block;
-          background: #fff;
-        }
-        .journal-modal-footer {
-          padding: 12px 20px;
-          border-top: 1px solid var(--neutral-alpha-weak);
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 10px;
-          flex-shrink: 0;
-          flex-wrap: wrap;
-        }
-        .journal-open-link {
-          display: inline-flex; align-items: center; gap: 6px;
-          font-size: 12px; font-weight: 600;
-          color: var(--brand-on-background-medium);
-          text-decoration: none;
-          padding: 6px 12px;
-          border-radius: 8px;
-          border: 1px solid var(--brand-alpha-medium);
-          background: var(--brand-alpha-weak);
-          transition: background 0.15s;
-        }
-        .journal-open-link:hover { background: var(--brand-alpha-medium); }
-        @media (max-width: 480px) {
-          .journal-modal { border-radius: 14px; }
-          .journal-modal-overlay { padding: 12px; }
-        }
 
         /* ══ Org cards ════════════════════════════════════════════ */
         .org-card {
@@ -688,72 +580,7 @@ export default async function About() {
           margin: 0;
         }
 
-        /* ══ Journal modal trigger script styles ════════════════ */
-        #journal-modal-root {
-          position: fixed;
-          inset: 0;
-          z-index: 9999;
-          pointer-events: none;
-          display: none;
-        }
-        #journal-modal-root.open {
-          pointer-events: all;
-          display: block;
-        }
       `}</style>
-
-      {/* ── Journal Modal (rendered once, controlled by JS) ─────── */}
-      <div id="journal-modal-root" aria-modal="true" role="dialog">
-        <div className="journal-modal-overlay" id="journal-modal-overlay">
-          <div className="journal-modal">
-            <div className="journal-modal-header">
-              <span className="journal-modal-title" id="journal-modal-title">Preview Jurnal</span>
-              <button className="journal-modal-close" id="journal-modal-close-btn" aria-label="Tutup">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-              </button>
-            </div>
-            <div className="journal-modal-body">
-              <iframe id="journal-modal-iframe" src="" title="Preview Jurnal" />
-            </div>
-            <div className="journal-modal-footer">
-              <span style={{ fontSize: 11, color: "var(--neutral-on-background-weak)" }}>Scroll untuk membaca · Tekan ESC untuk tutup</span>
-              <a id="journal-modal-open-link" href="#" target="_blank" rel="noopener noreferrer" className="journal-open-link">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-                Buka di Tab Baru
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ── Modal JS ────────────────────────────────────────────── */}
-      <script dangerouslySetInnerHTML={{ __html: `
-        (function(){
-          var root = document.getElementById('journal-modal-root');
-          var iframe = document.getElementById('journal-modal-iframe');
-          var title = document.getElementById('journal-modal-title');
-          var openLink = document.getElementById('journal-modal-open-link');
-          var closeBtn = document.getElementById('journal-modal-close-btn');
-          var overlay = document.getElementById('journal-modal-overlay');
-          function openModal(url, label) {
-            var proxyUrl = url.startsWith('http') && !url.includes('/api/') ? '/api/pdf-proxy?url=' + encodeURIComponent(url) : url;
-            iframe.src = proxyUrl;
-            title.textContent = label || 'Preview Jurnal';
-            openLink.href = url;
-            root.classList.add('open');
-            document.body.style.overflow = 'hidden';
-          }
-          function closeModal() {
-            root.classList.remove('open');
-            iframe.src = '';
-            document.body.style.overflow = '';
-          }
-          window.__openJournalModal = openModal;
-          if (closeBtn) closeBtn.addEventListener('click', closeModal);
-          if (overlay) overlay.addEventListener('click', function(e){ if(e.target===overlay) closeModal(); });
-          document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeModal(); });
-        })();
-      ` }} />
 
       <Schema as="webPage" baseURL={baseURL} title={about.title} description={about.description}
         path={about.path} image={`/api/og/generate?title=${encodeURIComponent(about.title)}`}
@@ -1008,13 +835,9 @@ export default async function About() {
                         {(edu.journal_pdf || edu.journal_url) && (() => {
                           const journalUrl = edu.journal_pdf ?? edu.journal_url!;
                           const journalLabel = edu.thesis_title ? `${edu.thesis_title.substring(0, 60)}${edu.thesis_title.length > 60 ? "…" : ""}` : "Preview Jurnal";
+                          const href = `/jurnal?url=${encodeURIComponent(journalUrl)}&title=${encodeURIComponent(journalLabel)}`;
                           return (
-                            <button
-                              className="edu-journal-cta"
-                              type="button"
-                              data-journal-url={journalUrl}
-                              data-journal-label={journalLabel}
-                            >
+                            <Link href={href} className="edu-journal-cta">
                               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
                                 <polyline points="14 2 14 8 20 8"/>
@@ -1022,7 +845,7 @@ export default async function About() {
                                 <line x1="16" y1="17" x2="8" y2="17"/>
                               </svg>
                               Baca Jurnal
-                            </button>
+                            </Link>
                           );
                         })()}
                       </div>
@@ -1171,29 +994,6 @@ export default async function About() {
 
         </Column>
       </div>
-
-      {/* ── Modal onclick handler via script ─────────────────────── */}
-      <script dangerouslySetInnerHTML={{ __html: `
-        (function(){
-          // Attach onclick to all CTA buttons after hydration
-          function attachJournalBtns() {
-            var btns = document.querySelectorAll('[data-journal-url]');
-            btns.forEach(function(btn) {
-              btn.onclick = function(e) {
-                e.preventDefault();
-                var url = btn.getAttribute('data-journal-url');
-                var label = btn.getAttribute('data-journal-label');
-                if (window.__openJournalModal) window.__openJournalModal(url, label);
-              };
-            });
-          }
-          if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', attachJournalBtns);
-          } else {
-            attachJournalBtns();
-          }
-        })();
-      ` }} />
     </Column>
   );
 }
