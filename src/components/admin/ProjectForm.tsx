@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Column, Row, Text, Button, Input, Line } from "@once-ui-system/core";
 import { createClient } from "@/lib/supabase/client";
@@ -264,6 +264,11 @@ function GalleryManager({
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
   const [hasVideoSelected, setHasVideoSelected] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  // Simpan items & onChange di ref agar doUpload selalu baca nilai terbaru (hindari stale closure)
+  const itemsRef = useRef(items);
+  const onChangeRef = useRef(onChange);
+  itemsRef.current = items;
+  onChangeRef.current = onChange;
 
   const reorder = (from: number, to: number) => {
     const next = [...items];
@@ -283,21 +288,7 @@ function GalleryManager({
     onChange(items.map((item, i) => i === idx ? { ...item, caption } : item));
   };
 
-  // Saat file dipilih/di-drop: cek apakah ada video → simpan ke pending, tampilkan pilihan kualitas
-  const handleFilesPicked = useCallback((files: FileList | File[]) => {
-    const arr = Array.from(files);
-    const containsVideo = arr.some((f) => f.type.startsWith("video/"));
-    setPendingFiles(arr);
-    setHasVideoSelected(containsVideo);
-    setUploadError("");
-    if (!containsVideo) {
-      // Tidak ada video → langsung proses upload tanpa menunggu pilihan kualitas
-      doUpload(arr, "medium");
-    }
-    // Kalau ada video → tunggu user klik tombol "Upload" di bawah pilihan kualitas
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const doUpload = useCallback(async (files: File[], preset: "low" | "medium" | "high") => {
+  const doUpload = async (files: File[], preset: "low" | "medium" | "high") => {
     const supabase = createClient();
     setUploading(true);
     setUploadError("");
@@ -305,7 +296,6 @@ function GalleryManager({
     const processedFiles: File[] = [];
 
     for (const file of files) {
-      // Gambar → compress ke WebP
       if (file.type.startsWith("image/")) {
         try {
           setUploadStatus(`Mengompresi "${file.name}"...`);
@@ -323,7 +313,6 @@ function GalleryManager({
         continue;
       }
 
-      // Video → compress sesuai preset
       if (file.type.startsWith("video/")) {
         try {
           setUploadStatus(`Mengompresi video "${file.name}"...`);
@@ -345,6 +334,7 @@ function GalleryManager({
 
     setUploadStatus(`Mengunggah ${processedFiles.length} file...`);
     const newItems: GalleryItem[] = [];
+    const currentItems = itemsRef.current;
 
     for (const file of processedFiles) {
       const ext = file.name.split(".").pop() ?? "bin";
@@ -359,14 +349,25 @@ function GalleryManager({
       }
 
       const { data: { publicUrl } } = supabase.storage.from("projects").getPublicUrl(data.path);
-      newItems.push({ url: publicUrl, caption: "", sort_order: items.length + newItems.length });
+      newItems.push({ url: publicUrl, caption: "", sort_order: currentItems.length + newItems.length });
     }
 
-    onChange([...items, ...newItems]);
+    onChangeRef.current([...currentItems, ...newItems]);
     setUploading(false);
     setHasVideoSelected(false);
     setPendingFiles([]);
-  }, [items, onChange]);
+  };
+
+  const handleFilesPicked = (files: FileList | File[]) => {
+    const arr = Array.from(files);
+    const containsVideo = arr.some((f) => f.type.startsWith("video/"));
+    setPendingFiles(arr);
+    setHasVideoSelected(containsVideo);
+    setUploadError("");
+    if (!containsVideo) {
+      doUpload(arr, "medium");
+    }
+  };
 
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
