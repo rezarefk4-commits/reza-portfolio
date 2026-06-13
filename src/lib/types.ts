@@ -55,6 +55,7 @@ export interface Certificate {
   description_en: string;
   issue_date: string;
   thumbnail: string | null;
+  images: string[] | null;
   pdf: string | null;
   created_at: string;
   updated_at: string;
