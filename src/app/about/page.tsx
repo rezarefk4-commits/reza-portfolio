@@ -38,7 +38,6 @@ function safeDate(d: string | null | undefined, fmt: string, opts?: Parameters<t
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { AvatarFromCms } from "@/components/about/AvatarFromCms";
 import { SkillsGrid } from "@/components/about/SkillsGrid";
-import { EduJournalModal } from "@/components/about/EduJournalModal";
 
 export async function generateMetadata() {
   return Meta.generate({
@@ -188,14 +187,12 @@ export default async function About() {
         .edu-list {
           display: flex;
           flex-direction: column;
-          gap: 12px;
+          gap: 16px;
           width: 100%;
           margin-bottom: 48px;
         }
-        .edu-reveal-wrap {
-          display: block;
-          width: 100%;
-        }
+        .edu-reveal-wrap { display: block; width: 100%; }
+
         .edu-card {
           display: block;
           width: 100%;
@@ -208,21 +205,22 @@ export default async function About() {
         }
         .edu-card:hover {
           border-color: var(--neutral-alpha-medium);
-          box-shadow: 0 8px 32px color-mix(in srgb, var(--neutral-on-background-strong) 7%, transparent);
+          box-shadow: 0 8px 32px color-mix(in srgb, var(--neutral-on-background-strong) 6%, transparent);
           transform: translateY(-2px);
         }
         .edu-strip {
-          height: 2px;
+          height: 3px;
           width: 100%;
           background: linear-gradient(90deg, var(--brand-background-strong) 0%, var(--accent-background-strong) 100%);
         }
-        /* ── Header ── */
+
+        /* ── Header area: logo + nama + rumpun ilmu ── */
         .edu-header {
           display: flex;
           flex-direction: row;
-          align-items: center;
+          align-items: flex-start;
           gap: 16px;
-          padding: 20px 22px 14px;
+          padding: 20px 22px 16px;
           box-sizing: border-box;
         }
         .edu-logo {
@@ -236,12 +234,10 @@ export default async function About() {
           align-items: center;
           justify-content: center;
           overflow: hidden;
+          margin-top: 2px;
         }
         .edu-logo img { width: 100%; height: 100%; object-fit: contain; border-radius: 50%; padding: 5px; display: block; }
-        .edu-name {
-          flex: 1 1 0;
-          min-width: 0;
-        }
+        .edu-name { flex: 1 1 0; min-width: 0; }
         .edu-univ {
           font-size: 15px;
           font-weight: 700;
@@ -254,10 +250,26 @@ export default async function About() {
           font-size: 12px;
           color: var(--neutral-on-background-weak);
           line-height: 1.4;
-          margin: 0;
+          margin: 0 0 10px;
           word-break: break-word;
         }
-        /* ── Chips ── */
+        /* rumpun ilmu inline tag di bawah major */
+        .edu-field-tag {
+          display: inline-flex;
+          flex-direction: row;
+          align-items: center;
+          gap: 5px;
+          padding: 3px 9px;
+          border-radius: 6px;
+          background: color-mix(in srgb, var(--brand-background-strong) 10%, transparent);
+          border: 1px solid color-mix(in srgb, var(--brand-background-strong) 25%, transparent);
+          font-size: 11px;
+          font-weight: 600;
+          color: var(--brand-on-background-medium);
+          white-space: nowrap;
+        }
+
+        /* ── Chips: degree · tahun · IPK ── */
         .edu-chips {
           display: flex;
           flex-direction: row;
@@ -281,72 +293,43 @@ export default async function About() {
         .chip-degree { background: var(--brand-alpha-weak); color: var(--brand-on-background-strong); border: 1px solid var(--brand-alpha-medium); }
         .chip-year   { background: var(--neutral-alpha-weak); color: var(--neutral-on-background-weak); border: 1px solid var(--neutral-alpha-weak); }
         .chip-gpa    { background: var(--accent-alpha-weak); color: var(--accent-on-background-strong); border: 1px solid var(--accent-alpha-medium); }
-        /* ── Detail rows ── */
-        .edu-details {
+
+        /* ── Thesis section ── */
+        .edu-thesis {
           border-top: 1px solid var(--neutral-alpha-weak);
-        }
-        .edu-drow {
-          display: flex;
-          flex-direction: row;
-          align-items: flex-start;
-          gap: 12px;
-          padding: 14px 22px;
-          border-bottom: 1px solid var(--neutral-alpha-weak);
+          padding: 18px 22px 20px;
           box-sizing: border-box;
         }
-        .edu-drow:last-child { border-bottom: none; }
-        .edu-dicon {
-          flex: 0 0 26px;
-          width: 26px;
-          height: 26px;
-          border-radius: 8px;
-          margin-top: 2px;
-          background: var(--neutral-alpha-weak);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: var(--neutral-on-background-weak);
-        }
-        .edu-dtext {
-          flex: 1 1 0;
-          min-width: 0;
-        }
-        .edu-dlabel {
+        .edu-thesis-label {
           display: block;
           font-size: 9.5px;
           font-weight: 700;
           text-transform: uppercase;
-          letter-spacing: 0.1em;
+          letter-spacing: 0.12em;
           color: var(--neutral-on-background-weak);
-          margin-bottom: 4px;
+          margin-bottom: 8px;
         }
-        .edu-dvalue {
+        .edu-thesis-title {
           font-size: 13.5px;
+          font-style: italic;
+          font-weight: 600;
           color: var(--neutral-on-background-strong);
-          line-height: 1.6;
+          line-height: 1.55;
+          margin: 0 0 14px;
           word-break: break-word;
         }
-        .edu-dvalue em { font-style: italic; }
-        .edu-dgoal {
-          font-size: 12.5px;
-          color: var(--neutral-on-background-weak);
-          margin-top: 6px;
-          line-height: 1.6;
-        }
-        /* ── Thesis boxes ── */
-        .edu-thesis-cols {
+        .edu-thesis-boxes {
           display: flex;
           flex-direction: column;
           gap: 8px;
-          margin-top: 12px;
+          margin-bottom: 14px;
         }
-        .edu-thesis-col {
+        .edu-tbox {
           border-radius: 10px;
           border: 1px solid var(--neutral-alpha-weak);
           overflow: hidden;
-          background: var(--neutral-background-medium);
         }
-        .edu-thesis-col-head {
+        .edu-tbox-head {
           display: flex;
           flex-direction: row;
           align-items: center;
@@ -358,24 +341,54 @@ export default async function About() {
           text-transform: uppercase;
           border-bottom: 1px solid var(--neutral-alpha-weak);
         }
-        .edu-thesis-output .edu-thesis-col-head { color: #818cf8; background: color-mix(in srgb, #818cf8 8%, transparent); }
-        .edu-thesis-impact .edu-thesis-col-head { color: #34d399; background: color-mix(in srgb, #34d399 8%, transparent); }
-        .edu-thesis-col-body {
+        .edu-tbox-output .edu-tbox-head { color: #818cf8; background: color-mix(in srgb, #818cf8 9%, transparent); }
+        .edu-tbox-impact .edu-tbox-head { color: #34d399; background: color-mix(in srgb, #34d399 9%, transparent); }
+        .edu-tbox-body {
           padding: 10px 14px;
           font-size: 13px;
           line-height: 1.65;
           color: var(--neutral-on-background-medium);
           word-break: break-word;
         }
+        .edu-thesis-goal {
+          font-size: 13px;
+          color: var(--neutral-on-background-weak);
+          line-height: 1.65;
+          margin: 0 0 14px;
+          word-break: break-word;
+        }
+        /* Akses Jurnal button */
+        .edu-journal-btn {
+          display: inline-flex;
+          flex-direction: row;
+          align-items: center;
+          gap: 7px;
+          padding: 8px 16px;
+          border-radius: 8px;
+          border: 1px solid var(--neutral-alpha-medium);
+          background: var(--neutral-alpha-weak);
+          color: var(--neutral-on-background-strong);
+          font-size: 12px;
+          font-weight: 600;
+          text-decoration: none;
+          cursor: pointer;
+          transition: background 0.15s, border-color 0.15s, transform 0.15s;
+          white-space: nowrap;
+        }
+        .edu-journal-btn:hover {
+          background: var(--neutral-alpha-medium);
+          border-color: var(--neutral-on-background-weak);
+          transform: translateY(-1px);
+        }
         @media (max-width: 480px) {
-          .edu-header { padding: 16px 16px 12px; gap: 12px; }
-          .edu-logo { flex: 0 0 44px; width: 44px; height: 44px; }
-          .edu-univ { font-size: 13.5px; }
-          .edu-chips { padding: 0 16px 14px; }
-          .edu-drow { padding: 12px 16px; }
+          .edu-header  { padding: 16px 16px 14px; gap: 12px; }
+          .edu-logo    { flex: 0 0 44px; width: 44px; height: 44px; }
+          .edu-univ    { font-size: 13.5px; }
+          .edu-chips   { padding: 0 16px 14px; }
+          .edu-thesis  { padding: 14px 16px 16px; }
         }
 
-        /* ══ Org cards ════════════════════════════════════════════ */
+                /* ══ Org cards ════════════════════════════════════════════ */
         .org-card {
           display: flex;
           align-items: center;
@@ -628,6 +641,8 @@ export default async function About() {
                 <ScrollReveal delay={i * 80}>
                   <div className="edu-card">
                     <div className="edu-strip" />
+
+                    {/* ── Header: logo + nama + rumpun ilmu ── */}
                     <div className="edu-header">
                       <div className="edu-logo">
                         {edu.logo ? (
@@ -646,8 +661,16 @@ export default async function About() {
                             {edu.faculty && <>{edu.faculty}{edu.major ? " · " : ""}</>}{edu.major}
                           </p>
                         )}
+                        {edu.field_of_study && (
+                          <span className="edu-field-tag">
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+                            {edu.field_of_study}
+                          </span>
+                        )}
                       </div>
                     </div>
+
+                    {/* ── Chips: degree · tahun · IPK ── */}
                     <div className="edu-chips">
                       <span className="edu-chip chip-degree">{edu.degree}</span>
                       <span className="edu-chip chip-year">
@@ -661,63 +684,59 @@ export default async function About() {
                         </span>
                       )}
                     </div>
-                    {(edu.field_of_study || edu.thesis_title) && (
-                      <div className="edu-details">
-                        {edu.field_of_study && (
-                          <div className="edu-drow">
-                            <div className="edu-dicon">
-                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
-                            </div>
-                            <div className="edu-dtext">
-                              <span className="edu-dlabel">Rumpun Ilmu</span>
-                              <div className="edu-dvalue">{edu.field_of_study}</div>
-                            </div>
+
+                    {/* ── Thesis ── */}
+                    {edu.thesis_title && (
+                      <div className="edu-thesis">
+                        <span className="edu-thesis-label">Skripsi / Tugas Akhir</span>
+                        <p className="edu-thesis-title">&ldquo;{edu.thesis_title}&rdquo;</p>
+
+                        {edu.thesis_goal && !edu.thesis_output && !edu.thesis_impact && (
+                          <p className="edu-thesis-goal">{edu.thesis_goal}</p>
+                        )}
+
+                        {(edu.thesis_output || edu.thesis_impact) && (
+                          <div className="edu-thesis-boxes">
+                            {edu.thesis_output && (
+                              <div className="edu-tbox edu-tbox-output">
+                                <div className="edu-tbox-head">
+                                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
+                                    <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+                                  </svg>
+                                  Output
+                                </div>
+                                <div className="edu-tbox-body">{edu.thesis_output}</div>
+                              </div>
+                            )}
+                            {edu.thesis_impact && (
+                              <div className="edu-tbox edu-tbox-impact">
+                                <div className="edu-tbox-head">
+                                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
+                                    <circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-5"/>
+                                  </svg>
+                                  Dampak
+                                </div>
+                                <div className="edu-tbox-body">{edu.thesis_impact}</div>
+                              </div>
+                            )}
                           </div>
                         )}
-                        {edu.thesis_title && (
-                          <div className="edu-drow">
-                            <div className="edu-dicon">
-                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-                            </div>
-                            <div className="edu-dtext">
-                              <span className="edu-dlabel">Skripsi / Tugas Akhir</span>
-                              <div className="edu-dvalue"><em>&ldquo;{edu.thesis_title}&rdquo;</em></div>
-                              {edu.thesis_goal && !edu.thesis_output && !edu.thesis_impact && (
-                                <div className="edu-dgoal">{edu.thesis_goal}</div>
-                              )}
-                              {(edu.thesis_output || edu.thesis_impact) && (
-                                <div className="edu-thesis-cols">
-                                  {edu.thesis_output && (
-                                    <div className="edu-thesis-col edu-thesis-output">
-                                      <div className="edu-thesis-col-head">
-                                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
-                                          <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
-                                        </svg>
-                                        Output
-                                      </div>
-                                      <div className="edu-thesis-col-body">{edu.thesis_output}</div>
-                                    </div>
-                                  )}
-                                  {edu.thesis_impact && (
-                                    <div className="edu-thesis-col edu-thesis-impact">
-                                      <div className="edu-thesis-col-head">
-                                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
-                                          <circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-5"/>
-                                        </svg>
-                                        Dampak
-                                      </div>
-                                      <div className="edu-thesis-col-body">{edu.thesis_impact}</div>
-                                    </div>
-                                  )}
-                                </div>
-                              )}
-                              {(edu.journal_pdf || edu.journal_url) && (
-                                <div style={{ marginTop: 10 }}>
-                                  <EduJournalModal title={edu.thesis_title} pdfUrl={edu.journal_pdf} externalUrl={edu.journal_url} />
-                                </div>
-                              )}
-                            </div>
-                          </div>
+
+                        {(edu.journal_pdf || edu.journal_url) && (
+                          <a
+                            href={edu.journal_pdf ?? edu.journal_url!}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="edu-journal-btn"
+                          >
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                              <polyline points="14 2 14 8 20 8"/>
+                              <line x1="16" y1="13" x2="8" y2="13"/>
+                              <line x1="16" y1="17" x2="8" y2="17"/>
+                            </svg>
+                            Akses Jurnal
+                          </a>
                         )}
                       </div>
                     )}
