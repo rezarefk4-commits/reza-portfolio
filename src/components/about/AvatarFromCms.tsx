@@ -7,12 +7,14 @@ import { useEffect, useState } from "react";
 export function AvatarFromCms() {
   const [src, setSrc] = useState<string>(person.avatar);
   const [loaded, setLoaded] = useState(false);
+  const [cvUrl, setCvUrl] = useState<string | null>(null);
+  const [cvClicked, setCvClicked] = useState(false);
 
   useEffect(() => {
     const supabase = createClient();
     supabase
       .from("settings")
-      .select("avatar")
+      .select("avatar, cv_file")
       .order("updated_at", { ascending: false })
       .limit(1)
       .single()
@@ -21,8 +23,22 @@ export function AvatarFromCms() {
           const clean = data.avatar.split("?")[0];
           setSrc(clean);
         }
+        if (data?.cv_file) setCvUrl(data.cv_file);
       });
   }, []);
+
+  const handleCvDownload = () => {
+    if (!cvUrl) return;
+    setCvClicked(true);
+    setTimeout(() => setCvClicked(false), 2000);
+    const link = document.createElement("a");
+    link.href = cvUrl;
+    link.download = "Resume-Reza-Refka.pdf";
+    link.target = "_blank";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   return (
     <>
@@ -181,6 +197,50 @@ export function AvatarFromCms() {
           transform: scale(0.97);
         }
 
+        /* Resume button - secondary, outline style */
+        .av-resume {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 7px;
+          margin-top: 8px;
+          width: 100%;
+          padding: 10px 16px;
+          border-radius: 10px;
+          background: transparent;
+          color: var(--neutral-on-background-strong);
+          font-size: 13px;
+          font-weight: 600;
+          font-family: inherit;
+          border: 1px solid var(--neutral-alpha-medium);
+          cursor: pointer;
+          text-decoration: none;
+          letter-spacing: 0.02em;
+          transition: background 0.15s, border-color 0.15s, transform 0.13s;
+          box-sizing: border-box;
+        }
+        .av-resume:hover {
+          background: var(--neutral-alpha-weak);
+          border-color: var(--neutral-alpha-strong);
+        }
+        .av-resume:active {
+          transform: scale(0.97);
+        }
+        .av-resume.av-resume-ok {
+          color: rgb(74,222,128);
+          border-color: rgba(34,197,94,0.38);
+          background: rgba(34,197,94,0.10);
+        }
+        .av-resume-check {
+          stroke-dasharray: 22;
+          stroke-dashoffset: 22;
+          animation: avResumeCheck 0.35s ease forwards;
+        }
+        @keyframes avResumeCheck {
+          from { stroke-dashoffset: 22; }
+          to   { stroke-dashoffset: 0; }
+        }
+
         @media (max-width: 680px) {
           .av-ring-outer { width: 144px; height: 144px; }
           .av-frame       { width: 136px; height: 136px; }
@@ -218,6 +278,29 @@ export function AvatarFromCms() {
           </svg>
           Hubungi Saya
         </a>
+
+        {/* ── Tombol Resume ── */}
+        {cvUrl && (
+          <button
+            type="button"
+            className={`av-resume${cvClicked ? " av-resume-ok" : ""}`}
+            onClick={handleCvDownload}
+            aria-label="Unduh Resume"
+          >
+            {cvClicked ? (
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <polyline className="av-resume-check" points="20 6 9 17 4 12" />
+              </svg>
+            ) : (
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+            )}
+            {cvClicked ? "Tersimpan!" : "Resume"}
+          </button>
+        )}
       </div>
     </>
   );

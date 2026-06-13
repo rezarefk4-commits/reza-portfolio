@@ -602,64 +602,83 @@ export default async function About() {
           color: #a78bfa;
         }
 
-        /* ══ Certificate grid ═════════════════════════════════════ */
+        /* ══ Certificate bento grid ═══════════════════════════════ */
         .cert-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-          gap: 14px;
+          grid-template-columns: repeat(4, 1fr);
+          grid-auto-rows: 1fr;
+          gap: 10px;
         }
         .cert-card {
-          border-radius: 12px;
+          position: relative;
+          border-radius: 10px;
           border: 1px solid var(--neutral-alpha-weak);
           background: var(--neutral-background-medium);
           overflow: hidden;
           text-decoration: none;
-          display: block;
-          transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.2s, border-color 0.2s;
+          display: flex;
+          flex-direction: column;
+          transition: border-color 0.2s, background 0.2s;
+          aspect-ratio: 1 / 1;
         }
         .cert-card:hover {
-          transform: translateY(-3px);
-          box-shadow: 0 6px 24px color-mix(in srgb, var(--neutral-on-background-strong) 8%, transparent);
           border-color: var(--neutral-alpha-medium);
+          background: var(--neutral-background-weak);
+        }
+        /* Bento variety: a few cards span 2 columns */
+        .cert-card.cert-wide {
+          grid-column: span 2;
+          aspect-ratio: 2 / 1;
         }
         .cert-thumb-wrap {
           width: 100%;
+          flex: 1;
           overflow: hidden;
           background: var(--neutral-alpha-weak);
           display: flex;
           align-items: center;
           justify-content: center;
+          min-height: 0;
         }
         .cert-thumb {
           width: 100%;
-          height: auto;
+          height: 100%;
           display: block;
-          object-fit: contain;
+          object-fit: cover;
         }
         .cert-nothumb {
-          width: 100%; height: 80px;
+          width: 100%;
+          flex: 1;
           display: flex; align-items: center; justify-content: center;
           background: linear-gradient(135deg, var(--brand-alpha-weak), var(--accent-alpha-weak));
           color: var(--brand-on-background-medium);
+          min-height: 0;
         }
-        .cert-body { padding: 14px 16px 16px; }
+        .cert-body {
+          padding: 8px 10px;
+          flex-shrink: 0;
+        }
         .cert-issuer {
-          display: inline-flex; align-items: center; gap: 5px;
-          font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em;
+          display: inline-flex; align-items: center; gap: 4px;
+          font-size: 8.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
           color: var(--brand-on-background-medium);
-          margin-bottom: 6px;
+          margin-bottom: 3px;
         }
         .cert-title {
-          font-size: 13.5px; font-weight: 700;
+          font-size: 11px; font-weight: 600;
           color: var(--neutral-on-background-strong);
-          line-height: 1.4;
-          margin: 0 0 6px;
+          line-height: 1.35;
+          margin: 0 0 3px;
           display: -webkit-box;
           -webkit-line-clamp: 2;
           -webkit-box-orient: vertical;
           overflow: hidden;
         }
-        .cert-date { font-size: 11.5px; color: var(--neutral-on-background-weak); display: flex; align-items: center; gap: 5px; }
+        .cert-date { font-size: 10px; color: var(--neutral-on-background-weak); display: flex; align-items: center; gap: 4px; }
+        @media (max-width: 720px) {
+          .cert-grid { grid-template-columns: repeat(2, 1fr); }
+          .cert-card.cert-wide { grid-column: span 2; }
+        }
 
         /* ══ Intro section ════════════════════════════════════════ */
         .intro-text {
@@ -1113,9 +1132,11 @@ export default async function About() {
                 </div>
               </ScrollReveal>
               <div className="cert-grid" style={{ marginBottom: 48 }}>
-                {certificates.map((cert, i) => (
+                {certificates.map((cert, i) => {
+                  const isWide = i % 5 === 0;
+                  return (
                   <ScrollReveal key={cert.id} delay={i * 35}>
-                    <a href={`/certificate/${cert.id}`} className="cert-card">
+                    <a href={`/certificate/${cert.id}`} className={`cert-card${isWide ? " cert-wide" : ""}`}>
                       {cert.thumbnail ? (
                         <div className="cert-thumb-wrap">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -1123,7 +1144,7 @@ export default async function About() {
                         </div>
                       ) : (
                         <div className="cert-nothumb">
-                          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                             <circle cx="12" cy="8" r="5"/><path d="M9 21v-4l3 1 3-1v4"/>
                             <path d="M6 13.18A7 7 0 0 0 5 17v4"/><path d="M18 13.18A7 7 0 0 1 19 17v4"/>
                           </svg>
@@ -1131,18 +1152,19 @@ export default async function About() {
                       )}
                       <div className="cert-body">
                         <div className="cert-issuer">
-                          <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                          <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
                           {cert.issuer}
                         </div>
                         <p className="cert-title">{cert.title_id}</p>
                         <div className="cert-date">
-                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-                          {safeDate(cert.issue_date, "MMMM yyyy")}
+                          <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                          {safeDate(cert.issue_date, "MMM yyyy")}
                         </div>
                       </div>
                     </a>
                   </ScrollReveal>
-                ))}
+                  );
+                })}
               </div>
             </>
           )}
