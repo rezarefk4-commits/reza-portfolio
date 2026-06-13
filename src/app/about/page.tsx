@@ -265,138 +265,92 @@ export default async function About() {
           .tl-card { padding: 14px 14px 16px; }
         }
 
-        /* ══ Education card — minimal & elegant ════════════════ */
+        /* ══ Education cards ══════════════════════════════════════ */
+        /* ══ Education card ════════════════════════════════════ */
         .edu-card {
           border-radius: 14px;
           border: 1px solid var(--neutral-alpha-weak);
           background: var(--neutral-background-medium);
           overflow: hidden;
-          transition: border-color 0.18s, box-shadow 0.18s;
+          transition: border-color 0.2s, box-shadow 0.2s;
         }
         .edu-card:hover {
           border-color: var(--neutral-alpha-medium);
           box-shadow: 0 4px 20px color-mix(in srgb, var(--neutral-on-background-strong) 6%, transparent);
         }
-        .edu-strip {
-          height: 2px;
-          background: linear-gradient(90deg, var(--brand-background-strong) 0%, var(--accent-background-strong) 100%);
-          flex-shrink: 0;
+        /* Top header: logo + identity side by side */
+        .edu-top {
+          display: flex; align-items: center; gap: 14px; padding: 16px 18px;
         }
-        .edu-header {
-          display: flex;
-          align-items: flex-start;
-          gap: 14px;
-          padding: 16px 18px 14px;
-          flex-wrap: nowrap;
-        }
-        /* Logo — ukuran lebih besar agar jelas terlihat */
         .edu-logo {
           flex-shrink: 0;
-          width: 52px;
-          height: 52px;
+          width: 48px; height: 48px;
           border-radius: 10px;
-          background: color-mix(in srgb, var(--neutral-on-background-strong) 6%, transparent);
+          background: #fff;
           border: 1px solid color-mix(in srgb, var(--neutral-on-background-strong) 10%, transparent);
-          display: flex;
-          align-items: center;
-          justify-content: center;
+          display: flex; align-items: center; justify-content: center;
           overflow: hidden;
-          box-shadow: 0 2px 8px color-mix(in srgb, var(--neutral-on-background-strong) 8%, transparent);
         }
-        .edu-logo img {
-          width: 100%;
-          height: 100%;
-          object-fit: contain;
-          padding: 6px;
-          display: block;
-        }
-        .edu-logo svg { flex-shrink: 0; }
-        .edu-meta { flex: 1; min-width: 0; }
+        .edu-logo img { width: 100%; height: 100%; object-fit: contain; display: block; padding: 4px; }
+        .edu-identity { flex: 1; min-width: 0; }
         .edu-univ {
-          font-size: 14px;
-          font-weight: 700;
-          line-height: 1.35;
+          font-size: 14px; font-weight: 700; line-height: 1.35;
           color: var(--neutral-on-background-strong);
-          margin: 0 0 3px;
-          word-break: break-word;
-          white-space: normal;
+          margin: 0 0 3px; word-break: break-word;
         }
         .edu-sub {
-          font-size: 12px;
-          color: var(--neutral-on-background-weak);
-          line-height: 1.45;
-          margin: 0 0 8px;
-          word-break: break-word;
+          font-size: 12px; color: var(--neutral-on-background-weak);
+          line-height: 1.4; margin: 0; word-break: break-word;
         }
-        .edu-chips { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; margin-top: 7px; }
+        /* Chips row below identity */
+        .edu-chips-row {
+          display: flex; flex-wrap: wrap; gap: 6px;
+          padding: 0 18px 14px;
+        }
         .edu-chip {
-          display: inline-flex; align-items: center; gap: 3px;
-          padding: 3px 9px; border-radius: 99px;
-          font-size: 10.5px; font-weight: 600; letter-spacing: 0.02em;
-          white-space: nowrap; line-height: 1.4;
+          display: inline-flex; align-items: center; gap: 4px;
+          padding: 4px 10px; border-radius: 99px;
+          font-size: 11px; font-weight: 600;
+          letter-spacing: 0.03em; white-space: nowrap; line-height: 1;
         }
         .chip-degree { background: var(--brand-alpha-weak); color: var(--brand-on-background-strong); border: 1px solid var(--brand-alpha-medium); }
         .chip-year   { background: var(--neutral-alpha-weak); color: var(--neutral-on-background-weak); border: 1px solid var(--neutral-alpha-weak); }
         .chip-gpa    { background: var(--accent-alpha-weak); color: var(--accent-on-background-strong); border: 1px solid var(--accent-alpha-medium); }
+        /* Details section */
         .edu-details { border-top: 1px solid var(--neutral-alpha-weak); display: flex; flex-direction: column; }
         .edu-drow {
           display: flex; align-items: flex-start; gap: 10px;
-          padding: 12px 18px;
-          border-bottom: 1px solid var(--neutral-alpha-weak);
+          padding: 11px 18px; border-bottom: 1px solid var(--neutral-alpha-weak);
         }
         .edu-drow:last-child { border-bottom: none; }
         .edu-dicon {
-          flex-shrink: 0; margin-top: 2px; width: 22px; height: 22px; border-radius: 6px;
+          flex-shrink: 0; margin-top: 1px;
+          width: 22px; height: 22px; border-radius: 6px;
           background: var(--neutral-alpha-weak);
           display: flex; align-items: center; justify-content: center;
           color: var(--neutral-on-background-weak);
         }
         .edu-dlabel { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--neutral-on-background-weak); display: block; margin-bottom: 3px; }
-        .edu-dvalue { font-size: 13px; color: var(--neutral-on-background-strong); line-height: 1.55; word-break: break-word; }
+        .edu-dvalue { font-size: 13px; color: var(--neutral-on-background-strong); line-height: 1.55; }
         .edu-dvalue em { font-style: italic; }
-        .edu-dgoal { font-size: 12px; color: var(--neutral-on-background-weak); margin-top: 5px; line-height: 1.65; text-align: justify; }
-        /* Journal — text-only entry card */
-        .journal-entry-card {
-          display: flex; align-items: center; gap: 10px;
-          margin-top: 10px; padding: 10px 12px; border-radius: 9px;
-          border: 1px solid var(--neutral-alpha-weak);
-          background: var(--neutral-alpha-weak);
-          cursor: pointer; transition: border-color 0.15s, background 0.15s;
-          text-align: left;
+        .edu-dgoal { font-size: 12px; color: var(--neutral-on-background-weak); margin-top: 5px; line-height: 1.6; text-align: justify; }
+        /* Journal button — text only, minimal */
+        .journal-btn-minimal {
+          display: inline-flex; align-items: center; gap: 6px;
+          margin-top: 10px; padding: 6px 12px; border-radius: 8px;
+          font-size: 12px; font-weight: 600;
+          border: 1px solid var(--brand-alpha-medium);
+          background: var(--brand-alpha-weak);
+          color: var(--brand-on-background-strong);
+          cursor: pointer; transition: background 0.15s, border-color 0.15s;
+          white-space: nowrap; width: fit-content;
         }
-        .journal-entry-card:hover { border-color: var(--brand-alpha-medium); background: var(--brand-alpha-weak); }
-        .journal-entry-left { flex-shrink: 0; }
-        .journal-entry-icon {
-          width: 30px; height: 30px; border-radius: 7px;
-          background: color-mix(in srgb, #ef4444 12%, transparent);
-          border: 1px solid color-mix(in srgb, #ef4444 20%, transparent);
-          display: flex; align-items: center; justify-content: center;
-          color: #ef4444;
-        }
-        .journal-entry-body { flex: 1; min-width: 0; }
-        .journal-entry-label {
-          font-size: 9px; font-weight: 700; text-transform: uppercase;
-          letter-spacing: 0.1em; color: var(--neutral-on-background-weak); margin-bottom: 2px;
-        }
-        .journal-entry-title {
-          font-size: 12px; font-weight: 600; color: var(--neutral-on-background-strong);
-          line-height: 1.45; word-break: break-word;
-        }
-        .journal-entry-sub {
-          font-size: 11px; color: var(--brand-on-background-weak);
-          margin-top: 2px; line-height: 1.4;
-        }
-        .journal-entry-desc {
-          font-size: 11px; color: var(--neutral-on-background-weak);
-          margin-top: 3px; line-height: 1.55;
-          display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
-        }
-        .journal-entry-arrow { flex-shrink: 0; color: var(--brand-on-background-weak); opacity: 0.7; }
-        @media (max-width: 600px) {
-          .edu-header { padding: 14px 14px 12px; gap: 12px; }
+        .journal-btn-minimal:hover { background: var(--brand-alpha-medium); border-color: var(--brand-background-strong); }
+        @media (max-width: 480px) {
+          .edu-top { padding: 14px 14px; gap: 12px; }
+          .edu-chips-row { padding: 0 14px 12px; }
           .edu-drow { padding: 10px 14px; }
-          .edu-univ { font-size: 13.5px; }
-          .edu-logo { width: 48px; height: 48px; }
+          .edu-univ { font-size: 13px; }
         }
 
         /* ══ Org cards ════════════════════════════════════════════ */
@@ -658,37 +612,33 @@ export default async function About() {
             {educations.length > 0 ? educations.map((edu, i) => (
               <ScrollReveal key={edu.id} delay={i * 80}>
                 <div className="edu-card">
-                  <div className="edu-strip" />
-                  {/* ── Header: logo + nama + chips ── */}
-                  <div className="edu-header">
+                  {/* ── Logo + Identity ── */}
+                  <div className="edu-top">
                     <div className="edu-logo">
                       {edu.logo ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img src={edu.logo} alt={edu.university_name} />
                       ) : (
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--brand-on-background-weak)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--brand-on-background-weak)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
                           <path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>
                         </svg>
                       )}
                     </div>
-                    <div className="edu-meta">
+                    <div className="edu-identity">
                       <p className="edu-univ">{edu.university_name}</p>
                       {(edu.faculty || edu.major) && (
-                        <p className="edu-sub">
-                          {[edu.faculty, edu.major].filter(Boolean).join(" · ")}
-                        </p>
+                        <p className="edu-sub">{[edu.faculty, edu.major].filter(Boolean).join(" · ")}</p>
                       )}
-                      <div className="edu-chips">
-                        <span className="edu-chip chip-degree">{edu.degree}</span>
-                        <span className="edu-chip chip-year">
-                          <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-                          {edu.year_start}–{edu.year_end || "kini"}
-                        </span>
-                        {edu.gpa && (
-                          <span className="edu-chip chip-gpa">IPK {edu.gpa}</span>
-                        )}
-                      </div>
                     </div>
+                  </div>
+                  {/* ── Chips ── */}
+                  <div className="edu-chips-row">
+                    <span className="edu-chip chip-degree">{edu.degree}</span>
+                    <span className="edu-chip chip-year">
+                      <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                      {edu.year_start} – {edu.year_end || "Sekarang"}
+                    </span>
+                    {edu.gpa && <span className="edu-chip chip-gpa">IPK {edu.gpa}</span>}
                   </div>
                   {/* ── Details ── */}
                   {(edu.field_of_study || edu.thesis_title) && (
@@ -713,7 +663,6 @@ export default async function About() {
                             <span className="edu-dlabel">Skripsi / Tugas Akhir</span>
                             <div className="edu-dvalue"><em>&ldquo;{edu.thesis_title}&rdquo;</em></div>
                             {edu.thesis_goal && <div className="edu-dgoal">{edu.thesis_goal}</div>}
-                            {/* Journal — compact thumbnail card */}
                             {(edu.journal_pdf || edu.journal_url) && (
                               <EduJournalModal
                                 title={edu.thesis_title}
