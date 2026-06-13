@@ -12,11 +12,11 @@ const empty = (): Omit<AboutEducation, "id" | "created_at" | "updated_at"> => ({
   university_name: "",
   faculty: "",
   major: "",
-  degree: "S1",
+  degree: "S1",          // hidden, tetap dikirim ke DB tapi tidak ditampilkan
   year_start: new Date().getFullYear().toString(),
   year_end: "",
   gpa: "",
-  field_of_study: "",
+  field_of_study: "",    // hidden, tetap ada di type tapi tidak ditampilkan
   thesis_title: "",
   thesis_goal: "",
   thesis_output: "",
@@ -122,13 +122,8 @@ export function EducationClient({ initialData }: Props) {
           </div>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
-          <div>
-            <div style={labelStyle}>Jenjang</div>
-            <select value={editing.degree ?? "S1"} onChange={(e) => set("degree", e.target.value)} style={inputStyle}>
-              {["D3","S1","S2","S3","Profesi","Vokasi"].map((d) => <option key={d}>{d}</option>)}
-            </select>
-          </div>
+        {/* Tahun saja — degree & field_of_study dihapus dari form */}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
           <div>
             <div style={labelStyle}>Tahun Masuk</div>
             <Input id="ys" value={editing.year_start ?? ""}
@@ -143,20 +138,16 @@ export function EducationClient({ initialData }: Props) {
           </div>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-          <div>
-            <div style={labelStyle}>IPK</div>
-            <Input id="gpa" value={editing.gpa ?? ""}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => set("gpa", e.target.value)}
-              placeholder="3.85" />
-          </div>
-          <div>
-            <div style={labelStyle}>Fokus / Rumpun Ilmu</div>
-            <Input id="fos" value={editing.field_of_study ?? ""}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => set("field_of_study", e.target.value)}
-              placeholder="Ilmu Komputer" />
-          </div>
+        <div>
+          <div style={labelStyle}>IPK</div>
+          <Input id="gpa" value={editing.gpa ?? ""}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => set("gpa", e.target.value)}
+            placeholder="3.91" />
         </div>
+
+        {/* Hidden fields — tetap dikirim agar tidak null di DB */}
+        <input type="hidden" value={editing.degree ?? "S1"} onChange={() => {}} />
+        <input type="hidden" value={editing.field_of_study ?? ""} onChange={() => {}} />
       </SectionBox>
 
       {/* Skripsi / Penelitian */}
@@ -193,7 +184,7 @@ export function EducationClient({ initialData }: Props) {
                 value={editing.thesis_output ?? ""}
                 onChange={(e) => set("thesis_output", e.target.value)}
                 rows={5}
-                placeholder="Contoh: Aplikasi web berbasis ML untuk prediksi harga properti dengan akurasi 94%. Model Random Forest yang ter-publish di Kaggle. Dataset publik 12.000 record."
+                placeholder="Contoh: Model CNN yang mampu mengklasifikasikan motif kain tenun Sutra Bugis dengan akurasi 88%."
                 style={{ ...inputStyle, resize: "vertical" as const, fontSize: 13 }}
               />
               <div style={{ fontSize: 11, color: "var(--neutral-on-background-weak)", marginTop: 6, lineHeight: 1.5 }}>
@@ -225,7 +216,7 @@ export function EducationClient({ initialData }: Props) {
                 value={editing.thesis_impact ?? ""}
                 onChange={(e) => set("thesis_impact", e.target.value)}
                 rows={5}
-                placeholder="Contoh: Membantu agen properti memperkirakan harga dengan lebih cepat. Mengurangi waktu survei 60%. Berkontribusi pada riset pasar properti di Makassar."
+                placeholder="Contoh: Memperkuat pelestarian budaya Bugis melalui teknologi AI dan meningkatkan akses masyarakat terhadap pengenalan motif tenun."
                 style={{ ...inputStyle, resize: "vertical" as const, fontSize: 13 }}
               />
               <div style={{ fontSize: 11, color: "var(--neutral-on-background-weak)", marginTop: 6, lineHeight: 1.5 }}>
@@ -235,15 +226,14 @@ export function EducationClient({ initialData }: Props) {
           </div>
         </div>
 
-        {/* thesis_goal - legacy field, hidden tapi tetap tersimpan */}
+        {/* thesis_goal — hidden */}
         <input type="hidden" value={editing.thesis_goal ?? ""} onChange={() => {}} />
       </SectionBox>
 
       {/* Jurnal / Akses Dokumen */}
       <SectionBox title="Jurnal &amp; Akses Dokumen">
         <div style={{ padding: "10px 12px", borderRadius: 10, background: "var(--brand-alpha-weak)", border: "1px solid var(--brand-alpha-medium)", fontSize: 12, color: "var(--brand-on-background-weak)", lineHeight: 1.6 }}>
-          💡 Upload PDF jurnal/skripsi agar pengunjung bisa membaca langsung di halaman About (preview dokumen scrollable).
-          URL eksternal bersifat opsional sebagai sumber asli.
+          💡 Upload PDF jurnal/skripsi agar pengunjung bisa membaca langsung di halaman About — klik tombol <strong>"Baca Jurnal"</strong> akan membuka preview scrollable dengan background blur yang elegan.
         </div>
 
         <div>
@@ -277,7 +267,7 @@ export function EducationClient({ initialData }: Props) {
         </div>
         <div style={{ padding: 16 }}>
           <Text variant="body-default-xs" onBackground="neutral-weak" style={{ marginBottom: 12 }}>
-            PNG transparan disarankan. Bentuk logo akan otomatis mengikuti card (bulat/persegi).
+            PNG transparan disarankan. Logo akan tampil bulat dengan efek kilau di halaman About.
           </Text>
           <ImageUpload bucket="media" value={editing.logo ?? ""} onChange={(url) => set("logo", url)} />
         </div>
@@ -355,7 +345,7 @@ export function EducationClient({ initialData }: Props) {
                 )}
               </div>
               <Text variant="body-default-s" onBackground="neutral-weak">
-                {edu.major} · {edu.degree} · {edu.year_start}–{edu.year_end || "Sekarang"}
+                {edu.major} · {edu.year_start}–{edu.year_end || "Sekarang"}
                 {edu.gpa ? ` · IPK ${edu.gpa}` : ""}
               </Text>
               {edu.thesis_title && (
