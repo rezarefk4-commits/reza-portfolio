@@ -13,7 +13,16 @@ export interface GalleryItem {
   sort_order: number;
 }
 
-export type GalleryDisplayMode = "slider" | "scroll-horizontal" | "scroll-vertical";
+/**
+ * Mode tampilan gallery di halaman detail proyek:
+ *  - "slider"             : default — 1 media sekaligus, tombol prev/next + thumbnail strip
+ *  - "scroll-horizontal"  : semua media berjajar kanan, scroll geser (mousewheel / drag)
+ *  - "scroll-vertical"    : semua media bertumpuk, scroll atas-bawah
+ */
+export type GalleryDisplayMode =
+  | "slider"
+  | "scroll-horizontal"
+  | "scroll-vertical";
 
 export interface Project {
   id: string;
@@ -23,7 +32,6 @@ export interface Project {
   category: ProjectCategory;
   thumbnail: string | null;
   gallery: GalleryItem[];
-  gallery_display_mode: GalleryDisplayMode | null;
   description_id: string;
   description_en: string;
   content_id: string;
@@ -33,6 +41,7 @@ export interface Project {
   featured: boolean;
   published: boolean;
   tools: string[];
+  gallery_display_mode: GalleryDisplayMode;
   created_at: string;
   updated_at: string;
 }
@@ -47,8 +56,6 @@ export interface Certificate {
   issue_date: string;
   thumbnail: string | null;
   pdf: string | null;
-  /** Array URL gambar sertifikat untuk slider (jpg/png/webp) */
-  images: string[] | null;
   created_at: string;
   updated_at: string;
 }
@@ -176,6 +183,8 @@ export interface AboutEducation {
   field_of_study: string | null;
   thesis_title: string | null;
   thesis_goal: string | null;
+  thesis_output: string | null;
+  thesis_impact: string | null;
   journal_url: string | null;
   journal_pdf: string | null;
   logo: string | null;
@@ -222,12 +231,5 @@ export interface AboutOrganization {
   logo: string | null;
   sort_order: number;
   created_at: string;
-  updated_at: string;
-}
-
-export interface AboutIntro {
-  id: string;
-  bio_id: string;
-  bio_en: string;
   updated_at: string;
 }

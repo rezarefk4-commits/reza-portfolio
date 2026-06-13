@@ -5,7 +5,6 @@ import { Column, Row, Text, Button, Input, Line, Card } from "@once-ui-system/co
 import { createClient } from "@/lib/supabase/client";
 import { ImageUpload } from "@/components/admin/ImageUpload";
 import type { AboutEducation } from "@/lib/types";
-import { ConfirmModal } from "@/components/admin/ConfirmModal";
 
 interface Props { initialData: AboutEducation[]; }
 
@@ -20,6 +19,8 @@ const empty = (): Omit<AboutEducation, "id" | "created_at" | "updated_at"> => ({
   field_of_study: "",
   thesis_title: "",
   thesis_goal: "",
+  thesis_output: "",
+  thesis_impact: "",
   journal_url: "",
   journal_pdf: "",
   logo: "",
@@ -58,7 +59,6 @@ export function EducationClient({ initialData }: Props) {
   const [editing, setEditing] = useState<Partial<AboutEducation> | null>(null);
   const [isNew, setIsNew]     = useState(false);
   const [loading, setLoading] = useState(false);
-  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [msg, setMsg]         = useState("");
 
   const set = (k: string, v: unknown) => setEditing((e) => e ? { ...e, [k]: v } : e);
@@ -87,10 +87,8 @@ export function EducationClient({ initialData }: Props) {
     setLoading(false);
   };
 
-  const handleDelete = (id: string) => { setConfirmDeleteId(id); };
-
-  const doDeleteEdu = async (id: string) => {
-    setConfirmDeleteId(null);
+  const handleDelete = async (id: string) => {
+    if (!confirm("Hapus data pendidikan ini?")) return;
     await createClient().from("about_education").delete().eq("id", id);
     setItems((p) => p.filter((x) => x.id !== id));
     if (editing?.id === id) setEditing(null);
@@ -169,16 +167,76 @@ export function EducationClient({ initialData }: Props) {
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => set("thesis_title", e.target.value)}
             placeholder="Sistem Prediksi ... Menggunakan ..." />
         </div>
-        <div>
-          <div style={labelStyle}>Dampak &amp; Manfaat Penelitian</div>
-          <textarea value={editing.thesis_goal ?? ""} onChange={(e) => set("thesis_goal", e.target.value)}
-            rows={4}
-            placeholder="Penelitian ini bertujuan untuk... Manfaatnya adalah... Dampak yang dihasilkan..."
-            style={{ ...inputStyle, resize: "vertical" }} />
-          <div style={{ fontSize: 11, color: "var(--neutral-on-background-weak)", marginTop: 4 }}>
-            Deskripsikan dampak dan manfaat penelitian secara singkat. Akan tampil di kartu pendidikan.
+
+        {/* 2 kolom: Output & Dampak */}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+          {/* Kolom Output */}
+          <div style={{
+            borderRadius: 12, border: "1px solid var(--neutral-alpha-medium)",
+            background: "var(--neutral-background-strong)", overflow: "hidden",
+          }}>
+            <div style={{
+              padding: "10px 14px",
+              borderBottom: "1px solid var(--neutral-alpha-weak)",
+              background: "color-mix(in srgb, #818cf8 8%, transparent)",
+              display: "flex", alignItems: "center", gap: 8,
+            }}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#818cf8" strokeWidth="2.2" strokeLinecap="round">
+                <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+              </svg>
+              <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.06em", color: "#818cf8", textTransform: "uppercase" as const }}>
+                Output / Hasil
+              </span>
+            </div>
+            <div style={{ padding: 12 }}>
+              <textarea
+                value={editing.thesis_output ?? ""}
+                onChange={(e) => set("thesis_output", e.target.value)}
+                rows={5}
+                placeholder="Contoh: Aplikasi web berbasis ML untuk prediksi harga properti dengan akurasi 94%. Model Random Forest yang ter-publish di Kaggle. Dataset publik 12.000 record."
+                style={{ ...inputStyle, resize: "vertical" as const, fontSize: 13 }}
+              />
+              <div style={{ fontSize: 11, color: "var(--neutral-on-background-weak)", marginTop: 6, lineHeight: 1.5 }}>
+                Sebutkan produk, model, sistem, atau artefak konkret yang dihasilkan.
+              </div>
+            </div>
+          </div>
+
+          {/* Kolom Dampak */}
+          <div style={{
+            borderRadius: 12, border: "1px solid var(--neutral-alpha-medium)",
+            background: "var(--neutral-background-strong)", overflow: "hidden",
+          }}>
+            <div style={{
+              padding: "10px 14px",
+              borderBottom: "1px solid var(--neutral-alpha-weak)",
+              background: "color-mix(in srgb, #34d399 8%, transparent)",
+              display: "flex", alignItems: "center", gap: 8,
+            }}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#34d399" strokeWidth="2.2" strokeLinecap="round">
+                <circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-5"/>
+              </svg>
+              <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.06em", color: "#34d399", textTransform: "uppercase" as const }}>
+                Dampak / Manfaat
+              </span>
+            </div>
+            <div style={{ padding: 12 }}>
+              <textarea
+                value={editing.thesis_impact ?? ""}
+                onChange={(e) => set("thesis_impact", e.target.value)}
+                rows={5}
+                placeholder="Contoh: Membantu agen properti memperkirakan harga dengan lebih cepat. Mengurangi waktu survei 60%. Berkontribusi pada riset pasar properti di Makassar."
+                style={{ ...inputStyle, resize: "vertical" as const, fontSize: 13 }}
+              />
+              <div style={{ fontSize: 11, color: "var(--neutral-on-background-weak)", marginTop: 6, lineHeight: 1.5 }}>
+                Dampak nyata bagi pengguna, bidang ilmu, atau masyarakat.
+              </div>
+            </div>
           </div>
         </div>
+
+        {/* thesis_goal - legacy field, hidden tapi tetap tersimpan */}
+        <input type="hidden" value={editing.thesis_goal ?? ""} onChange={() => {}} />
       </SectionBox>
 
       {/* Jurnal / Akses Dokumen */}
@@ -243,8 +301,7 @@ export function EducationClient({ initialData }: Props) {
 
   // ── LIST ──────────────────────────────────────────────────────────
   return (
-    <>
-        <Column fillWidth gap="m">
+    <Column fillWidth gap="m">
       <Button onClick={() => { setEditing(empty()); setIsNew(true); }}
         variant="primary" size="m" prefixIcon="plus">
         Tambah Pendidikan
@@ -312,14 +369,5 @@ export function EducationClient({ initialData }: Props) {
         </div>
       ))}
     </Column>
-      <ConfirmModal
-        open={!!confirmDeleteId}
-        title="Hapus Data Pendidikan?"
-        message="Data pendidikan ini akan dihapus permanen."
-        confirmLabel="Ya, Hapus"
-        onConfirm={() => confirmDeleteId && doDeleteEdu(confirmDeleteId)}
-        onCancel={() => setConfirmDeleteId(null)}
-      />
-    </>
   );
 }
