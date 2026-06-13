@@ -172,6 +172,14 @@ export interface ActivityLog {
 }
 
 // ─── About CMS Types ──────────────────────────────────────────────────────────
+export interface AboutIntro {
+  id: string;
+  bio_id: string;
+  bio_en: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface AboutEducation {
   id: string;
   university_name: string;
