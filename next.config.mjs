@@ -41,14 +41,8 @@ const nextConfig = {
     ]
   },
 
-  webpack(config) {
-    // Handle pdf.worker.min.mjs so Next.js bundles it correctly
-    config.resolve.alias = {
-      ...config.resolve.alias,
-      canvas: false,
-    };
-    return config;
-  },
+  // Turbopack config (Next.js 16 default bundler)
+  turbopack: {},
 }
 
 export default nextConfig
