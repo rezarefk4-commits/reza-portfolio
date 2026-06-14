@@ -494,54 +494,56 @@ export default async function About() {
           color: #a78bfa;
         }
 
-        /* ══ Certificate bento grid ═══════════════════════════════ */
+        /* ══ Certificate grid — Instagram 4:5 ratio ═══════════════ */
         .cert-grid {
           display: grid;
           grid-template-columns: repeat(4, 1fr);
-          grid-auto-rows: 200px;
           gap: 10px;
         }
-        /* ScrollReveal wrapper must fill grid cell */
+        /* ScrollReveal wrapper transparent to grid */
         .cert-grid > div {
           display: contents;
         }
         .cert-card {
           position: relative;
-          border-radius: 10px;
+          border-radius: 12px;
           border: 1px solid var(--neutral-alpha-weak);
           background: var(--neutral-background-medium);
           overflow: hidden;
           text-decoration: none;
           display: flex;
           flex-direction: column;
-          transition: border-color 0.2s, background 0.2s, transform 0.2s;
-          height: 100%;
+          /* Instagram portrait 4:5 */
+          aspect-ratio: 4 / 5;
+          transition: border-color 0.2s, transform 0.22s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.2s;
         }
         .cert-card:hover {
           border-color: var(--neutral-alpha-medium);
-          background: var(--neutral-background-weak);
-          transform: translateY(-2px);
+          transform: translateY(-4px);
+          box-shadow: 0 12px 32px rgba(0,0,0,0.18);
         }
-        /* Bento variety: a few cards span 2 columns */
+        /* No more bento wide — all cards uniform */
         .cert-card.cert-wide {
-          grid-column: span 2;
+          grid-column: span 1;
+          aspect-ratio: 4 / 5;
         }
         .cert-thumb-wrap {
           width: 100%;
           flex: 1;
+          min-height: 0;
           overflow: hidden;
-          background: var(--neutral-alpha-weak);
+          background: color-mix(in srgb, var(--neutral-on-background-strong) 4%, transparent);
           display: flex;
           align-items: center;
           justify-content: center;
-          min-height: 0;
         }
         .cert-thumb {
           width: 100%;
           height: 100%;
           display: block;
           object-fit: contain;
-          padding: 4px;
+          padding: 10px;
+          box-sizing: border-box;
         }
         .cert-nothumb {
           width: 100%;
@@ -549,33 +551,35 @@ export default async function About() {
           display: flex; align-items: center; justify-content: center;
           background: linear-gradient(135deg, var(--brand-alpha-weak), var(--accent-alpha-weak));
           color: var(--brand-on-background-medium);
-          min-height: 0;
         }
         .cert-body {
-          padding: 8px 10px;
+          padding: 10px 12px 12px;
           flex-shrink: 0;
           border-top: 1px solid var(--neutral-alpha-weak);
+          background: var(--neutral-background-medium);
         }
         .cert-issuer {
           display: inline-flex; align-items: center; gap: 4px;
           font-size: 8.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
           color: var(--brand-on-background-medium);
-          margin-bottom: 3px;
+          margin-bottom: 4px;
         }
         .cert-title {
-          font-size: 11px; font-weight: 600;
+          font-size: 11.5px; font-weight: 700;
           color: var(--neutral-on-background-strong);
-          line-height: 1.35;
-          margin: 0 0 3px;
+          line-height: 1.4;
+          margin: 0 0 5px;
           display: -webkit-box;
           -webkit-line-clamp: 2;
           -webkit-box-orient: vertical;
           overflow: hidden;
         }
         .cert-date { font-size: 10px; color: var(--neutral-on-background-weak); display: flex; align-items: center; gap: 4px; }
-        @media (max-width: 720px) {
-          .cert-grid { grid-template-columns: repeat(2, 1fr); grid-auto-rows: 180px; }
-          .cert-card.cert-wide { grid-column: span 2; }
+        @media (max-width: 900px) {
+          .cert-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+        @media (max-width: 600px) {
+          .cert-grid { grid-template-columns: repeat(2, 1fr); }
         }
 
         /* ══ Intro section ════════════════════════════════════════ */
@@ -962,11 +966,9 @@ export default async function About() {
               </ScrollReveal>
               <div className="cert-grid" style={{ marginBottom: 48 }}>
                 {certificates.map((cert, i) => {
-                  // Only make card wide if it has a thumbnail (no-thumb wide card looks bad)
-                  const isWide = i % 5 === 0 && !!cert.thumbnail;
                   return (
                   <ScrollReveal key={cert.id} delay={i * 35}>
-                    <a href={`/certificate/${cert.id}`} className={`cert-card${isWide ? " cert-wide" : ""}`}>
+                    <a href={`/certificate/${cert.id}`} className="cert-card">
                       {cert.thumbnail ? (
                         <div className="cert-thumb-wrap">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
