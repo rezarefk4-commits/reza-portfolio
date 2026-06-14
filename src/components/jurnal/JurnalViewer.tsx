@@ -129,6 +129,7 @@ export function JurnalViewer({ proxyUrl, title }: JurnalViewerProps) {
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
+    const container = el; // non-null capture for async closures
     let cancelled = false;
 
     async function renderPdf() {
@@ -149,7 +150,7 @@ export function JurnalViewer({ proxyUrl, title }: JurnalViewerProps) {
           if (cancelled) break;
 
           /* Scale to fit container width, minimum 900px */
-          const containerW = el.clientWidth - 48; // padding
+          const containerW = container.clientWidth - 48; // padding
           const scale = Math.max(containerW, 900) / page.getViewport({ scale: 1 }).width;
           const viewport = page.getViewport({ scale });
 
@@ -175,7 +176,7 @@ export function JurnalViewer({ proxyUrl, title }: JurnalViewerProps) {
           `;
 
           wrapper.appendChild(canvas);
-          el.appendChild(wrapper);
+          container.appendChild(wrapper);
 
           const ctx = canvas.getContext("2d");
           if (ctx) {
