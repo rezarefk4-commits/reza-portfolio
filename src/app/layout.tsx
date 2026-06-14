@@ -18,13 +18,27 @@ import { baseURL, effects, fonts, style, dataStyle, home } from "@/resources";
 import { getSettings } from "@/lib/db";
 
 export async function generateMetadata() {
-  return Meta.generate({
+  const settings = await getSettings();
+  const faviconTs = settings?.updated_at
+    ? new Date(settings.updated_at).getTime()
+    : Date.now();
+
+  const base = Meta.generate({
     title: home.title,
     description: home.description,
     baseURL: baseURL,
     path: home.path,
     image: home.image,
   });
+
+  return {
+    ...base,
+    icons: {
+      icon: [{ url: `/api/favicon?v=${faviconTs}`, type: "image/png" }],
+      apple: [{ url: `/api/icon?size=192&v=${faviconTs}`, sizes: "192x192", type: "image/png" }],
+      shortcut: `/api/favicon?v=${faviconTs}`,
+    },
+  };
 }
 
 export default async function RootLayout({
@@ -32,12 +46,6 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // Ambil timestamp settings untuk cache-busting favicon
-  const settings = await getSettings();
-  const faviconTs = settings?.updated_at
-    ? new Date(settings.updated_at).getTime()
-    : Date.now();
-
   return (
     <Flex
       suppressHydrationWarning
@@ -52,9 +60,6 @@ export default async function RootLayout({
       )}
     >
       <head>
-        {/* Favicon dengan cache-busting — berubah otomatis setiap settings disimpan */}
-        <link rel="icon" href={`/api/favicon?v=${faviconTs}`} type="image/png" />
-        <link rel="apple-touch-icon" href={`/api/icon?size=192&v=${faviconTs}`} />
         <script
           id="theme-init"
           dangerouslySetInnerHTML={{
@@ -64,7 +69,6 @@ export default async function RootLayout({
                   const root = document.documentElement;
                   const defaultTheme = 'system';
                   
-                  // Set defaults from config
                   const config = ${JSON.stringify({
                     brand: style.brand,
                     accent: style.accent,
@@ -78,12 +82,10 @@ export default async function RootLayout({
                     "viz-style": dataStyle.variant,
                   })};
                   
-                  // Apply default values
                   Object.entries(config).forEach(([key, value]) => {
                     root.setAttribute('data-' + key, value);
                   });
                   
-                  // Resolve theme
                   const resolveTheme = (themeValue) => {
                     if (!themeValue || themeValue === 'system') {
                       return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
@@ -91,12 +93,10 @@ export default async function RootLayout({
                     return themeValue;
                   };
                   
-                  // Apply saved theme
                   const savedTheme = localStorage.getItem('data-theme');
                   const resolvedTheme = resolveTheme(savedTheme);
                   root.setAttribute('data-theme', resolvedTheme);
                   
-                  // Apply any saved style overrides
                   const styleKeys = Object.keys(config);
                   styleKeys.forEach(key => {
                     const value = localStorage.getItem('data-' + key);
