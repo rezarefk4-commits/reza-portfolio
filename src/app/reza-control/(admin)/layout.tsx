@@ -2,11 +2,23 @@ import type { Metadata } from "next";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import { getSettings } from "@/lib/db";
 
-export const metadata: Metadata = {
-  title: "Reza Control – CMS",
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSettings();
+  const faviconTs = settings?.updated_at
+    ? new Date(settings.updated_at).getTime()
+    : Date.now();
+
+  return {
+    title: "Reza Control – CMS",
+    robots: { index: false, follow: false },
+    icons: {
+      icon: [{ url: `/api/favicon?v=${faviconTs}`, type: "image/png" }],
+      shortcut: `/api/favicon?v=${faviconTs}`,
+    },
+  };
+}
 
 export default async function AdminLayout({
   children,
@@ -22,5 +34,20 @@ export default async function AdminLayout({
     redirect("/reza-control/login");
   }
 
-  return <AdminShell user={user}>{children}</AdminShell>;
+  // Inject favicon langsung lewat <head> karena admin layout override root layout icons
+  const settings = await getSettings();
+  const faviconTs = settings?.updated_at
+    ? new Date(settings.updated_at).getTime()
+    : Date.now();
+  const faviconUrl = `/api/favicon?v=${faviconTs}`;
+
+  return (
+    <>
+      <head>
+        <link rel="icon" type="image/png" href={faviconUrl} />
+        <link rel="shortcut icon" type="image/png" href={faviconUrl} />
+      </head>
+      <AdminShell user={user}>{children}</AdminShell>
+    </>
+  );
 }
