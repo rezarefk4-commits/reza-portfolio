@@ -498,8 +498,12 @@ export default async function About() {
         .cert-grid {
           display: grid;
           grid-template-columns: repeat(4, 1fr);
-          grid-auto-rows: 1fr;
+          grid-auto-rows: 200px;
           gap: 10px;
+        }
+        /* ScrollReveal wrapper must fill grid cell */
+        .cert-grid > div {
+          display: contents;
         }
         .cert-card {
           position: relative;
@@ -510,17 +514,17 @@ export default async function About() {
           text-decoration: none;
           display: flex;
           flex-direction: column;
-          transition: border-color 0.2s, background 0.2s;
-          aspect-ratio: 1 / 1;
+          transition: border-color 0.2s, background 0.2s, transform 0.2s;
+          height: 100%;
         }
         .cert-card:hover {
           border-color: var(--neutral-alpha-medium);
           background: var(--neutral-background-weak);
+          transform: translateY(-2px);
         }
         /* Bento variety: a few cards span 2 columns */
         .cert-card.cert-wide {
           grid-column: span 2;
-          aspect-ratio: 2 / 1;
         }
         .cert-thumb-wrap {
           width: 100%;
@@ -536,7 +540,8 @@ export default async function About() {
           width: 100%;
           height: 100%;
           display: block;
-          object-fit: cover;
+          object-fit: contain;
+          padding: 4px;
         }
         .cert-nothumb {
           width: 100%;
@@ -549,6 +554,7 @@ export default async function About() {
         .cert-body {
           padding: 8px 10px;
           flex-shrink: 0;
+          border-top: 1px solid var(--neutral-alpha-weak);
         }
         .cert-issuer {
           display: inline-flex; align-items: center; gap: 4px;
@@ -568,7 +574,7 @@ export default async function About() {
         }
         .cert-date { font-size: 10px; color: var(--neutral-on-background-weak); display: flex; align-items: center; gap: 4px; }
         @media (max-width: 720px) {
-          .cert-grid { grid-template-columns: repeat(2, 1fr); }
+          .cert-grid { grid-template-columns: repeat(2, 1fr); grid-auto-rows: 180px; }
           .cert-card.cert-wide { grid-column: span 2; }
         }
 
@@ -956,7 +962,8 @@ export default async function About() {
               </ScrollReveal>
               <div className="cert-grid" style={{ marginBottom: 48 }}>
                 {certificates.map((cert, i) => {
-                  const isWide = i % 5 === 0;
+                  // Only make card wide if it has a thumbnail (no-thumb wide card looks bad)
+                  const isWide = i % 5 === 0 && !!cert.thumbnail;
                   return (
                   <ScrollReveal key={cert.id} delay={i * 35}>
                     <a href={`/certificate/${cert.id}`} className={`cert-card${isWide ? " cert-wide" : ""}`}>
