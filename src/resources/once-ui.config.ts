@@ -27,6 +27,7 @@ const routes: RoutesConfig = {
   "/project": true,
   "/gallery": true,
   "/certificate": true,
+  "/jurnal": true,
   "/reza-control/login": true,
   "/reza-control": true,
   "/reza-control/account": true,
