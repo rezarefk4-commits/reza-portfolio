@@ -135,7 +135,8 @@ export function SettingsForm({ settings }: SettingsFormProps) {
         <Column gap="m">
           <Text variant="body-default-s" onBackground="neutral-weak">
             Upload gambar untuk ikon website yang tampil di tab browser, bookmark, dan shortcut (PWA).
-            Gunakan gambar persegi (1:1) minimal 192×192px, format PNG/JPG/WebP.
+            Gunakan gambar persegi (1:1) minimal 192×192px, format <strong>PNG atau JPG</strong> (disarankan PNG).
+            Kompresi otomatis dinonaktifkan agar format asli terjaga — browser tab hanya support PNG/ICO.
             Jika dikosongkan, sistem otomatis pakai foto profil (Avatar) sebagai ikon.
           </Text>
           <ImageUpload
@@ -143,6 +144,8 @@ export function SettingsForm({ settings }: SettingsFormProps) {
             value={form.favicon ?? ""}
             onChange={(url) => set("favicon", url)}
             autoSaveSettingsKey="favicon"
+            enableCompression={false}
+            accept="image/png,image/jpeg,image/jpg,image/x-icon,.ico,.png,.jpg,.jpeg"
           />
           {form.favicon && (
             <Row gap="m" vertical="center">
