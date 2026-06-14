@@ -55,7 +55,9 @@ function VideoSlide({
   const [duration, setDuration] = useState(0);
   const [error, setError] = useState(false);
   const [showCtrl, setShowCtrl] = useState(true);
-  const [videoRatio, setVideoRatio] = useState<number | null>(null);
+  // ratio terkunci setelah metadata loaded — default 16/9 supaya container tidak blank
+  const [videoRatio, setVideoRatio] = useState<string>("16 / 9");
+  const [ratioReady, setRatioReady] = useState(false);
   const hideRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const proxySrc =
@@ -130,7 +132,12 @@ function VideoSlide({
         background: "#000",
         overflow: "hidden",
         cursor: "pointer",
-        aspectRatio: videoRatio ? `${videoRatio}` : "16/9",
+        // aspect ratio terkunci — tidak akan melebar/collapse saat play
+        aspectRatio: videoRatio,
+        // Sebelum ratio asli diketahui, tampilkan shimmer agar tidak blank
+        ...(ratioReady ? {} : {
+          background: "linear-gradient(90deg,#111 0%,#1a1a1a 50%,#111 100%)",
+        }),
       }}
       onClick={togglePlay}
       onMouseMove={resetHide}
@@ -143,12 +150,14 @@ function VideoSlide({
         loop
         playsInline
         muted={muted}
-        preload="metadata"
+        // preload="auto" agar frame pertama langsung terrender (tidak blank hitam)
+        preload="auto"
         onLoadedMetadata={(e) => {
           const v = e.currentTarget;
           setDuration(v.duration);
           if (v.videoWidth && v.videoHeight) {
-            setVideoRatio(v.videoWidth / v.videoHeight);
+            setVideoRatio(`${v.videoWidth} / ${v.videoHeight}`);
+            setRatioReady(true);
           }
         }}
         onTimeUpdate={(e) => {

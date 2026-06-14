@@ -45,6 +45,9 @@ export default async function RootLayout({
       )}
     >
       <head>
+        {/* Favicon dinamis dari CMS — dihandle oleh /api/favicon */}
+        <link rel="icon" href="/api/favicon" type="image/png" />
+        <link rel="apple-touch-icon" href="/api/icon?size=192" />
         <script
           id="theme-init"
           dangerouslySetInnerHTML={{

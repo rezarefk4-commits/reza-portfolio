@@ -130,6 +130,42 @@ export function SettingsForm({ settings }: SettingsFormProps) {
         />
       )}
 
+      {/* Favicon / Ikon Website */}
+      {section("Ikon Website (Favicon)",
+        <Column gap="m">
+          <Text variant="body-default-s" onBackground="neutral-weak">
+            Upload gambar untuk ikon website yang tampil di tab browser, bookmark, dan shortcut (PWA).
+            Gunakan gambar persegi (1:1) minimal 192×192px, format PNG/JPG/WebP.
+            Jika dikosongkan, sistem otomatis pakai foto profil (Avatar) sebagai ikon.
+          </Text>
+          <ImageUpload
+            bucket="avatars"
+            value={form.favicon ?? ""}
+            onChange={(url) => set("favicon", url)}
+            autoSaveSettingsKey="favicon"
+          />
+          {form.favicon && (
+            <Row gap="m" vertical="center">
+              <div style={{
+                width: 48, height: 48, borderRadius: 10, overflow: "hidden",
+                border: "1px solid var(--neutral-alpha-medium)",
+                background: "var(--neutral-background-medium)",
+                flexShrink: 0,
+              }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={form.favicon} alt="favicon preview" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              </div>
+              <Column gap="xs">
+                <Text variant="label-strong-s">Preview Favicon</Text>
+                <Text variant="body-default-xs" onBackground="neutral-weak">
+                  Ikon ini akan tampil di tab browser & shortcut setelah disimpan.
+                </Text>
+              </Column>
+            </Row>
+          )}
+        </Column>
+      )}
+
       {/* Hero Section */}
       {section("Hero Section",
         <Column gap="m">
